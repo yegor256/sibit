@@ -37,7 +37,7 @@ $ sibit generate
 E9873D79C6D87FC233AA332626A3A3FE
 ```
 
-Then, yoo create a new [address](https://en.bitcoin.it/wiki/Address),
+Then, you create a new [address](https://en.bitcoin.it/wiki/Address),
 using your private key:
 
 ```
@@ -67,13 +67,14 @@ Here,
 (you can say `S`, `M`, `L`, or `XL` if you want it to be calculated automatically),
 `FROM1,FROM2,...` is a comma-separated list of addresses you are sending your coins from,
 `TO` is the address you are sending to.
-The address retured will contain the residual coins after the transaction is made.
+The address returned will contain the residual coins after the transaction is made.
 
 ## Ruby SDK
 
 You can do the same from your Ruby app:
 
 ```ruby
+require 'sibit'
 sibit = Sibit.new
 pkey = sibit.generate
 address = sibit.create(pkey)
@@ -86,7 +87,7 @@ Should work.
 ## How to contribute
 
 Read [these guidelines](https://www.yegor256.com/2014/04/15/github-guidelines.html).
-Make sure you build is green before you contribute
+Make sure your build is green before you contribute
 your pull request. You will need to have [Ruby](https://www.ruby-lang.org/en/) 2.3+ and
 [Bundler](https://bundler.io/) installed. Then:
 
