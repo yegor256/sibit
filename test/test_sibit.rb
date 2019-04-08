@@ -42,4 +42,10 @@ class TestSibit < Minitest::Test
     assert(!address.nil?)
     assert(/^1[0-9a-zA-Z]+$/.match?(address))
   end
+
+  def test_gets_balance
+    sibit = Sibit.new
+    balance = sibit.balance('1Ma2DrB78K7jmAwaomqZNRMCvgQrNjE2QC')
+    assert(balance > 0)
+  end
 end

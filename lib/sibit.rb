@@ -21,6 +21,8 @@
 # SOFTWARE.
 
 require 'bitcoin'
+require 'typhoeus'
+require 'json'
 
 # Sibit main class.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
@@ -41,5 +43,18 @@ class Sibit
     key = Bitcoin::Key.new
     key.priv = pvt
     key.addr
+  end
+
+  # Get the balance of the address, in satoshi.
+  def balance(address)
+    request = Typhoeus::Request.new(
+      "https://blockchain.info/rawaddr/#{address}",
+      method: :get,
+      headers: {}
+    )
+    request.run
+    response = request.response
+    json = JSON.parse(response.body)
+    json['final_balance']
   end
 end
