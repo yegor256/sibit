@@ -13,12 +13,12 @@
 To understand how Bitcoin protocol works, I recommend you watching
 this [short video](https://www.youtube.com/watch?v=IV9pRBq5A4g).
 
-This is a simple Bitcoin client, to use from command line
+This is a simple Bitcoin client, to use from the command line
 or from your Ruby app. You don't need to run any Bitcoin software,
-no need to install anything, etc. All you need is just a command line
+no need to install anything, and so on. All you need is just a command line
 and [Ruby](https://www.ruby-lang.org/en/) 2.3+.
 
-Install it first:
+This is Ruby gem, install it first:
 
 ```bash
 $ gem install sibit
@@ -30,14 +30,14 @@ Run it and read its output:
 $ sibit --help
 ```
 
-First, you generate a [private key](https://en.bitcoin.it/wiki/Private_key):
+Then, you generate a [private key](https://en.bitcoin.it/wiki/Private_key):
 
 ```bash
 $ sibit generate
 E9873D79C6D87FC233AA332626A3A3FE
 ```
 
-Then, you create a new [address](https://en.bitcoin.it/wiki/Address),
+Next, you create a new [address](https://en.bitcoin.it/wiki/Address),
 using your private key:
 
 ```

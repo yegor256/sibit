@@ -49,6 +49,7 @@ and Ruby 2.3+.'
   s.rdoc_options = ['--charset=UTF-8']
   s.extra_rdoc_files = ['README.md', 'LICENSE.txt']
   s.add_runtime_dependency 'backtrace', '0.3.0'
+  s.add_runtime_dependency 'bitcoin', '0.2.0'
   s.add_runtime_dependency 'slop', '4.6.2'
   s.add_development_dependency 'codecov', '0.1.10'
   s.add_development_dependency 'cucumber', '1.3.17'

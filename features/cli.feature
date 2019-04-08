@@ -5,3 +5,11 @@ Feature: Command Line Processing
     When I run bin/sibit with "--help"
     Then Exit code is zero
     And Stdout contains "--help"
+
+  Scenario: Bitcoin private key can be generated
+    When I run bin/sibit with "generate"
+    Then Exit code is zero
+
+  Scenario: Bitcoin address can be created
+    When I run bin/sibit with "create 46feba063e9b59a8ae0dba68abd39a3cb8f52089e776576d6eb1bb5bfec123d1"
+    Then Exit code is zero

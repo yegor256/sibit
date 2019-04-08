@@ -32,5 +32,14 @@ class TestSibit < Minitest::Test
     sibit = Sibit.new
     pkey = sibit.generate
     assert(!pkey.nil?)
+    assert(/^[0-9a-f]{64}$/.match?(pkey))
+  end
+
+  def test_create_address
+    sibit = Sibit.new
+    pkey = sibit.generate
+    address = sibit.create(pkey)
+    assert(!address.nil?)
+    assert(/^1[0-9a-zA-Z]+$/.match?(address))
   end
 end

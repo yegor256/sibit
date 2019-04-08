@@ -20,6 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+require 'bitcoin'
+
 # Sibit main class.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
 # Copyright:: Copyright (c) 2019 Yegor Bugayenko
@@ -30,6 +32,14 @@ class Sibit
 
   # Generate new Bitcon private key.
   def generate
-    'test'
+    key = Bitcoin::Key.generate
+    key.priv
+  end
+
+  # Create Bitcon address using the private key.
+  def create(pvt)
+    key = Bitcoin::Key.new
+    key.priv = pvt
+    key.addr
   end
 end

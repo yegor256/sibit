@@ -37,8 +37,19 @@ begin
   rescue Slop::Error => ex
     raise "#{ex.message}"
   end
-  Sibit.new(opts).send
+  sibit = Sibit.new
+  case opts.arguments[0]
+  when 'generate'
+    puts sibit.generate
+  when 'create'
+    pvt = opts.arguments[1]
+    raise 'Private key argument is required' if pvt.nil?
+    puts sibit.create(pvt)
+  else
+    raise "Command #{opts.arguments[0]} is not supported"
+  end
 rescue StandardError => ex
-  puts Backtrace.new(ex).to_s
+  puts "ERROR: #{ex.message}"
+  # puts Backtrace.new(ex).to_s
   exit(255)
 end
