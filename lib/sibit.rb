@@ -57,4 +57,9 @@ class Sibit
     json = JSON.parse(response.body)
     json['final_balance']
   end
+
+  # Send a payment.
+  def pay(_pvt, _amount, _fee, _sources, _target)
+    raise 'Not implemented yet'
+  end
 end
