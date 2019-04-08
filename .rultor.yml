@@ -11,8 +11,8 @@ release:
     bundle install
     rake
     rm -rf *.gem
-    sed -i "s/1\.0\.snapshot/${tag}/g" lib/sibit.rb
-    git add lib/sibit.rb
+    sed -i "s/1\.0\.snapshot/${tag}/g" lib/sibit/version.rb
+    git add lib/sibit/version.rb
     git commit -m "version set to ${tag}"
     gem build sibit.gemspec
     chmod 0600 ../rubygems.yml

@@ -20,43 +20,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-require 'bitcoin'
-require 'typhoeus'
-require 'json'
-
 # Sibit main class.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
 # Copyright:: Copyright (c) 2019 Yegor Bugayenko
 # License:: MIT
 class Sibit
-  # Generate new Bitcon private key.
-  def generate
-    key = Bitcoin::Key.generate
-    key.priv
-  end
-
-  # Create Bitcon address using the private key.
-  def create(pvt)
-    key = Bitcoin::Key.new
-    key.priv = pvt
-    key.addr
-  end
-
-  # Get the balance of the address, in satoshi.
-  def balance(address)
-    request = Typhoeus::Request.new(
-      "https://blockchain.info/rawaddr/#{address}",
-      method: :get,
-      headers: {}
-    )
-    request.run
-    response = request.response
-    json = JSON.parse(response.body)
-    json['final_balance']
-  end
-
-  # Send a payment.
-  def pay(_pvt, _amount, _fee, _sources, _target)
-    raise 'Not implemented yet'
-  end
+  # Current version of the library.
+  VERSION = '1.0.snapshot'
 end
