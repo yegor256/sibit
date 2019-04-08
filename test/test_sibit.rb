@@ -45,7 +45,7 @@ class TestSibit < Minitest::Test
 
   def test_gets_balance
     sibit = Sibit.new
-    balance = sibit.balance('1Ma2DrB78K7jmAwaomqZNRMCvgQrNjE2QC')
-    assert(balance > 0)
+    balance = sibit.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')
+    assert(balance.is_a?(Integer))
   end
 end

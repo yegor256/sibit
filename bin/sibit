@@ -45,6 +45,10 @@ begin
     pvt = opts.arguments[1]
     raise 'Private key argument is required' if pvt.nil?
     puts sibit.create(pvt)
+  when 'balance'
+    address = opts.arguments[1]
+    raise 'Address argument is required' if address.nil?
+    puts sibit.balance(address)
   else
     raise "Command #{opts.arguments[0]} is not supported"
   end

@@ -69,6 +69,11 @@ Here,
 `TO` is the address you are sending to.
 The address returned will contain the residual coins after the transaction is made.
 
+All operations are performed through the
+[Blockchain API](https://www.blockchain.com/api/blockchain_api).
+Transactions are pushed to the Bitcoin network via
+[this relay](https://www.blockchain.com/btc/pushtx).
+
 ## Ruby SDK
 
 You can do the same from your Ruby app:

@@ -13,3 +13,7 @@ Feature: Command Line Processing
   Scenario: Bitcoin address can be created
     When I run bin/sibit with "create 46feba063e9b59a8ae0dba68abd39a3cb8f52089e776576d6eb1bb5bfec123d1"
     Then Exit code is zero
+
+  Scenario: Bitcoin balance can be checked
+    When I run bin/sibit with "balance 1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f"
+    Then Exit code is zero
