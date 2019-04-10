@@ -40,12 +40,13 @@ Options are:"
         puts o
         exit
       end
+      o.bool '--verbose', 'Print all possible debug messages'
     end
   rescue Slop::Error => ex
     raise "#{ex.message}"
   end
   raise 'Try --help' if opts.arguments.empty?
-  sibit = Sibit.new
+  sibit = Sibit.new(log: opts[:verbose] ? STDOUT : nil)
   case opts.arguments[0]
   when 'generate'
     puts sibit.generate
