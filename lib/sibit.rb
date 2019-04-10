@@ -50,7 +50,10 @@ class Sibit
 
   # Get the balance of the address, in satoshi.
   def balance(address)
-    get_json("https://blockchain.info/rawaddr/#{address}")['final_balance']
+    json = get_json("https://blockchain.info/rawaddr/#{address}")
+    debug("Total transactions: #{json['n_tx']}")
+    debug("Received/sent: #{json['total_received']}/#{json['total_sent']}")
+    json['final_balance']
   end
 
   # Send a payment and return the transaction hash.
@@ -66,7 +69,11 @@ class Sibit
     builder = Bitcoin::Builder::TxBuilder.new
     unspent = 0
     size = 100
-    utxos(sources).each do |utxo|
+    utxos = get_json(
+      "https://blockchain.info/unspent?active=#{sources.join('|')}&limit=1000"
+    )['unspent_outputs']
+    debug("#{utxos.count} UTXOs found:")
+    utxos.each do |utxo|
       unspent += utxo['value']
       builder.input do |i|
         i.prev_out(utxo['tx_hash_big_endian'])
@@ -75,6 +82,7 @@ class Sibit
         i.signature_key(key(pvt))
       end
       size += 180
+      debug("  #{utxo['value']}/#{utxo['confirmations']} at #{utxo['tx_hash_big_endian']}")
       break if unspent > satoshi
     end
     raise "Not enough funds to send #{amount}, only #{unspent} left" if unspent < satoshi
@@ -89,25 +97,6 @@ class Sibit
   end
 
   private
-
-  # Retrieve all unspent outputs of the given list of
-  # addresses.
-  def utxos(sources)
-    offset = 0
-    txns = []
-    loop do
-      uri = [
-        'https://blockchain.info/unspent?',
-        "active=#{sources.join('|')}",
-        offset.positive? ? "&offset=#{offset}" : ''
-      ].join
-      list = get_json(uri)['unspent_outputs']
-      txns += list
-      break if list.empty?
-      offset += list.count
-    end
-    txns
-  end
 
   # Convert text to amount.
   def satoshi(amount)

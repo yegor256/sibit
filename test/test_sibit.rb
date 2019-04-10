@@ -72,12 +72,8 @@ class TestSibit < Minitest::Test
     }
     stub_request(
       :get,
-      'https://blockchain.info/unspent?active=1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi'
+      'https://blockchain.info/unspent?active=1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi&limit=1000'
     ).to_return(status: 200, body: JSON.pretty_generate(json))
-    stub_request(
-      :get,
-      'https://blockchain.info/unspent?active=1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi&offset=1'
-    ).to_return(status: 200, body: '{"unspent_outputs": []}')
     stub_request(:post, 'https://blockchain.info/pushtx').to_return(status: 200)
     sibit = Sibit.new
     target = sibit.create(sibit.generate)
