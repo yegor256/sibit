@@ -16,18 +16,16 @@ this [short video](https://www.youtube.com/watch?v=IV9pRBq5A4g).
 This is a simple Bitcoin client, to use from the command line
 or from your Ruby app. You don't need to run any Bitcoin software,
 no need to install anything, and so on. All you need is just a command line
-and [Ruby](https://www.ruby-lang.org/en/) 2.3+.
+and [Ruby](https://www.ruby-lang.org/en/) 2.3+. The purpose of this
+client is to simplify most typical operations with Bitcoin. If you need
+something more complex, I would recommend using
+[bitcoin-ruby](https://github.com/lian/bitcoin-ruby) for Ruby and
+[Electrum](https://electrum.org/) as a GUI client.
 
-This is Ruby gem, install it first:
+This is a Ruby gem, install it first:
 
 ```bash
 $ gem install sibit
-```
-
-Run it and read its output:
-
-```bash
-$ sibit --help
 ```
 
 Then, you generate a [private key](https://en.bitcoin.it/wiki/Private_key):
@@ -56,8 +54,8 @@ $ sibit balance 1CC3X2gu58d6wXUWMffpuzN9JAfTUWu4Kj
 To send a payment from a few addresses to a new address:
 
 ```
-$ sibit pay KEY AMOUNT FEE FROM1,FROM2,... TO
-1CC3X2gu58d6wXUWjslPuzN9JAfTUWu4Kg
+$ sibit pay KEY AMOUNT FEE SOURCE1,SOURCE2,... TARGET CHANGE
+e87f138c9ebf5986151667719825c28458a28cc66f69fed4f1032a93b399fdf8
 ```
 
 Here,
@@ -65,9 +63,12 @@ Here,
 `AMOUNT` is the amount of [satoshi](https://en.bitcoin.it/wiki/Satoshi_%28unit%29) you are sending,
 `FEE` is the [miner fee](https://en.bitcoin.it/wiki/Miner_fees) you are ready to spend to make this transaction delivered
 (you can say `S`, `M`, `L`, or `XL` if you want it to be calculated automatically),
-`FROM1,FROM2,...` is a comma-separated list of addresses you are sending your coins from,
-`TO` is the address you are sending to.
-The address returned will contain the residual coins after the transaction is made.
+`SOURCE1,SOURCE2,...` is a comma-separated list of addresses you are sending your coins from,
+`TARGET` is the address you are sending to,
+`CHANGE` is the address where the change will be sent to.
+The transaction hash will be returned.
+Not all [UTXOs](https://en.wikipedia.org/wiki/Unspent_transaction_output)
+will be used, but only the necessary amount of them.
 
 All operations are performed through the
 [Blockchain API](https://www.blockchain.com/api/blockchain_api).
@@ -84,7 +85,9 @@ sibit = Sibit.new
 pkey = sibit.generate
 address = sibit.create(pkey)
 balance = sibit.balance(address)
-out = sibit.pay(pkey, 10_000_000, 'XL', address, target)
+target = sibit.create(pkey) # where to send coins to
+change = sibit.create(pkey) # where the change will sent to
+tx = sibit.pay(pkey, 10_000_000, 'XL', [address], target, change)
 ```
 
 Should work.

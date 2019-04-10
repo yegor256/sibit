@@ -56,9 +56,7 @@ When(%r{^I run bin/sibit with "([^"]*)"$}) do |arg|
 end
 
 Then(/^Stdout contains "([^"]*)"$/) do |txt|
-  unless @stdout.include?(txt)
-    raise "STDOUT doesn't contain '#{txt}':\n#{@stdout}"
-  end
+  raise "STDOUT doesn't contain '#{txt}':\n#{@stdout}" unless @stdout.include?(txt)
 end
 
 Then(/^Stdout is empty$/) do

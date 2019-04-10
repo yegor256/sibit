@@ -21,6 +21,8 @@
 # SOFTWARE.
 
 require 'minitest/autorun'
+require 'webmock/minitest'
+require 'json'
 require_relative '../lib/sibit'
 
 # Sibit.
@@ -38,14 +40,55 @@ class TestSibit < Minitest::Test
   def test_create_address
     sibit = Sibit.new
     pkey = sibit.generate
+    puts "key: #{pkey}"
     address = sibit.create(pkey)
+    puts "address: #{address}"
     assert(!address.nil?)
     assert(/^1[0-9a-zA-Z]+$/.match?(address))
   end
 
   def test_gets_balance
+    stub_request(
+      :get,
+      'https://blockchain.info/rawaddr/1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f'
+    ).to_return(status: 200, body: '{"final_balance": 100}')
     sibit = Sibit.new
     balance = sibit.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')
     assert(balance.is_a?(Integer))
+    assert_equal(100, balance)
+  end
+
+  def test_sends_payment
+    json = {
+      unspent_outputs: [
+        {
+          tx_hash: 'fc8fb1a526aef220b54a66bbb3e0549bf34db4f25e1aebc3feb87e86d341e65d',
+          tx_hash_big_endian: '5de641d3867eb8fec3eb1a5ef2b44df39b54e0b3bb664ab520f2ae26a5b18ffc',
+          tx_output_n: 0,
+          script: '76a914c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc88ac',
+          value: 100_000
+        }
+      ]
+    }
+    stub_request(
+      :get,
+      'https://blockchain.info/unspent?active=1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi'
+    ).to_return(status: 200, body: JSON.pretty_generate(json))
+    stub_request(
+      :get,
+      'https://blockchain.info/unspent?active=1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi&offset=1'
+    ).to_return(status: 200, body: '{"unspent_outputs": []}')
+    stub_request(:post, 'https://blockchain.info/pushtx').to_return(status: 200)
+    sibit = Sibit.new
+    target = sibit.create(sibit.generate)
+    change = sibit.create(sibit.generate)
+    tx = sibit.pay(
+      'fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2',
+      '0.0001BTC', 'S',
+      ['1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi'],
+      target, change
+    )
+    assert(!tx.nil?)
+    assert(tx.length > 30, tx)
   end
 end

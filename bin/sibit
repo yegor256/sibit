@@ -24,11 +24,18 @@ STDOUT.sync = true
 require 'slop'
 require 'backtrace'
 require_relative '../lib/sibit'
+require_relative '../lib/sibit/version'
 
 begin
   begin
     opts = Slop.parse(ARGV, strict: true, help: true) do |o|
-      o.banner = "Usage (#{Sibit::VERSION}): sibit [options]"
+      o.banner = "Usage (#{Sibit::VERSION}): sibit [options] command [args]
+Commands are:
+    generate: Generate a new private key
+    create:   Create a public Bitcoin address from the key
+    balance:  Check the balance of the Bitcoin address
+    pay:      Send a new Bitcoin transaction
+Options are:"
       o.bool '--help', 'Read this: https://github.com/yegor256/sibit' do
         puts o
         exit
@@ -37,6 +44,7 @@ begin
   rescue Slop::Error => ex
     raise "#{ex.message}"
   end
+  raise 'Try --help' if opts.arguments.empty?
   sibit = Sibit.new
   case opts.arguments[0]
   when 'generate'
@@ -60,7 +68,9 @@ begin
     raise 'Addresses argument is required' if sources.nil?
     target = opts.arguments[5]
     raise 'Target argument is required' if target.nil?
-    puts sibit.pay(pvt, amount, fee, sources.split(','), target)
+    change = opts.arguments[6]
+    raise 'Change argument is required' if change.nil?
+    puts sibit.pay(pvt, amount, fee, sources.split(','), target, change)
   else
     raise "Command #{opts.arguments[0]} is not supported"
   end
