@@ -55,6 +55,7 @@ class TestSibit < Minitest::Test
     puts "address: #{address}"
     assert(!address.nil?)
     assert(/^1[0-9a-zA-Z]+$/.match?(address))
+    assert_equal(address, sibit.create(pkey))
   end
 
   def test_get_balance
