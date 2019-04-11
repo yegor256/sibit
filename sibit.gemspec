@@ -48,10 +48,10 @@ and Ruby 2.3+.'
   s.test_files = s.files.grep(%r{^(test|spec|features)/})
   s.rdoc_options = ['--charset=UTF-8']
   s.extra_rdoc_files = ['README.md', 'LICENSE.txt']
-  s.add_runtime_dependency 'backtrace', '>=0.3'
+  s.add_runtime_dependency 'backtrace', '~> 0.3'
   s.add_runtime_dependency 'bitcoin', '0.2.0'
-  s.add_runtime_dependency 'json', '>=2'
-  s.add_runtime_dependency 'slop', '>=4.6'
+  s.add_runtime_dependency 'json', '~> 2'
+  s.add_runtime_dependency 'slop', '~> 4.6'
   s.add_development_dependency 'codecov', '0.1.10'
   s.add_development_dependency 'cucumber', '1.3.17'
   s.add_development_dependency 'debase', '0.2.2'
