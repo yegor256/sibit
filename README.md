@@ -24,7 +24,8 @@ something more complex, I would recommend using
 [bitcoin-ruby](https://github.com/lian/bitcoin-ruby) for Ruby and
 [Electrum](https://electrum.org/) as a GUI client.
 
-This is a Ruby gem, install it first:
+This is a Ruby gem, install it first (if doesn't work, there are
+some hints at the bottom of this page):
 
 ```bash
 $ gem install sibit
@@ -93,6 +94,20 @@ tx = sibit.pay(pkey, 10_000_000, 'XL', [address], target, change)
 ```
 
 Should work.
+
+## How to install
+
+To install on a fresh Ubuntu 18:
+
+```
+$ sudo apt-get update
+$ sudo apt-get install -y ruby ruby-dev autoconf automake build-essential
+$ sudo gem update --system
+$ gem install rake --no-document
+$ gem install sibit
+```
+
+Should work. If it doesn't, submit an issue, I will try to help.
 
 ## How to contribute
 
