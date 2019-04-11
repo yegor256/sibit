@@ -34,6 +34,9 @@ require 'json'
 # Copyright:: Copyright (c) 2019 Yegor Bugayenko
 # License:: MIT
 class Sibit
+  # If something goes wrong.
+  class Error < StandardError; end
+
   # Constructor.
   #
   # You may provide the log you want to see the messages in. If you don't
@@ -47,7 +50,7 @@ class Sibit
   # Current price of 1 BTC.
   def price(cur = 'USD')
     h = get_json('https://blockchain.info/ticker')[cur.upcase]
-    raise "Unrecognized currency #{cur}" if h.nil?
+    raise Error, "Unrecognized currency #{cur}" if h.nil?
     h['15m']
   end
 
@@ -107,7 +110,7 @@ class Sibit
       debug("  #{utxo['value']}/#{utxo['confirmations']} at #{utxo['tx_hash_big_endian']}")
       break if unspent > satoshi
     end
-    raise "Not enough funds to send #{amount}, only #{unspent} left" if unspent < satoshi
+    raise Error, "Not enough funds to send #{amount}, only #{unspent} left" if unspent < satoshi
     builder.output(satoshi, target)
     tx = builder.tx(
       input_value: unspent,
@@ -143,7 +146,7 @@ class Sibit
     when 'XL'
       return 250 * size
     else
-      raise "Can't understand the fee: #{fee.inspect}"
+      raise Error, "Can't understand the fee: #{fee.inspect}"
     end
   end
 
@@ -162,14 +165,14 @@ class Sibit
     start = Time.now
     uri = URI('https://blockchain.info/pushtx')
     res = Net::HTTP.post_form(uri, tx: body)
-    raise "Failed to post tx to #{uri}: #{res.code}" unless res.code == '200'
+    raise Error, "Failed to post tx to #{uri}: #{res.code}" unless res.code == '200'
     debug("POST #{uri}: #{res.code} in #{age(start)}")
   end
 
   def get_json(uri)
     start = Time.now
     res = Net::HTTP.get_response(URI(uri))
-    raise "Failed to retrieve #{uri}: #{res.code}" unless res.code == '200'
+    raise Error, "Failed to retrieve #{uri}: #{res.code}" unless res.code == '200'
     debug("GET #{uri}: #{res.code} in #{age(start)}")
     JSON.parse(res.body)
   end
