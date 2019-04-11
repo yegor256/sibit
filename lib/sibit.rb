@@ -144,7 +144,7 @@ class Sibit
   end
 
   def get_json(uri)
-    response = run(Typhoeus::Request.new(uri, method: :get, headers: {}))
+    response = run(Typhoeus::Request.new(uri, method: :get))
     JSON.parse(response.body)
   end
 
