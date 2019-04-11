@@ -37,7 +37,7 @@ class TestSibit < Minitest::Test
     sibit = Sibit.new
     price = sibit.price
     assert(!price.nil?)
-    assert(price.positive?, price)
+    assert_equal(5160.04, price, price)
   end
 
   def test_generate_key
