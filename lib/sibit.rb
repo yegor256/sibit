@@ -46,7 +46,9 @@ class Sibit
 
   # Current price of 1 BTC.
   def price(cur = 'USD')
-    get_json('https://blockchain.info/ticker')[cur.upcase]['15m']
+    h = get_json('https://blockchain.info/ticker')[cur.upcase]
+    raise "Unrecognized currency #{cur}" if h.nil?
+    h['15m']
   end
 
   # Generates new Bitcon private key and returns in Hash160 format.
