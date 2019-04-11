@@ -20,8 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+require 'net/http'
+require 'uri'
 require 'bitcoin'
-require 'typhoeus'
 require 'json'
 
 # Sibit main class.
@@ -68,6 +69,9 @@ class Sibit
   # any other reason, you will get an exception. In this case, just try again.
   # It's safe to try as many times as you need. Don't worry about duplicating
   # your transaction, the Bitcoin network will filter duplicates out.
+  #
+  # If there are more than 1000 UTXOs in the address where you are trying
+  # to send bitcoins from, this method won't be helpful.
   #
   # +pvt+: the private key as a Hash160 string
   # +amount+: the amount either in satoshis or ending with 'BTC', like '0.7BTC'
@@ -139,21 +143,17 @@ class Sibit
   end
 
   def post_tx(body)
-    run(Typhoeus::Request.new('https://blockchain.info/pushtx', method: :post, body: { tx: body }))
+    http(Net::HTTP.post_form(URI('https://blockchain.info/pushtx'), tx: body))
   end
 
   def get_json(uri)
-    JSON.parse(run(Typhoeus::Request.new(uri, method: :get)).body)
+    JSON.parse(http(Net::HTTP.get_response(URI(uri))))
   end
 
-  def run(request)
-    start = Time.now
-    request.run
-    response = request.response
-    raise "Invalid response at #{request.url}: #{response.code}" unless response.code == 200
-    debug("#{request.options[:method].upcase} #{request.url}: \
-#{response.code} in #{((Time.now - start) * 1000).round}ms")
-    response
+  def http(response)
+    raise "Invalid response at #{response.uri}: #{response.code}" unless response.code == '200'
+    debug("#{response.uri}: #{response.code}")
+    response.body
   end
 
   def debug(msg)
