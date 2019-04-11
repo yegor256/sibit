@@ -152,7 +152,7 @@ class Sibit
     start = Time.now
     request.run
     response = request.response
-    raise "Invalid response at #{uri}: #{response.code}" unless response.code == 200
+    raise "Invalid response at #{request.url}: #{response.code}" unless response.code == 200
     debug("#{request.options[:method].upcase} #{request.url}: \
 #{response.code} in #{((Time.now - start) * 1000).round}ms")
     response
