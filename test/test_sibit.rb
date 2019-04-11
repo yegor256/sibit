@@ -30,6 +30,16 @@ require_relative '../lib/sibit'
 # Copyright:: Copyright (c) 2019 Yegor Bugayenko
 # License:: MIT
 class TestSibit < Minitest::Test
+  def test_fetch_current_price
+    stub_request(
+      :get, 'https://blockchain.info/ticker'
+    ).to_return(status: 200, body: '{"USD" : {"15m" : 5160.04}}')
+    sibit = Sibit.new
+    price = sibit.price
+    assert(!price.nil?)
+    assert(price.positive?, price)
+  end
+
   def test_generate_key
     sibit = Sibit.new
     pkey = sibit.generate

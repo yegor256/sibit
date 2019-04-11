@@ -44,6 +44,11 @@ class Sibit
     @log = log
   end
 
+  # Current price of 1 BTC.
+  def price(cur = 'USD')
+    get_json('https://blockchain.info/ticker')[cur.upcase]['15m']
+  end
+
   # Generates new Bitcon private key and returns in Hash160 format.
   def generate
     Bitcoin::Key.generate.priv
