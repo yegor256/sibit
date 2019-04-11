@@ -118,6 +118,11 @@ class Sibit
     tx.hash
   end
 
+  # Gets the has of the latest block.
+  def latest
+    get_json('https://blockchain.info/latestblock')['hash']
+  end
+
   private
 
   # Convert text to amount.

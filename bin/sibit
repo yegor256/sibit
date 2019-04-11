@@ -31,6 +31,8 @@ begin
     opts = Slop.parse(ARGV, strict: true, help: true) do |o|
       o.banner = "Usage (#{Sibit::VERSION}): sibit [options] command [args]
 Commands are:
+    price:    Get current price of BTC in USD
+    latest:   Get hash of the latest block
     generate: Generate a new private key
     create:   Create a public Bitcoin address from the key
     balance:  Check the balance of the Bitcoin address
@@ -48,6 +50,10 @@ Options are:"
   raise 'Try --help' if opts.arguments.empty?
   sibit = Sibit.new(log: opts[:verbose] ? STDOUT : nil)
   case opts.arguments[0]
+  when 'price'
+    puts sibit.price
+  when 'latest'
+    puts sibit.latest
   when 'generate'
     puts sibit.generate
   when 'create'

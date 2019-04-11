@@ -57,7 +57,7 @@ class TestSibit < Minitest::Test
     assert(/^1[0-9a-zA-Z]+$/.match?(address))
   end
 
-  def test_gets_balance
+  def test_get_balance
     stub_request(
       :get,
       'https://blockchain.info/rawaddr/1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f'
@@ -68,7 +68,17 @@ class TestSibit < Minitest::Test
     assert_equal(100, balance)
   end
 
-  def test_sends_payment
+  def test_get_latest_block
+    stub_request(:get, 'https://blockchain.info/latestblock').to_return(
+      status: 200,
+      body: '{"hash": "0000000000000538200a48202ca6340e983646ca088c7618ae82d68e0c76ef5a"}'
+    )
+    sibit = Sibit.new
+    hash = sibit.latest
+    assert_equal('0000000000000538200a48202ca6340e983646ca088c7618ae82d68e0c76ef5a', hash)
+  end
+
+  def test_send_payment
     json = {
       unspent_outputs: [
         {
