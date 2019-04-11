@@ -76,7 +76,10 @@ Options are:"
     raise "Command #{opts.arguments[0]} is not supported"
   end
 rescue StandardError => ex
-  puts "ERROR: #{ex.message}"
-  # puts Backtrace.new(ex).to_s
+  if opts[:verbose]
+    puts Backtrace.new(ex).to_s
+  else
+    puts "ERROR: #{ex.message}"
+  end
   exit(255)
 end

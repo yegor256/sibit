@@ -34,21 +34,26 @@ require 'json'
 # License:: MIT
 class Sibit
   # Constructor.
+  #
+  # You may provide the log you want to see the messages in. If you don't
+  # provide anything, the console will be used. The object you provide
+  # has to respond to the method +debug+ or +puts+ in order to receive logging
+  # messages.
   def initialize(log: STDOUT)
     @log = log
   end
 
-  # Generate new Bitcon private key and returns in Hash160 format.
+  # Generates new Bitcon private key and returns in Hash160 format.
   def generate
     Bitcoin::Key.generate.priv
   end
 
-  # Create Bitcon address using the private key in Hash160 format.
+  # Creates Bitcon address using the private key in Hash160 format.
   def create(pvt)
     key(pvt).addr
   end
 
-  # Get the balance of the address, in satoshi.
+  # Gets the balance of the address, in satoshi.
   def balance(address)
     json = get_json("https://blockchain.info/rawaddr/#{address}")
     debug("Total transactions: #{json['n_tx']}")
@@ -56,7 +61,13 @@ class Sibit
     json['final_balance']
   end
 
-  # Send a payment and return the transaction hash.
+  # Sends a payment and returns the transaction hash.
+  #
+  # If the payment can't be signed (the key is wrong, for example) or the
+  # previous transaction is not found, or there is a network error, or
+  # any other reason, you will get an exception. In this case, just try again.
+  # It's safe to try as many times as you need. Don't worry about duplicating
+  # your transaction, the Bitcoin network will filter duplicates out.
   #
   # +pvt+: the private key as a Hash160 string
   # +amount+: the amount either in satoshis or ending with 'BTC', like '0.7BTC'
@@ -129,20 +140,22 @@ class Sibit
 
   def post_tx(body)
     uri = 'https://blockchain.info/pushtx'
-    request = Typhoeus::Request.new(uri, method: :post, body: { tx: body })
-    request.run
-    response = request.response
-    raise "Invalid response at #{uri}: #{response.code}" unless response.code == 200
-    debug("POST #{uri}: #{response.code}")
+    run(Typhoeus::Request.new(uri, method: :post, body: { tx: body }))
   end
 
   def get_json(uri)
-    request = Typhoeus::Request.new(uri, method: :get, headers: {})
+    response = run(Typhoeus::Request.new(uri, method: :get, headers: {}))
+    JSON.parse(response.body)
+  end
+
+  def run(request)
+    start = Time.now
     request.run
     response = request.response
     raise "Invalid response at #{uri}: #{response.code}" unless response.code == 200
-    debug("GET #{uri}: #{response.code}")
-    JSON.parse(response.body)
+    debug("#{request.options[:method].upcase} #{request.url}: \
+#{response.code} in #{((Time.now - start) * 1000).round}ms")
+    response
   end
 
   def debug(msg)
