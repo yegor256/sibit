@@ -83,19 +83,19 @@ class Sibit
   # If there are more than 1000 UTXOs in the address where you are trying
   # to send bitcoins from, this method won't be helpful.
   #
-  # +pvt+: the private key as a Hash160 string
   # +amount+: the amount either in satoshis or ending with 'BTC', like '0.7BTC'
   # +fee+: the miners fee in satoshis (as integer) or S/M/X/XL as a string
-  # +sources+: the array of bitcoin addresses where the coins are now
+  # +sources+: the hashmap of bitcoin addresses where the coins are now, with
+  # their addresses as keys and private keys as values
   # +target+: the target address to send to
   # +change+: the address where the change has to be sent to
-  def pay(pvt, amount, fee, sources, target, change)
+  def pay(amount, fee, sources, target, change)
     satoshi = satoshi(amount)
     builder = Bitcoin::Builder::TxBuilder.new
     unspent = 0
     size = 100
     utxos = get_json(
-      "/unspent?active=#{sources.join('|')}&limit=1000"
+      "/unspent?active=#{sources.keys.join('|')}&limit=1000"
     )['unspent_outputs']
     debug("#{utxos.count} UTXOs found:")
     utxos.each do |utxo|
@@ -104,7 +104,8 @@ class Sibit
         i.prev_out(utxo['tx_hash_big_endian'])
         i.prev_out_index(utxo['tx_output_n'])
         i.prev_out_script = [utxo['script']].pack('H*')
-        i.signature_key(key(pvt))
+        address = Bitcoin::Script.new([utxo['script']].pack('H*')).get_address
+        i.signature_key(key(sources[address]))
       end
       size += 180
       debug("  #{utxo['value']}/#{utxo['confirmations']} at #{utxo['tx_hash_big_endian']}")

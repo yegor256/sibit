@@ -65,19 +65,24 @@ Options are:"
     raise 'Address argument is required' if address.nil?
     puts sibit.balance(address)
   when 'pay'
-    pvt = opts.arguments[1]
-    raise 'Private key argument is required' if pvt.nil?
-    amount = opts.arguments[2]
+    amount = opts.arguments[1]
     raise 'Amount argument is required' if amount.nil?
-    fee = opts.arguments[3]
+    fee = opts.arguments[2]
     raise 'Miners fee argument is required' if fee.nil?
-    sources = opts.arguments[4]
+    sources = opts.arguments[3]
     raise 'Addresses argument is required' if sources.nil?
-    target = opts.arguments[5]
+    target = opts.arguments[4]
     raise 'Target argument is required' if target.nil?
-    change = opts.arguments[6]
+    change = opts.arguments[5]
     raise 'Change argument is required' if change.nil?
-    puts sibit.pay(pvt, amount, fee, sources.split(','), target, change)
+    puts sibit.pay(
+      amount, fee,
+      sources.split(',').map do |p|
+        address, pvt = p.split(':')
+        { address: address, pvt: pvt }
+      end,
+      target, change
+    )
   else
     raise "Command #{opts.arguments[0]} is not supported"
   end
