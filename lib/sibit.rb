@@ -142,18 +142,24 @@ class Sibit
     key
   end
 
+  def age(start)
+    "#{((Time.now - start) * 1000).round}ms"
+  end
+
   def post_tx(body)
-    http(Net::HTTP.post_form(URI('https://blockchain.info/pushtx'), tx: body))
+    start = Time.now
+    uri = URI('https://blockchain.info/pushtx')
+    res = Net::HTTP.post_form(uri, tx: body)
+    raise "Failed to post tx to #{uri}: #{res.code}" unless res.code == '200'
+    debug("POST #{uri}: #{res.code} in #{age(start)}")
   end
 
   def get_json(uri)
-    JSON.parse(http(Net::HTTP.get_response(URI(uri))))
-  end
-
-  def http(response)
-    raise "Invalid response at #{response.uri}: #{response.code}" unless response.code == '200'
-    debug("#{response.uri}: #{response.code}")
-    response.body
+    start = Time.now
+    res = Net::HTTP.get_response(URI(uri))
+    raise "Failed to retrieve #{uri}: #{res.code}" unless res.code == '200'
+    debug("GET #{uri}: #{res.code} in #{age(start)}")
+    JSON.parse(res.body)
   end
 
   def debug(msg)
