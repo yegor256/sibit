@@ -49,7 +49,7 @@ class Sibit
 
   # Current price of 1 BTC.
   def price(cur = 'USD')
-    h = get_json('https://blockchain.info/ticker')[cur.upcase]
+    h = get_json('/ticker')[cur.upcase]
     raise Error, "Unrecognized currency #{cur}" if h.nil?
     h['15m']
   end
@@ -66,7 +66,7 @@ class Sibit
 
   # Gets the balance of the address, in satoshi.
   def balance(address)
-    json = get_json("https://blockchain.info/rawaddr/#{address}")
+    json = get_json("/rawaddr/#{address}")
     debug("Total transactions: #{json['n_tx']}")
     debug("Received/sent: #{json['total_received']}/#{json['total_sent']}")
     json['final_balance']
@@ -95,7 +95,7 @@ class Sibit
     unspent = 0
     size = 100
     utxos = get_json(
-      "https://blockchain.info/unspent?active=#{sources.join('|')}&limit=1000"
+      "/unspent?active=#{sources.join('|')}&limit=1000"
     )['unspent_outputs']
     debug("#{utxos.count} UTXOs found:")
     utxos.each do |utxo|
@@ -121,9 +121,20 @@ class Sibit
     tx.hash
   end
 
-  # Gets the has of the latest block.
+  # Gets the hash of the latest block.
   def latest
-    get_json('https://blockchain.info/latestblock')['hash']
+    get_json('/latestblock')['hash']
+  end
+
+  # Send GET request to the Blockchain API and return JSON response.
+  # This method will also log the process and will validate the
+  # response for correctness.
+  def get_json(uri)
+    start = Time.now
+    res = Net::HTTP.get_response(URI('https://blockchain.info' + uri))
+    raise Error, "Failed to retrieve #{uri}: #{res.code}" unless res.code == '200'
+    debug("GET #{uri}: #{res.code} in #{age(start)}")
+    JSON.parse(res.body)
   end
 
   private
@@ -167,14 +178,6 @@ class Sibit
     res = Net::HTTP.post_form(uri, tx: body)
     raise Error, "Failed to post tx to #{uri}: #{res.code}" unless res.code == '200'
     debug("POST #{uri}: #{res.code} in #{age(start)}")
-  end
-
-  def get_json(uri)
-    start = Time.now
-    res = Net::HTTP.get_response(URI(uri))
-    raise Error, "Failed to retrieve #{uri}: #{res.code}" unless res.code == '200'
-    debug("GET #{uri}: #{res.code} in #{age(start)}")
-    JSON.parse(res.body)
   end
 
   def debug(msg)
