@@ -139,13 +139,11 @@ class Sibit
   end
 
   def post_tx(body)
-    uri = 'https://blockchain.info/pushtx'
-    run(Typhoeus::Request.new(uri, method: :post, body: { tx: body }))
+    run(Typhoeus::Request.new('https://blockchain.info/pushtx', method: :post, body: { tx: body }))
   end
 
   def get_json(uri)
-    response = run(Typhoeus::Request.new(uri, method: :get))
-    JSON.parse(response.body)
+    JSON.parse(run(Typhoeus::Request.new(uri, method: :get)).body)
   end
 
   def run(request)
