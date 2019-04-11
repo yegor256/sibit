@@ -57,16 +57,15 @@ $ sibit balance 1CC3X2gu58d6wXUWMffpuzN9JAfTUWu4Kj
 To send a payment from a few addresses to a new address:
 
 ```
-$ sibit pay KEY AMOUNT FEE SOURCE1,SOURCE2,... TARGET CHANGE
+$ sibit pay AMOUNT FEE A1:P1,A2:P2,... TARGET CHANGE
 e87f138c9ebf5986151667719825c28458a28cc66f69fed4f1032a93b399fdf8
 ```
 
 Here,
-`KEY` is the private key,
 `AMOUNT` is the amount of [satoshi](https://en.bitcoin.it/wiki/Satoshi_%28unit%29) you are sending,
 `FEE` is the [miner fee](https://en.bitcoin.it/wiki/Miner_fees) you are ready to spend to make this transaction delivered
 (you can say `S`, `M`, `L`, or `XL` if you want it to be calculated automatically),
-`SOURCE1,SOURCE2,...` is a comma-separated list of addresses you are sending your coins from,
+`A1:P1,A2:P2,...` is a comma-separated list of addresses `A` and private keys `P` you are sending your coins from,
 `TARGET` is the address you are sending to,
 `CHANGE` is the address where the change will be sent to.
 The transaction hash will be returned.
@@ -90,7 +89,7 @@ address = sibit.create(pkey)
 balance = sibit.balance(address)
 target = sibit.create(pkey) # where to send coins to
 change = sibit.create(pkey) # where the change will sent to
-tx = sibit.pay(pkey, 10_000_000, 'XL', [address], target, change)
+tx = sibit.pay(10_000_000, 'XL', { address => pkey }, target, change)
 ```
 
 Should work.
