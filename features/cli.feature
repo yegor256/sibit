@@ -6,6 +6,14 @@ Feature: Command Line Processing
     Then Exit code is zero
     And Stdout contains "--help"
 
+  Scenario: Bitcoin price can be retrieved
+    When I run bin/sibit with "price"
+    Then Exit code is zero
+
+  Scenario: Bitcoin latest block hash can be retrieved
+    When I run bin/sibit with "latest"
+    Then Exit code is zero
+
   Scenario: Bitcoin private key can be generated
     When I run bin/sibit with "generate"
     Then Exit code is zero
