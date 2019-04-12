@@ -186,18 +186,11 @@ amount is #{amount}; target address is #{target}; change address is #{change}")
   def mfee(fee, size)
     return fee.to_i if fee.is_a?(Integer)
     raise Error, 'Fee should either be a String or Integer' unless fee.is_a?(String)
-    case fee
-    when 'S'
-      return 10 * size
-    when 'M'
-      return 50 * size
-    when 'L'
-      return 100 * size
-    when 'XL'
-      return 250 * size
-    else
-      raise Error, "Can't understand the fee: #{fee.inspect}"
-    end
+    return 10 * size if fee == 'S'
+    return 50 * size if fee == 'M'
+    return 100 * size if fee == 'L'
+    return 250 * size if fee == 'XL'
+    raise Error, "Can't understand the fee: #{fee.inspect}"
   end
 
   # Make key from private key string in Hash160.
