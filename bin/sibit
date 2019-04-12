@@ -77,10 +77,7 @@ Options are:"
     raise 'Change argument is required' if change.nil?
     puts sibit.pay(
       amount, fee,
-      sources.split(',').map do |p|
-        address, pvt = p.split(':')
-        { address: address, pvt: pvt }
-      end,
+      sources.split(',').map { |p| p.split(':') }.to_h,
       target, change
     )
   else
