@@ -37,6 +37,37 @@ class Sibit
   # If something goes wrong.
   class Error < StandardError; end
 
+  # Fake one, which is useful for testing.
+  class Fake
+    def price(_cur = 'USD')
+      4_000
+    end
+
+    def generate
+      'fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2'
+    end
+
+    def create(_pvt)
+      '1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi'
+    end
+
+    def balance(_address)
+      100_000_000
+    end
+
+    def pay(_amount, _fee, _sources, _target, _change)
+      '9dfe55a30b5ee732005158c589179a398117117a68d21531fb6c78b85b544c54'
+    end
+
+    def latest
+      '00000000000000000008df8a6e1b61d1136803ac9791b8725235c9f780b4ed71'
+    end
+
+    def get_json(_uri)
+      {}
+    end
+  end
+
   # Constructor.
   #
   # You may provide the log you want to see the messages in. If you don't
