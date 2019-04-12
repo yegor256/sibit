@@ -72,7 +72,7 @@ class Sibit
   #
   # You may provide the log you want to see the messages in. If you don't
   # provide anything, the console will be used. The object you provide
-  # has to respond to the method +debug+ or +puts+ in order to receive logging
+  # has to respond to the method +info+ or +puts+ in order to receive logging
   # messages.
   def initialize(log: STDOUT)
     @log = log
@@ -98,8 +98,8 @@ class Sibit
   # Gets the balance of the address, in satoshi.
   def balance(address)
     json = get_json("/rawaddr/#{address}")
-    debug("Total transactions: #{json['n_tx']}")
-    debug("Received/sent: #{json['total_received']}/#{json['total_sent']}")
+    info("Total transactions: #{json['n_tx']}")
+    info("Received/sent: #{json['total_received']}/#{json['total_sent']}")
     json['final_balance']
   end
 
@@ -128,7 +128,7 @@ class Sibit
     utxos = get_json(
       "/unspent?active=#{sources.keys.join('|')}&limit=1000"
     )['unspent_outputs']
-    debug("#{utxos.count} UTXOs found:")
+    info("#{utxos.count} UTXOs found:")
     utxos.each do |utxo|
       unspent += utxo['value']
       builder.input do |i|
@@ -139,16 +139,20 @@ class Sibit
         i.signature_key(key(sources[address]))
       end
       size += 180
-      debug("  #{utxo['value']}/#{utxo['confirmations']} at #{utxo['tx_hash_big_endian']}")
+      info("  #{utxo['value']}/#{utxo['confirmations']} at #{utxo['tx_hash_big_endian']}")
       break if unspent > satoshi
     end
     raise Error, "Not enough funds to send #{amount}, only #{unspent} left" if unspent < satoshi
     builder.output(satoshi, target)
+    f = mfee(fee, size)
     tx = builder.tx(
       input_value: unspent,
-      leave_fee: mfee(fee, size),
+      leave_fee: f,
       change_address: change
     )
+    info("A new Bitcoin transaction #{tx.hash} prepared; #{tx.in.count} inputs; \
+#{tx.out.count} outputs; fee is #{f}; size is #{size}; unspent is #{unspent}; \
+amount is #{amount}; target address is #{target}; change address is #{change}")
     post_tx(tx.to_payload.bth)
     tx.hash
   end
@@ -165,7 +169,7 @@ class Sibit
     start = Time.now
     res = Net::HTTP.get_response(URI('https://blockchain.info' + uri))
     raise Error, "Failed to retrieve #{uri}: #{res.code}" unless res.code == '200'
-    debug("GET #{uri}: #{res.code}/#{res.body.length}b in #{age(start)}")
+    info("GET #{uri}: #{res.code}/#{res.body.length}b in #{age(start)}")
     JSON.parse(res.body)
   end
 
@@ -212,12 +216,12 @@ class Sibit
     uri = URI('https://blockchain.info/pushtx')
     res = Net::HTTP.post_form(uri, tx: body)
     raise Error, "Failed to post tx to #{uri}: #{res.code}\n#{res.body}" unless res.code == '200'
-    debug("POST #{uri}: #{res.code} in #{age(start)}")
+    info("POST #{uri}: #{res.code} in #{age(start)}")
   end
 
-  def debug(msg)
-    if @log.respond_to?(:debug)
-      @log.debug(msg)
+  def info(msg)
+    if @log.respond_to?(:info)
+      @log.info(msg)
     elsif @log.respond_to?(:puts)
       @log.puts(msg)
     end
