@@ -173,12 +173,15 @@ class Sibit
 
   # Convert text to amount.
   def satoshi(amount)
+    return amount if amount.is_a?(Integer)
+    raise Error, 'Amount should either be a String or Integer' unless amount.is_a?(String)
     return (amount.gsub(/BTC$/, '').to_f * 100_000_000).to_i if amount.end_with?('BTC')
-    amount.to_i
+    raise Error, "Can't understand the amount #{amount.inspect}"
   end
 
   def mfee(fee, size)
-    return fee.to_i if fee.is_a?(Integer) || /^[0-9]+$/.match?(fee)
+    return fee.to_i if fee.is_a?(Integer)
+    raise Error, 'Fee should either be a String or Integer' unless fee.is_a?(String)
     case fee
     when 'S'
       return 10 * size
