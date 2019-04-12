@@ -211,7 +211,7 @@ class Sibit
     start = Time.now
     uri = URI('https://blockchain.info/pushtx')
     res = Net::HTTP.post_form(uri, tx: body)
-    raise Error, "Failed to post tx to #{uri}: #{res.code}" unless res.code == '200'
+    raise Error, "Failed to post tx to #{uri}: #{res.code}\n#{res.body}" unless res.code == '200'
     debug("POST #{uri}: #{res.code} in #{age(start)}")
   end
 
