@@ -128,7 +128,7 @@ class Sibit
     utxos = get_json(
       "/unspent?active=#{sources.keys.join('|')}&limit=1000"
     )['unspent_outputs']
-    info("#{utxos.count} UTXOs found:")
+    info("#{utxos.count} UTXOs found (value/confirmations at tx_hash):")
     utxos.each do |utxo|
       unspent += utxo['value']
       builder.input do |i|
@@ -152,7 +152,9 @@ class Sibit
     )
     info("A new Bitcoin transaction #{tx.hash} prepared; #{tx.in.count} inputs; \
 #{tx.out.count} outputs; fee is #{f}; size is #{size}; unspent is #{unspent}; \
-amount is #{amount}; target address is #{target}; change address is #{change}")
+amount is #{satoshi}; target address is #{target}; change address is #{change}:
+  #{tx.inputs.map { |i| " in: #{i.prev_out.bth}:#{i.prev_out_index}" }.join("\n  ")}
+  #{tx.outputs.map { |o| "out: #{o.script.bth}:#{o.value}" }.join("\n  ")}")
     post_tx(tx.to_payload.bth)
     tx.hash
   end
