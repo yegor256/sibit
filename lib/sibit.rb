@@ -128,7 +128,8 @@ class Sibit
     utxos = get_json(
       "/unspent?active=#{sources.keys.join('|')}&limit=1000"
     )['unspent_outputs']
-    info("#{utxos.count} UTXOs found (value/confirmations at tx_hash):")
+    info("#{utxos.count} UTXOs found, these will be used \
+(value/confirmations at tx_hash):")
     utxos.each do |utxo|
       unspent += utxo['value']
       builder.input do |i|
@@ -139,22 +140,33 @@ class Sibit
         i.signature_key(key(sources[address]))
       end
       size += 180
-      info("  #{utxo['value']}/#{utxo['confirmations']} at #{utxo['tx_hash_big_endian']}")
+      info("  #{num(utxo['value'])}/#{utxo['confirmations']} at #{utxo['tx_hash_big_endian']}")
       break if unspent > satoshi
     end
-    raise Error, "Not enough funds to send #{amount}, only #{unspent} left" if unspent < satoshi
+    if unspent < satoshi
+      raise Error, "Not enough funds to send #{num(amount)}, only #{num(unspent)} left"
+    end
     builder.output(satoshi, target)
     f = mfee(fee, size)
     tx = builder.tx(
       input_value: unspent,
-      leave_fee: f,
+      leave_fee: true,
+      extra_fee: f - Bitcoin.network[:min_tx_fee],
       change_address: change
     )
-    info("A new Bitcoin transaction #{tx.hash} prepared; #{tx.in.count} inputs; \
-#{tx.out.count} outputs; fee is #{f}; size is #{size}; unspent is #{unspent}; \
-amount is #{satoshi}; target address is #{target}; change address is #{change}:
-  #{tx.inputs.map { |i| " in: #{i.prev_out.bth}:#{i.prev_out_index}" }.join("\n  ")}
-  #{tx.outputs.map { |o| "out: #{o.script.bth}:#{o.value}" }.join("\n  ")}")
+    info("A new Bitcoin transaction #{tx.hash} prepared:
+  #{tx.in.count} input#{tx.in.count > 1 ? 's' : ''}:
+    #{tx.inputs.map { |i| " in: #{i.prev_out.bth}:#{i.prev_out_index}" }.join("\n    ")}
+  #{tx.out.count} output#{tx.out.count > 1 ? 's' : ''}:
+    #{tx.outputs.map { |o| "out: #{o.script.bth} / #{num(o.value)}" }.join("\n    ")}
+  Fee required: #{num(f)} satoshi
+  Min tx fee: #{num(Bitcoin.network[:min_tx_fee])} satoshi
+  Fee left: #{num(unspent - tx.outputs.map(&:value).inject(&:+))} satoshi
+  Tx size: #{num(size)} bytes
+  Unspent: #{num(unspent)} satoshi
+  Amount: #{num(satoshi)} satoshi
+  Target address: #{target}
+  Change address is #{change}")
     post_tx(tx.to_payload.bth)
     tx.hash
   end
@@ -176,6 +188,10 @@ amount is #{satoshi}; target address is #{target}; change address is #{change}:
   end
 
   private
+
+  def num(int)
+    int.to_s.gsub(/\d(?=(...)+$)/, '\0,')
+  end
 
   # Convert text to amount.
   def satoshi(amount)
