@@ -67,8 +67,10 @@ Options are:"
   when 'pay'
     amount = opts.arguments[1]
     raise 'Amount argument is required' if amount.nil?
+    amount = amount.to_i if /^[0-9]+$/.match?(amount)
     fee = opts.arguments[2]
     raise 'Miners fee argument is required' if fee.nil?
+    fee = fee.to_i if /^[0-9]+$/.match?(fee)
     sources = opts.arguments[3]
     raise 'Addresses argument is required' if sources.nil?
     target = opts.arguments[4]
