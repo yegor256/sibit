@@ -182,7 +182,7 @@ class Sibit
   def get_json(uri)
     start = Time.now
     res = Net::HTTP.get_response(URI('https://blockchain.info' + uri))
-    raise Error, "Failed to retrieve #{uri}: #{res.code}" unless res.code == '200'
+    raise Error, "Failed to retrieve #{uri} (#{res.code}): #{res.body}" unless res.code == '200'
     info("GET #{uri}: #{res.code}/#{res.body.length}b in #{age(start)}")
     JSON.parse(res.body)
   end
