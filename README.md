@@ -11,6 +11,7 @@
 [![Gem Version](https://badge.fury.io/rb/sibit.svg)](http://badge.fury.io/rb/sibit)
 [![Maintainability](https://api.codeclimate.com/v1/badges/74c909f06d4afa0d8001/maintainability)](https://codeclimate.com/github/yegor256/sibit/maintainability)
 [![Test Coverage](https://img.shields.io/codecov/c/github/yegor256/sibit.svg)](https://codecov.io/github/yegor256/sibit?branch=master)
+[![Hits-of-Code](https://hitsofcode.com/github/yegor256/sibit)](https://hitsofcode.com/github/yegor256/sibit)
 
 To understand how Bitcoin protocol works, I recommend you watching
 this [short video](https://www.youtube.com/watch?v=IV9pRBq5A4g).
