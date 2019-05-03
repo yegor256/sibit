@@ -24,6 +24,7 @@ require 'net/http'
 require 'uri'
 require 'bitcoin'
 require 'json'
+require 'cgi'
 
 # Sibit main class.
 #
@@ -68,14 +69,22 @@ class Sibit
     end
   end
 
+  # This HTTP client will be used by default.
+  def self.default_http
+    http = Net::HTTP.new('blockchain.info', 443)
+    http.use_ssl = true
+    http
+  end
+
   # Constructor.
   #
   # You may provide the log you want to see the messages in. If you don't
   # provide anything, the console will be used. The object you provide
   # has to respond to the method +info+ or +puts+ in order to receive logging
   # messages.
-  def initialize(log: STDOUT)
+  def initialize(log: STDOUT, http: Sibit.default_http)
     @log = log
+    @http = http
   end
 
   # Current price of 1 BTC.
@@ -181,7 +190,12 @@ class Sibit
   # response for correctness.
   def get_json(uri)
     start = Time.now
-    res = Net::HTTP.get_response(URI('https://blockchain.info' + uri))
+    res = @http.get(
+      uri,
+      'Accept' => 'text/plain',
+      'User-Agent' => "Sibit #{Sibit::VERSION}",
+      'Accept-Encoding' => '',
+    )
     raise Error, "Failed to retrieve #{uri} (#{res.code}): #{res.body}" unless res.code == '200'
     info("GET #{uri}: #{res.code}/#{res.body.length}b in #{age(start)}")
     JSON.parse(res.body)
@@ -224,8 +238,8 @@ class Sibit
 
   def post_tx(body)
     start = Time.now
-    uri = URI('https://blockchain.info/pushtx')
-    res = Net::HTTP.post_form(uri, tx: body)
+    uri = '/pushtx'
+    res = @http.start { |h| h.post('/pushtx', "tx=#{CGI.escape(body)}") }
     raise Error, "Failed to post tx to #{uri}: #{res.code}\n#{res.body}" unless res.code == '200'
     info("POST #{uri}: #{res.code} in #{age(start)}")
   end

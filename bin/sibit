@@ -38,6 +38,7 @@ Commands are:
     balance:  Check the balance of the Bitcoin address
     pay:      Send a new Bitcoin transaction
 Options are:"
+      o.string '--proxy', 'HTTP/HTTPS proxy to perform all requests through'
       o.bool '--help', 'Read this: https://github.com/yegor256/sibit' do
         puts o
         exit
