@@ -111,6 +111,29 @@ class TestSibit < Minitest::Test
     assert(tx.length > 30, tx)
   end
 
+  def test_fail_if_not_enough_funds
+    json = {
+      unspent_outputs: []
+    }
+    stub_request(
+      :get,
+      'https://blockchain.info/unspent?active=1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi&limit=1000'
+    ).to_return(status: 200, body: JSON.pretty_generate(json))
+    sibit = Sibit.new
+    target = sibit.create(sibit.generate)
+    change = sibit.create(sibit.generate)
+    assert_raises Sibit::Error do
+      sibit.pay(
+        '0.0001BTC', 'XL',
+        {
+          '1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi' =>
+          'fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2'
+        },
+        target, change
+      )
+    end
+  end
+
   def test_fake_object_works
     sibit = Sibit::Fake.new
     assert_equal(4_000, sibit.price)
