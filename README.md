@@ -26,6 +26,9 @@ something more complex, I would recommend using
 [bitcoin-ruby](https://github.com/lian/bitcoin-ruby) for Ruby and
 [Electrum](https://electrum.org/) as a GUI client.
 
+You may want to discuss this tool at [Bitcointalk](https://bitcointalk.org/index.php?topic=5130324)
+and give this thread a few merits.
+
 This is a Ruby gem, install it first (if doesn't work, there are
 some hints at the bottom of this page):
 
