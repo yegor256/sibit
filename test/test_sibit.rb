@@ -110,4 +110,18 @@ class TestSibit < Minitest::Test
     assert(!tx.nil?)
     assert(tx.length > 30, tx)
   end
+
+  def test_fake_object_works
+    sibit = Sibit::Fake.new
+    assert_equal(4_000, sibit.price)
+    assert_equal('fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2', sibit.generate)
+    assert_equal('1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi', sibit.create(''))
+    assert_equal(100_000_000, sibit.balance(''))
+    assert_equal(
+      '9dfe55a30b5ee732005158c589179a398117117a68d21531fb6c78b85b544c54',
+      sibit.pay(0, 'M', {}, '', '')
+    )
+    assert_equal('00000000000000000008df8a6e1b61d1136803ac9791b8725235c9f780b4ed71', sibit.latest)
+    assert_equal({}, sibit.get_json('/'))
+  end
 end
