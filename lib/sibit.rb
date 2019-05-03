@@ -25,6 +25,7 @@ require 'uri'
 require 'bitcoin'
 require 'json'
 require 'cgi'
+require_relative 'sibit/version'
 
 # Sibit main class.
 #
