@@ -201,7 +201,7 @@ class Sibit
     res = @http.get(
       uri,
       'Accept' => 'text/plain',
-      'User-Agent' => "Sibit #{Sibit::VERSION}",
+      'User-Agent' => user_agent,
       'Accept-Encoding' => ''
     )
     raise Error, "Failed to retrieve #{uri} (#{res.code}): #{res.body}" unless res.code == '200'
@@ -251,7 +251,7 @@ class Sibit
       '/pushtx',
       "tx=#{CGI.escape(body)}",
       'Accept' => 'text/plain',
-      'User-Agent' => "Sibit #{Sibit::VERSION}",
+      'User-Agent' => user_agent,
       'Accept-Encoding' => '',
       'Content-Type' => 'application/x-www-form-urlencoded'
     )
@@ -265,5 +265,9 @@ class Sibit
     elsif @log.respond_to?(:puts)
       @log.puts(msg)
     end
+  end
+
+  def user_agent
+    "Anonymous/#{Sibit::VERSION}"
   end
 end
