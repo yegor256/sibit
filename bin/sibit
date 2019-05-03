@@ -38,7 +38,7 @@ Commands are:
     balance:  Check the balance of the Bitcoin address
     pay:      Send a new Bitcoin transaction
 Options are:"
-      o.string '--proxy', 'HTTP/HTTPS proxy to perform all requests through'
+      o.string '--proxy', 'HTTPS proxy for all requests, e.g. "localhost:3128"'
       o.bool '--help', 'Read this: https://github.com/yegor256/sibit' do
         puts o
         exit
@@ -49,7 +49,10 @@ Options are:"
     raise "#{ex.message}"
   end
   raise 'Try --help' if opts.arguments.empty?
-  sibit = Sibit.new(log: opts[:verbose] ? STDOUT : nil)
+  sibit = Sibit.new(
+    log: opts[:verbose] ? STDOUT : nil,
+    http: opts[:proxy] ? Sibit.proxy_http(opts[:proxy]) : Sibit.default_http
+  )
   case opts.arguments[0]
   when 'price'
     puts sibit.price

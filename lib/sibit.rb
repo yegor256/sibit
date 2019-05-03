@@ -76,6 +76,14 @@ class Sibit
     http
   end
 
+  # This HTTP client with proxy.
+  def self.proxy_http(addr)
+    host, port = addr.split(':')
+    http = Net::HTTP.new('blockchain.info', 443, host, port.to_i)
+    http.use_ssl = true
+    http
+  end
+
   # Constructor.
   #
   # You may provide the log you want to see the messages in. If you don't
@@ -194,7 +202,7 @@ class Sibit
       uri,
       'Accept' => 'text/plain',
       'User-Agent' => "Sibit #{Sibit::VERSION}",
-      'Accept-Encoding' => '',
+      'Accept-Encoding' => ''
     )
     raise Error, "Failed to retrieve #{uri} (#{res.code}): #{res.body}" unless res.code == '200'
     info("GET #{uri}: #{res.code}/#{res.body.length}b in #{age(start)}")
@@ -239,7 +247,14 @@ class Sibit
   def post_tx(body)
     start = Time.now
     uri = '/pushtx'
-    res = @http.start { |h| h.post('/pushtx', "tx=#{CGI.escape(body)}") }
+    res = @http.post(
+      '/pushtx',
+      "tx=#{CGI.escape(body)}",
+      'Accept' => 'text/plain',
+      'User-Agent' => "Sibit #{Sibit::VERSION}",
+      'Accept-Encoding' => '',
+      'Content-Type' => 'application/x-www-form-urlencoded'
+    )
     raise Error, "Failed to post tx to #{uri}: #{res.code}\n#{res.body}" unless res.code == '200'
     info("POST #{uri}: #{res.code} in #{age(start)}")
   end
