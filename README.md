@@ -1,4 +1,4 @@
-<img src="https://en.bitcoin.it/w/images/en/2/29/BC_Logo_.png" width="64px"/>
+<img src="/logo.png" width="64px"/>
 
 [![EO principles respected here](http://www.elegantobjects.org/badge.svg)](http://www.elegantobjects.org)
 [![Managed by Zerocracy](https://www.0crat.com/badge/C3RFVLU72.svg)](https://www.0crat.com/p/C3RFVLU72)
