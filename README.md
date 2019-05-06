@@ -77,6 +77,10 @@ The transaction hash will be returned.
 Not all [UTXOs](https://en.wikipedia.org/wiki/Unspent_transaction_output)
 will be used, but only the necessary amount of them.
 
+It is recommended to run it with `--dry --verbose` options first, to see
+what's going to be sent to the network. If everything looks correct, remove
+the `--dry` and run again, the transaction will be pushed to the network.
+
 All operations are performed through the
 [Blockchain API](https://www.blockchain.com/api/blockchain_api).
 Transactions are pushed to the Bitcoin network via
