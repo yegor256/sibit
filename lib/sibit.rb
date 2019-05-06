@@ -91,9 +91,10 @@ class Sibit
   # provide anything, the console will be used. The object you provide
   # has to respond to the method +info+ or +puts+ in order to receive logging
   # messages.
-  def initialize(log: STDOUT, http: Sibit.default_http)
+  def initialize(log: STDOUT, http: Sibit.default_http, dry: false)
     @log = log
     @http = http
+    @dry = dry
   end
 
   # Current price of 1 BTC.
@@ -185,7 +186,7 @@ class Sibit
   Amount: #{num(satoshi)} satoshi
   Target address: #{target}
   Change address is #{change}")
-    post_tx(tx.to_payload.bth)
+    post_tx(tx.to_payload.bth) unless @dry
     tx.hash
   end
 

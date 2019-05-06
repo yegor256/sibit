@@ -36,7 +36,6 @@ end
 task default: %i[clean test features rubocop copyright]
 
 require 'rake/testtask'
-desc 'Run all unit tests'
 Rake::TestTask.new(:test) do |test|
   Rake::Cleaner.cleanup_files(['coverage'])
   test.libs << 'lib' << 'test'
@@ -45,7 +44,6 @@ Rake::TestTask.new(:test) do |test|
 end
 
 require 'rdoc/task'
-desc 'Build RDoc documentation'
 Rake::RDocTask.new do |rdoc|
   rdoc.rdoc_dir = 'rdoc'
   rdoc.title = "#{name} #{version}"
@@ -54,7 +52,6 @@ Rake::RDocTask.new do |rdoc|
 end
 
 require 'rubocop/rake_task'
-desc 'Run RuboCop on all directories'
 RuboCop::RakeTask.new(:rubocop) do |task|
   task.fail_on_error = true
   task.requires << 'rubocop-rspec'

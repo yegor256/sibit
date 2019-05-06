@@ -39,6 +39,7 @@ Commands are:
     pay:      Send a new Bitcoin transaction
 Options are:"
       o.string '--proxy', 'HTTPS proxy for all requests, e.g. "localhost:3128"'
+      o.bool '--dry', 'Don\'t send a real payment, run in a read-only mode'
       o.bool '--help', 'Read this: https://github.com/yegor256/sibit' do
         puts o
         exit
@@ -51,7 +52,8 @@ Options are:"
   raise 'Try --help' if opts.arguments.empty?
   sibit = Sibit.new(
     log: opts[:verbose] ? STDOUT : nil,
-    http: opts[:proxy] ? Sibit.proxy_http(opts[:proxy]) : Sibit.default_http
+    http: opts[:proxy] ? Sibit.proxy_http(opts[:proxy]) : Sibit.default_http,
+    dry: opts[:dry]
   )
   case opts.arguments[0]
   when 'price'

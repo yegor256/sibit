@@ -15,7 +15,7 @@ build_script:
   - bundle update
   - bundle install
 test_script:
-  - rake
+  - bundle exec rake
 cache:
   - C:\Ruby200\bin -> sibit.gemspec
   - C:\Ruby200\lib\ruby\gems\2.0.0 -> sibit.gemspec
