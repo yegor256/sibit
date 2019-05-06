@@ -140,6 +140,7 @@ class Sibit
   # +target+: the target address to send to
   # +change+: the address where the change has to be sent to
   def pay(amount, fee, sources, target, change)
+    p = price
     satoshi = satoshi(amount)
     builder = Bitcoin::Builder::TxBuilder.new
     unspent = 0
@@ -159,11 +160,11 @@ class Sibit
         i.signature_key(key(sources[address]))
       end
       size += 180
-      info("  #{num(utxo['value'])}/#{utxo['confirmations']} at #{utxo['tx_hash_big_endian']}")
+      info("  #{num(utxo['value'], p)}/#{utxo['confirmations']} at #{utxo['tx_hash_big_endian']}")
       break if unspent > satoshi
     end
     if unspent < satoshi
-      raise Error, "Not enough funds to send #{num(amount)}, only #{num(unspent)} left"
+      raise Error, "Not enough funds to send #{num(satoshi, p)}, only #{num(unspent, p)} left"
     end
     builder.output(satoshi, target)
     f = mfee(fee, size)
@@ -173,17 +174,18 @@ class Sibit
       extra_fee: f - Bitcoin.network[:min_tx_fee],
       change_address: change
     )
+    left = unspent - tx.outputs.map(&:value).inject(&:+)
     info("A new Bitcoin transaction #{tx.hash} prepared:
   #{tx.in.count} input#{tx.in.count > 1 ? 's' : ''}:
     #{tx.inputs.map { |i| " in: #{i.prev_out.bth}:#{i.prev_out_index}" }.join("\n    ")}
   #{tx.out.count} output#{tx.out.count > 1 ? 's' : ''}:
-    #{tx.outputs.map { |o| "out: #{o.script.bth} / #{num(o.value)}" }.join("\n    ")}
-  Fee required: #{num(f)} satoshi
-  Min tx fee: #{num(Bitcoin.network[:min_tx_fee])} satoshi
-  Fee left: #{num(unspent - tx.outputs.map(&:value).inject(&:+))} satoshi
-  Tx size: #{num(size)} bytes
-  Unspent: #{num(unspent)} satoshi
-  Amount: #{num(satoshi)} satoshi
+    #{tx.outputs.map { |o| "out: #{o.script.bth} / #{num(o.value, p)}" }.join("\n    ")}
+  Fee required: #{num(f, p)}
+  Min tx fee: #{num(Bitcoin.network[:min_tx_fee], p)}
+  Fee left: #{num(left, p)}
+  Tx size: #{size} bytes
+  Unspent: #{num(unspent, p)}
+  Amount: #{num(satoshi, p)}
   Target address: #{target}
   Change address is #{change}")
     post_tx(tx.to_payload.bth) unless @dry
@@ -213,8 +215,12 @@ class Sibit
 
   private
 
-  def num(int)
-    int.to_s.gsub(/\d(?=(...)+$)/, '\0,')
+  def num(satoshi, usd)
+    format(
+      '%<satoshi>ss/$%<dollars>0.2f',
+      satoshi: satoshi.to_s.gsub(/\d(?=(...)+$)/, '\0,'),
+      dollars: satoshi * usd / 100_000_000
+    )
   end
 
   # Convert text to amount.

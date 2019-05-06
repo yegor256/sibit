@@ -80,6 +80,9 @@ class TestSibit < Minitest::Test
   end
 
   def test_send_payment
+    stub_request(
+      :get, 'https://blockchain.info/ticker'
+    ).to_return(status: 200, body: '{"USD" : {"15m" : 5160.04}}')
     json = {
       unspent_outputs: [
         {
@@ -112,6 +115,9 @@ class TestSibit < Minitest::Test
   end
 
   def test_fail_if_not_enough_funds
+    stub_request(
+      :get, 'https://blockchain.info/ticker'
+    ).to_return(status: 200, body: '{"USD" : {"15m" : 5160.04}}')
     json = {
       unspent_outputs: []
     }
