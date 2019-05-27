@@ -91,10 +91,11 @@ class Sibit
   # provide anything, the console will be used. The object you provide
   # has to respond to the method +info+ or +puts+ in order to receive logging
   # messages.
-  def initialize(log: STDOUT, http: Sibit.default_http, dry: false)
+  def initialize(log: STDOUT, http: Sibit.default_http, dry: false, attempts: 1)
     @log = log
     @http = http
     @dry = dry
+    @attempts = attempts
   end
 
   # Current price of 1 BTC.
@@ -202,15 +203,22 @@ class Sibit
   # response for correctness.
   def get_json(uri)
     start = Time.now
-    res = @http.get(
-      uri,
-      'Accept' => 'text/plain',
-      'User-Agent' => user_agent,
-      'Accept-Encoding' => ''
-    )
-    raise Error, "Failed to retrieve #{uri} (#{res.code}): #{res.body}" unless res.code == '200'
-    info("GET #{uri}: #{res.code}/#{res.body.length}b in #{age(start)}")
-    JSON.parse(res.body)
+    attempt = 0
+    begin
+      res = @http.get(
+        uri,
+        'Accept' => 'text/plain',
+        'User-Agent' => user_agent,
+        'Accept-Encoding' => ''
+      )
+      raise Error, "Failed to retrieve #{uri} (#{res.code}): #{res.body}" unless res.code == '200'
+      info("GET #{uri}: #{res.code}/#{res.body.length}b in #{age(start)}")
+      JSON.parse(res.body)
+    rescue StandardError => e
+      attempt += 1
+      raise e if attempt >= @attempts
+      retry
+    end
   end
 
   private
@@ -254,17 +262,23 @@ class Sibit
 
   def post_tx(body)
     start = Time.now
-    uri = '/pushtx'
-    res = @http.post(
-      '/pushtx',
-      "tx=#{CGI.escape(body)}",
-      'Accept' => 'text/plain',
-      'User-Agent' => user_agent,
-      'Accept-Encoding' => '',
-      'Content-Type' => 'application/x-www-form-urlencoded'
-    )
-    raise Error, "Failed to post tx to #{uri}: #{res.code}\n#{res.body}" unless res.code == '200'
-    info("POST #{uri}: #{res.code} in #{age(start)}")
+    begin
+      uri = '/pushtx'
+      res = @http.post(
+        '/pushtx',
+        "tx=#{CGI.escape(body)}",
+        'Accept' => 'text/plain',
+        'User-Agent' => user_agent,
+        'Accept-Encoding' => '',
+        'Content-Type' => 'application/x-www-form-urlencoded'
+      )
+      raise Error, "Failed to post tx to #{uri}: #{res.code}\n#{res.body}" unless res.code == '200'
+      info("POST #{uri}: #{res.code} in #{age(start)}")
+    rescue StandardError => e
+      attempt += 1
+      raise e if attempt >= @attempts
+      retry
+    end
   end
 
   def info(msg)
