@@ -15,7 +15,9 @@
 [![Hits-of-Code](https://hitsofcode.com/github/yegor256/sibit)](https://hitsofcode.com/view/github/yegor256/sibit)
 
 To understand how Bitcoin protocol works, I recommend you watching
-this [short video](https://www.youtube.com/watch?v=IV9pRBq5A4g).
+this [short video](https://www.youtube.com/watch?v=IV9pRBq5A4g) and
+then reading this blog post of mine:
+[_Sibit Demonstrates How Bitcoin Works_](https://www.yegor256.com/2019/05/07/sibit-bitcoin-command-line-client.html).
 
 This is a simple Bitcoin client, to use from the command line
 or from your Ruby app. You don't need to run any Bitcoin software,
