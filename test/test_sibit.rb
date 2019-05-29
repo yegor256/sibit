@@ -130,6 +130,9 @@ class TestSibit < Minitest::Test
 
   def test_fail_if_not_enough_funds
     stub_request(
+      :get, 'https://bitcoinfees.earn.com/api/v1/fees/recommended'
+    ).to_return(body: '{"fastestFee":300,"halfHourFee":200,"hourFee":180}')
+    stub_request(
       :get, 'https://blockchain.info/ticker'
     ).to_return(body: '{"USD" : {"15m" : 5160.04}}')
     json = {
@@ -144,7 +147,7 @@ class TestSibit < Minitest::Test
     change = sibit.create(sibit.generate)
     assert_raises Sibit::Error do
       sibit.pay(
-        '0.0001BTC', 'XL',
+        '0.0001BTC', '-XL',
         {
           '1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi' =>
           'fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2'

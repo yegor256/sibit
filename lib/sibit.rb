@@ -161,6 +161,8 @@ class Sibit
   def pay(amount, fee, sources, target, change)
     p = price
     satoshi = satoshi(amount)
+    f = mfee(fee, size_of(amount, sources))
+    satoshi -= f if f.negative?
     builder = Bitcoin::Builder::TxBuilder.new
     unspent = 0
     size = 100
@@ -259,9 +261,14 @@ class Sibit
   def mfee(fee, size)
     return fee.to_i if fee.is_a?(Integer)
     raise Error, 'Fee should either be a String or Integer' unless fee.is_a?(String)
+    mul = 1
+    if fee.start_with?('+', '-')
+      mul = -1 if fee.start_with?('-')
+      fee = fee[1..-1]
+    end
     sat = fees[fee.to_sym]
     raise Error, "Can't understand the fee: #{fee.inspect}" if sat.nil?
-    sat * size
+    mul * sat * size
   end
 
   # Make key from private key string in Hash160.
@@ -294,6 +301,30 @@ class Sibit
       raise e if attempt >= @attempts
       retry
     end
+  end
+
+  # Calculate an approximate size of the transaction.
+  def size_of(amount, sources)
+    satoshi = satoshi(amount)
+    builder = Bitcoin::Builder::TxBuilder.new
+    unspent = 0
+    size = 100
+    utxos = get_json(
+      "/unspent?active=#{sources.keys.join('|')}&limit=1000"
+    )['unspent_outputs']
+    utxos.each do |utxo|
+      unspent += utxo['value']
+      builder.input do |i|
+        i.prev_out(utxo['tx_hash_big_endian'])
+        i.prev_out_index(utxo['tx_output_n'])
+        i.prev_out_script = [utxo['script']].pack('H*')
+        address = Bitcoin::Script.new([utxo['script']].pack('H*')).get_address
+        i.signature_key(key(sources[address]))
+      end
+      size += 180
+      break if unspent > satoshi
+    end
+    size
   end
 
   def info(msg)

@@ -79,6 +79,13 @@ The transaction hash will be returned.
 Not all [UTXOs](https://en.wikipedia.org/wiki/Unspent_transaction_output)
 will be used, but only the necessary amount of them.
 
+By default, the fee will be paid on top of the payment amount you are sending.
+Say, you are sending 0.5 BTC and the fee is 0.0001 BTC. Totally, you will
+spend 0.5001. However, you can make Sibit deduct the fee from the payment
+amount. In this case you should provide a negative amount of the fee
+or one of `-S`, `-M`, `-L`, `-XL`. You can also say `+S`, if you want the
+opposite, which is the default.
+
 It is recommended to run it with `--dry --verbose` options first, to see
 what's going to be sent to the network. If everything looks correct, remove
 the `--dry` and run again, the transaction will be pushed to the network.
