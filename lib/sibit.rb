@@ -45,6 +45,10 @@ class Sibit
       4_000
     end
 
+    def fees
+      { S: 12, M: 45, L: 100, XL: 200 }
+    end
+
     def generate
       'fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2'
     end

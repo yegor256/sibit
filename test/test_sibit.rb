@@ -160,6 +160,7 @@ class TestSibit < Minitest::Test
   def test_fake_object_works
     sibit = Sibit::Fake.new
     assert_equal(4_000, sibit.price)
+    assert_equal(12, sibit.fees[:S])
     assert_equal('fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2', sibit.generate)
     assert_equal('1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi', sibit.create(''))
     assert_equal(100_000_000, sibit.balance(''))
