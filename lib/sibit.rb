@@ -123,6 +123,24 @@ class Sibit
     json['final_balance']
   end
 
+  # Get recommended fees, in satoshi per byte. The method returns
+  # a hash: { S: 12, M: 45, L: 100, XL: 200 }
+  def fees
+    json = JSON.parse(
+      Net::HTTP.get(
+        URI('https://bitcoinfees.earn.com/api/v1/fees/recommended')
+      )
+    )
+    info("Current recommended Bitcoin fees: \
+#{json['hourFee']}/#{json['halfHourFee']}/#{json['fastestFee']} sat/byte")
+    {
+      S: json['hourFee'] / 3,
+      M: json['hourFee'],
+      L: json['halfHourFee'],
+      XL: json['fastestFee']
+    }
+  end
+
   # Sends a payment and returns the transaction hash.
   #
   # If the payment can't be signed (the key is wrong, for example) or the
@@ -181,7 +199,6 @@ class Sibit
     #{tx.inputs.map { |i| " in: #{i.prev_out.bth}:#{i.prev_out_index}" }.join("\n    ")}
   #{tx.out.count} output#{tx.out.count > 1 ? 's' : ''}:
     #{tx.outputs.map { |o| "out: #{o.script.bth} / #{num(o.value, p)}" }.join("\n    ")}
-  Fee required: #{num(f, p)}
   Min tx fee: #{num(Bitcoin.network[:min_tx_fee], p)}
   Fee left: #{num(left, p)}
   Tx size: #{size} bytes
@@ -242,11 +259,9 @@ class Sibit
   def mfee(fee, size)
     return fee.to_i if fee.is_a?(Integer)
     raise Error, 'Fee should either be a String or Integer' unless fee.is_a?(String)
-    return 10 * size if fee == 'S'
-    return 50 * size if fee == 'M'
-    return 100 * size if fee == 'L'
-    return 250 * size if fee == 'XL'
-    raise Error, "Can't understand the fee: #{fee.inspect}"
+    sat = fees[fee.to_sym]
+    raise Error, "Can't understand the fee: #{fee.inspect}" if sat.nil?
+    sat * size
   end
 
   # Make key from private key string in Hash160.

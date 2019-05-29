@@ -30,10 +30,22 @@ require_relative '../lib/sibit'
 # Copyright:: Copyright (c) 2019 Yegor Bugayenko
 # License:: MIT
 class TestSibit < Minitest::Test
+  def test_loads_fees
+    stub_request(
+      :get, 'https://bitcoinfees.earn.com/api/v1/fees/recommended'
+    ).to_return(body: '{"fastestFee":300,"halfHourFee":200,"hourFee":180}')
+    sibit = Sibit.new
+    fees = sibit.fees
+    assert_equal(60, fees[:S])
+    assert_equal(180, fees[:M])
+    assert_equal(200, fees[:L])
+    assert_equal(300, fees[:XL])
+  end
+
   def test_fetch_current_price
     stub_request(
       :get, 'https://blockchain.info/ticker'
-    ).to_return(status: 200, body: '{"USD" : {"15m" : 5160.04}}')
+    ).to_return(body: '{"USD" : {"15m" : 5160.04}}')
     sibit = Sibit.new
     price = sibit.price
     assert(!price.nil?)
@@ -62,7 +74,7 @@ class TestSibit < Minitest::Test
     stub_request(
       :get,
       'https://blockchain.info/rawaddr/1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f'
-    ).to_return(status: 200, body: '{"final_balance": 100}')
+    ).to_return(body: '{"final_balance": 100}')
     sibit = Sibit.new
     balance = sibit.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')
     assert(balance.is_a?(Integer))
@@ -71,7 +83,6 @@ class TestSibit < Minitest::Test
 
   def test_get_latest_block
     stub_request(:get, 'https://blockchain.info/latestblock').to_return(
-      status: 200,
       body: '{"hash": "0000000000000538200a48202ca6340e983646ca088c7618ae82d68e0c76ef5a"}'
     )
     sibit = Sibit.new
@@ -81,8 +92,11 @@ class TestSibit < Minitest::Test
 
   def test_send_payment
     stub_request(
+      :get, 'https://bitcoinfees.earn.com/api/v1/fees/recommended'
+    ).to_return(body: '{"fastestFee":300,"halfHourFee":200,"hourFee":180}')
+    stub_request(
       :get, 'https://blockchain.info/ticker'
-    ).to_return(status: 200, body: '{"USD" : {"15m" : 5160.04}}')
+    ).to_return(body: '{"USD" : {"15m" : 5160.04}}')
     json = {
       unspent_outputs: [
         {
@@ -97,7 +111,7 @@ class TestSibit < Minitest::Test
     stub_request(
       :get,
       'https://blockchain.info/unspent?active=1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi&limit=1000'
-    ).to_return(status: 200, body: JSON.pretty_generate(json))
+    ).to_return(body: JSON.pretty_generate(json))
     stub_request(:post, 'https://blockchain.info/pushtx').to_return(status: 200)
     sibit = Sibit.new
     target = sibit.create(sibit.generate)
@@ -117,14 +131,14 @@ class TestSibit < Minitest::Test
   def test_fail_if_not_enough_funds
     stub_request(
       :get, 'https://blockchain.info/ticker'
-    ).to_return(status: 200, body: '{"USD" : {"15m" : 5160.04}}')
+    ).to_return(body: '{"USD" : {"15m" : 5160.04}}')
     json = {
       unspent_outputs: []
     }
     stub_request(
       :get,
       'https://blockchain.info/unspent?active=1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi&limit=1000'
-    ).to_return(status: 200, body: JSON.pretty_generate(json))
+    ).to_return(body: JSON.pretty_generate(json))
     sibit = Sibit.new
     target = sibit.create(sibit.generate)
     change = sibit.create(sibit.generate)
