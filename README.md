@@ -1,4 +1,4 @@
-<img src="/logo.png" width="64px"/>
+<img src="/logo.svg" width="64px"/>
 
 [![EO principles respected here](https://www.elegantobjects.org/badge.svg)](https://www.elegantobjects.org)
 [![Managed by Zerocracy](https://www.0crat.com/badge/C3RFVLU72.svg)](https://www.0crat.com/p/C3RFVLU72)
