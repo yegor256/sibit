@@ -288,6 +288,7 @@ class Sibit
 
   def post_tx(body)
     start = Time.now
+    attempt = 0
     begin
       uri = '/pushtx'
       res = @http.post(

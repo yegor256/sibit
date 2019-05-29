@@ -112,8 +112,10 @@ class TestSibit < Minitest::Test
       :get,
       'https://blockchain.info/unspent?active=1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi&limit=1000'
     ).to_return(body: JSON.pretty_generate(json))
-    stub_request(:post, 'https://blockchain.info/pushtx').to_return(status: 200)
-    sibit = Sibit.new
+    stub_request(:post, 'https://blockchain.info/pushtx').to_return(
+      [{ status: 500 }, { status: 200 }]
+    )
+    sibit = Sibit.new(attempts: 4)
     target = sibit.create(sibit.generate)
     change = sibit.create(sibit.generate)
     tx = sibit.pay(
