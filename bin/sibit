@@ -32,6 +32,7 @@ begin
       o.banner = "Usage (#{Sibit::VERSION}): sibit [options] command [args]
 Commands are:
     price:    Get current price of BTC in USD
+    fees:     Get currently recommended transaction fees
     latest:   Get hash of the latest block
     generate: Generate a new private key
     create:   Create a public Bitcoin address from the key
@@ -61,6 +62,14 @@ Options are:"
   case opts.arguments[0]
   when 'price'
     puts sibit.price
+  when 'fees'
+    fees = sibit.fees
+    text = %i[S M L XL].map do |m|
+      sat = fees[m] * 250
+      usd = sat * sibit.price / 100_000_000
+      "#{m}: #{sat}sat / $#{format('%.02f', usd)}"
+    end.join("\n")
+    puts text
   when 'latest'
     puts sibit.latest
   when 'generate'
