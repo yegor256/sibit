@@ -149,7 +149,7 @@ class TestSibit < Minitest::Test
     change = sibit.create(sibit.generate)
     assert_raises Sibit::Error do
       sibit.pay(
-        '0.0001BTC', '-XL',
+        '0.0001BTC', -5000,
         {
           '1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi' =>
           'fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2'

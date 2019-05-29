@@ -166,7 +166,9 @@ class Sibit
     p = price
     satoshi = satoshi(amount)
     f = mfee(fee, size_of(amount, sources))
-    satoshi -= f if f.negative?
+    satoshi += f if f.negative?
+    raise Error, "The fee #{f.abs} covers the entire amount" if satoshi.zero?
+    raise Error, "The fee #{f.abs} is bigger than the amount #{satoshi}" if satoshi.negative?
     builder = Bitcoin::Builder::TxBuilder.new
     unspent = 0
     size = 100
@@ -196,7 +198,7 @@ class Sibit
     tx = builder.tx(
       input_value: unspent,
       leave_fee: true,
-      extra_fee: f - Bitcoin.network[:min_tx_fee],
+      extra_fee: f.abs - Bitcoin.network[:min_tx_fee],
       change_address: change
     )
     left = unspent - tx.outputs.map(&:value).inject(&:+)
