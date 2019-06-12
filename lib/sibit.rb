@@ -111,7 +111,9 @@ class Sibit
 
   # Generates new Bitcon private key and returns in Hash160 format.
   def generate
-    Bitcoin::Key.generate.priv
+    key = Bitcoin::Key.generate.priv
+    info("Bitcoin private key generated: #{key[0..8]}...")
+    key
   end
 
   # Creates Bitcon address using the private key in Hash160 format.

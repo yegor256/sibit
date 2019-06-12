@@ -59,6 +59,17 @@ class TestSibit < Minitest::Test
     assert(/^[0-9a-f]{64}$/.match?(pkey))
   end
 
+  def test_generate_key_and_prints
+    require 'stringio'
+    require 'logger'
+    strio = StringIO.new
+    sibit = Sibit.new(log: Logger.new(strio))
+    key = sibit.generate
+    assert(strio.string.include?('private key generated'))
+    assert(strio.string.include?(key[0..4]))
+    assert(!strio.string.include?(key))
+  end
+
   def test_create_address
     sibit = Sibit.new
     pkey = sibit.generate
