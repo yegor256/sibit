@@ -5,7 +5,7 @@ install: |
   export GEM_HOME=~/.ruby
   export GEM_PATH=$GEM_HOME:$GEM_PATH
   sudo apt-get -y update
-  sudo gem install pdd
+  sudo gem install pdd -v 0.20.5
 release:
   script: |-
     bundle install
