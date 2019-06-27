@@ -29,7 +29,3 @@ Feature: Command Line Processing
   Scenario: Bitcoin fees can be printed
     When I run bin/sibit with "fees --verbose"
     Then Exit code is zero
-
-  Scenario: Bitcoin transaction can be sent
-    When I run bin/sibit with "--verbose --dry pay 100000 S 1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi:fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2 1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi 1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi"
-    Then Exit code is zero
