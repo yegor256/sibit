@@ -29,3 +29,10 @@ Feature: Command Line Processing
   Scenario: Bitcoin fees can be printed
     When I run bin/sibit with "fees --verbose"
     Then Exit code is zero
+
+  Scenario: With APIs
+    When I run bin/sibit with "balance --api=11234,124"
+    # @todo #20:30m For now, there haven't a proper method to check STDERR.
+    #  In this test I've tried to check the output with Stdout contains but there is not working.
+    #  Needs a proper alternative to check stderr.
+    Then Exit code is not zero
