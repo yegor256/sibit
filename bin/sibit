@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
+
 # Copyright (c) 2019 Yegor Bugayenko
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -40,8 +42,11 @@ Commands are:
     pay:      Send a new Bitcoin transaction
 Options are:"
       o.string '--proxy', 'HTTPS proxy for all requests, e.g. "localhost:3128"'
-      o.integer '--attempts',
-        'How many times should we try before failing', default: 1
+      o.integer(
+        '--attempts',
+        'How many times should we try before failing',
+        default: 1
+      )
       o.bool '--dry', 'Don\'t send a real payment, run in a read-only mode'
       o.bool '--help', 'Read this: https://github.com/yegor256/sibit' do
         puts o
@@ -50,7 +55,7 @@ Options are:"
       o.bool '--verbose', 'Print all possible debug messages'
     end
   rescue Slop::Error => ex
-    raise "#{ex.message}"
+    raise ex.message
   end
   raise 'Try --help' if opts.arguments.empty?
   sibit = Sibit.new(
