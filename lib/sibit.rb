@@ -210,7 +210,7 @@ class Sibit
   #{tx.out.count} output#{tx.out.count > 1 ? 's' : ''}:
     #{tx.outputs.map { |o| "out: #{o.script.bth} / #{num(o.value, p)}" }.join("\n    ")}
   Min tx fee: #{num(Bitcoin.network[:min_tx_fee], p)}
-  Fee requested: #{num(f, p)}
+  Fee requested: #{num(f, p)} as \"#{fee}\"
   Fee left: #{num(left, p)}
   Tx size: #{size} bytes
   Unspent: #{num(unspent, p)}
