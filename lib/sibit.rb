@@ -200,7 +200,7 @@ class Sibit
     tx = builder.tx(
       input_value: unspent,
       leave_fee: true,
-      extra_fee: [f.abs - Bitcoin.network[:min_tx_fee], 0].max,
+      extra_fee: [f, Bitcoin.network[:min_tx_fee]].max,
       change_address: change
     )
     left = unspent - tx.outputs.map(&:value).inject(&:+)
@@ -267,6 +267,11 @@ class Sibit
     raise Error, "Can't understand the amount #{amount.inspect}"
   end
 
+  # Calculates a fee in satoshi for the transaction of the specified size.
+  # The +fee+ argument could be a number in satoshi, in which case it will
+  # be returned as is, or a string like "XL" or "S", in which case the
+  # fee will be calculated using the +size+ argument (which is the size
+  # of the transaction in bytes).
   def mfee(fee, size)
     return fee.to_i if fee.is_a?(Integer)
     raise Error, 'Fee should either be a String or Integer' unless fee.is_a?(String)
