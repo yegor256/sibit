@@ -200,7 +200,7 @@ class Sibit
     tx = builder.tx(
       input_value: unspent,
       leave_fee: true,
-      extra_fee: f.abs - Bitcoin.network[:min_tx_fee],
+      extra_fee: [f.abs - Bitcoin.network[:min_tx_fee], 0].max,
       change_address: change
     )
     left = unspent - tx.outputs.map(&:value).inject(&:+)
@@ -210,6 +210,7 @@ class Sibit
   #{tx.out.count} output#{tx.out.count > 1 ? 's' : ''}:
     #{tx.outputs.map { |o| "out: #{o.script.bth} / #{num(o.value, p)}" }.join("\n    ")}
   Min tx fee: #{num(Bitcoin.network[:min_tx_fee], p)}
+  Fee requested: #{num(f, p)}
   Fee left: #{num(left, p)}
   Tx size: #{size} bytes
   Unspent: #{num(unspent, p)}
