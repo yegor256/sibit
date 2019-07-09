@@ -53,10 +53,12 @@ Options are:"
         exit
       end
       o.bool '--verbose', 'Print all possible debug messages'
+      # rubocop:disable Metrics/LineLength
       o.array '--api', 'Ordered List of APIs that will use. If the first api in list is failed than will use second one and so on.' do
-        # @todo #20:60m For now this feature is not implemented. Needs to be take this array and pass
-        #  it in the Sibit constructor as new parameter
-        abort("NOT IMPLEMENTED YET")
+        # rubocop:enable Metrics/LineLength
+        # @todo #20:60m For now this feature is not implemented.
+        #  Needs to be take this array and pass it in the Sibit constructor as new parameter
+        abort('NOT IMPLEMENTED YET')
       end
     end
   rescue Slop::Error => ex
