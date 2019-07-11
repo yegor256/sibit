@@ -21,4 +21,5 @@
 # SOFTWARE.
 
 require 'simplecov'
+require 'aruba/cucumber'
 require_relative '../../lib/sibit'

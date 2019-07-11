@@ -30,9 +30,12 @@ Feature: Command Line Processing
     When I run bin/sibit with "fees --verbose"
     Then Exit code is zero
 
-  Scenario: With APIs
-    When I run bin/sibit with "balance --api=11234,124"
-    # @todo #20:30m For now, there haven't a proper method to check STDERR.
-    #  In this test I've tried to check the output with Stdout contains but there is not working.
-    #  Needs a proper alternative to check stderr.
-    Then Exit code is not zero
+  Scenario:
+    # @todo: #35:30m For now, there is a warning when I run the test.
+    #  Needs to replace the current call to not deprecated one.
+    When I run "ruby ../../bin/sibit balance --api=11234,124"
+    Then the exit status should be 1
+    And the stderr should contain:
+    """
+    NOT IMPLEMENTED YET
+    """
