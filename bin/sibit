@@ -54,12 +54,8 @@ Options are:"
       end
       o.bool '--verbose', 'Print all possible debug messages'
       # rubocop:disable Metrics/LineLength
-      o.array '--api', 'Ordered List of APIs that will use. If the first api in list is failed than will use second one and so on.' do
-        # rubocop:enable Metrics/LineLength
-        # @todo #20:60m For now this feature is not implemented.
-        #  Needs to be take this array and pass it in the Sibit constructor as new parameter
-        abort('NOT IMPLEMENTED YET')
-      end
+      o.array '--api', 'Ordered List of APIs that will use. If the first api in list is failed than will use second one and so on.'
+      # rubocop:enable Metrics/LineLength
     end
   rescue Slop::Error => ex
     raise ex.message
@@ -69,7 +65,8 @@ Options are:"
     log: opts[:verbose] ? STDOUT : nil,
     http: opts[:proxy] ? Sibit.proxy_http(opts[:proxy]) : Sibit.default_http,
     dry: opts[:dry],
-    attempts: opts[:attempts]
+    attempts: opts[:attempts],
+    apis: opts[:api]
   )
   case opts.arguments[0]
   when 'price'

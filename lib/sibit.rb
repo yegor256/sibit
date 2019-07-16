@@ -95,11 +95,14 @@ class Sibit
   # provide anything, the console will be used. The object you provide
   # has to respond to the method +info+ or +puts+ in order to receive logging
   # messages.
-  def initialize(log: STDOUT, http: Sibit.default_http, dry: false, attempts: 1)
+  def initialize(log: STDOUT, http: Sibit.default_http, dry: false, attempts: 1, apis: [])
     @log = log
     @http = http
     @dry = dry
     @attempts = attempts
+    # @todo #36:30 After creating clients and clients let's use this field to get the client.
+    #  For now, this field does nothing. Needs to implement this.
+    @apis = apis
   end
 
   # Current price of 1 BTC.
