@@ -31,7 +31,7 @@ Feature: Command Line Processing
     Then Exit code is zero
 
   Scenario:
-    # @todo: #35:30m For now, there is a warning when I run the test.
+    # @todo #35:30m For now, there is a warning when I run the test.
     #  Needs to replace the current call to not deprecated one.
     When I run "ruby ../../bin/sibit balance --api=11234,124"
     Then the exit status should be 1
