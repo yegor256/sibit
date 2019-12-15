@@ -53,7 +53,7 @@ class TestSibit < Minitest::Test
   end
 
   def test_generate_key
-    sibit = Sibit.new
+    sibit = Sibit.new(api: Sibit::Fake.new)
     pkey = sibit.generate
     assert(!pkey.nil?)
     assert(/^[0-9a-f]{64}$/.match?(pkey))
@@ -63,7 +63,7 @@ class TestSibit < Minitest::Test
     require 'stringio'
     require 'logger'
     strio = StringIO.new
-    sibit = Sibit.new(log: Logger.new(strio))
+    sibit = Sibit.new(log: Logger.new(strio), api: Sibit::Fake.new)
     key = sibit.generate
     assert(strio.string.include?('private key generated'))
     assert(strio.string.include?(key[0..4]))
@@ -71,7 +71,7 @@ class TestSibit < Minitest::Test
   end
 
   def test_create_address
-    sibit = Sibit.new
+    sibit = Sibit.new(api: Sibit::Fake.new)
     pkey = sibit.generate
     puts "key: #{pkey}"
     address = sibit.create(pkey)
@@ -123,10 +123,8 @@ class TestSibit < Minitest::Test
       :get,
       'https://blockchain.info/unspent?active=1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi&limit=1000'
     ).to_return(body: JSON.pretty_generate(json))
-    stub_request(:post, 'https://blockchain.info/pushtx').to_return(
-      [{ status: 500 }, { status: 200 }]
-    )
-    sibit = Sibit.new(attempts: 4)
+    stub_request(:post, 'https://blockchain.info/pushtx').to_return(status: 200)
+    sibit = Sibit.new
     target = sibit.create(sibit.generate)
     change = sibit.create(sibit.generate)
     tx = sibit.pay(
@@ -168,20 +166,5 @@ class TestSibit < Minitest::Test
         target, change
       )
     end
-  end
-
-  def test_fake_object_works
-    sibit = Sibit::Fake.new
-    assert_equal(4_000, sibit.price)
-    assert_equal(12, sibit.fees[:S])
-    assert_equal('fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2', sibit.generate)
-    assert_equal('1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi', sibit.create(''))
-    assert_equal(100_000_000, sibit.balance(''))
-    assert_equal(
-      '9dfe55a30b5ee732005158c589179a398117117a68d21531fb6c78b85b544c54',
-      sibit.pay(0, 'M', {}, '', '')
-    )
-    assert_equal('00000000000000000008df8a6e1b61d1136803ac9791b8725235c9f780b4ed71', sibit.latest)
-    assert_equal({}, sibit.get_json('/'))
   end
 end

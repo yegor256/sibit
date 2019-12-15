@@ -25,8 +25,11 @@ STDOUT.sync = true
 
 require 'slop'
 require 'backtrace'
+require 'retriable_proxy'
 require_relative '../lib/sibit'
 require_relative '../lib/sibit/version'
+require_relative '../lib/sibit/blockchain'
+require_relative '../lib/sibit/btc'
 
 begin
   begin
@@ -53,24 +56,27 @@ Options are:"
         exit
       end
       o.bool '--verbose', 'Print all possible debug messages'
-      # rubocop:disable Metrics/LineLength
-      o.array '--api', 'Ordered List of APIs that will use. If the first api in list is failed than will use second one and so on.' do
-        # rubocop:enable Metrics/LineLength
-        # @todo #20:60m For now this feature is not implemented.
-        #  Needs to be take this array and pass it in the Sibit constructor as new parameter
-        abort('NOT IMPLEMENTED YET')
-      end
+      o.array '--api', 'Ordered List of APIs to use, e.g. "blockchain,btc"', default: ['blockchain']
     end
   rescue Slop::Error => ex
     raise ex.message
   end
   raise 'Try --help' if opts.arguments.empty?
-  sibit = Sibit.new(
-    log: opts[:verbose] ? STDOUT : nil,
-    http: opts[:proxy] ? Sibit.proxy_http(opts[:proxy]) : Sibit.default_http,
-    dry: opts[:dry],
-    attempts: opts[:attempts]
-  )
+  log = Sibit::Log.new(opts[:verbose] ? STDOUT : nil)
+  http = opts[:proxy] ? Sibit::HttpProxy.new(opts[:proxy]) : Sibit::Http.new
+  apis = opts[:api].map(&:downcase).map do |a|
+    api = nil
+    if a == 'blockchain'
+      api = Sibit::Blockchain.new(http: http, log: log, dry: opts[:dry])
+    elsif a == 'btc'
+      api = Sibit::Btc.new(http: http, log: log, dry: opts[:dry])
+    else
+      raise Sibit::Error, "Unknown API \"#{a}\""
+    end
+    api = RetriableProxy.for_object(api, on: Sibit::Error) if opts[:attempts] > 1
+    api
+  end
+  sibit = Sibit.new(log: log, api: apis)
   case opts.arguments[0]
   when 'price'
     puts sibit.price
