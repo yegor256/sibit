@@ -70,7 +70,11 @@ class Sibit
 
     # Gets the hash of the latest block.
     def latest
-      raise Sibit::Error, 'Not implemented yet'
+      uri = URI('https://chain.api.btc.com/v3/block/latest')
+      json = Sibit::Json.new(http: @http, log: @log).get(uri)
+      hash = json['data']['hash']
+      @log.info("The hash of the latest block is #{hash}")
+      hash
     end
   end
 end

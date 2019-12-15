@@ -11,7 +11,11 @@ Feature: Command Line Processing
     Then Exit code is zero
 
   Scenario: Bitcoin latest block hash can be retrieved
-    When I run bin/sibit with "latest"
+    When I run bin/sibit with "latest --api=blockchain"
+    Then Exit code is zero
+
+  Scenario: Bitcoin latest block hash can be retrieved via Btc
+    When I run bin/sibit with "latest --api=btc"
     Then Exit code is zero
 
   Scenario: Bitcoin private key can be generated
