@@ -52,7 +52,9 @@ class Sibit
         URI('https://blockchain.info/ticker')
       )[currency]
       raise Error, "Unrecognized currency #{currency}" if h.nil?
-      h['15m']
+      price = h['15m']
+      @log.info("The price of BTC is #{price} USD")
+      price
     end
 
     # Gets the balance of the address, in satoshi.
