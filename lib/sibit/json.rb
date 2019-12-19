@@ -22,9 +22,11 @@
 
 require 'json'
 require 'uri'
+require 'cgi'
 require_relative 'version'
 require_relative 'error'
 require_relative 'http'
+require_relative 'log'
 
 # Json SDK.
 #
@@ -50,8 +52,9 @@ class Sibit
       start = Time.now
       res = @http.client(uri).get(
         "#{uri.path}?#{uri.query}",
-        'Accept' => 'text/plain',
+        'Accept' => 'application/json',
         'User-Agent' => user_agent,
+        'Accept-Charset' => 'UTF-8',
         'Accept-Encoding' => ''
       )
       unless res.code == '200'
@@ -68,6 +71,7 @@ class Sibit
         "tx=#{CGI.escape(body)}",
         'Accept' => 'text/plain',
         'User-Agent' => user_agent,
+        'Accept-Charset' => 'UTF-8',
         'Accept-Encoding' => '',
         'Content-Type' => 'application/x-www-form-urlencoded'
       )

@@ -20,35 +20,21 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-require 'net/http'
+require 'minitest/autorun'
+require 'uri'
+require_relative '../lib/sibit/json'
 
-# HTTP interface.
-#
+# Sibit::Json test.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
 # Copyright:: Copyright (c) 2019 Yegor Bugayenko
 # License:: MIT
-class Sibit
-  # This HTTP client will be used by default.
-  class Http
-    def client(uri)
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true
-      http.read_timeout = 120
-      http
-    end
-  end
-
-  # This HTTP client with proxy.
-  class HttpProxy
-    def initialize(addr)
-      @host, @port = addr.split(':')
-    end
-
-    def client(uri)
-      http = Net::HTTP.new(uri.host, uri.port, @host, @port.to_i)
-      http.use_ssl = true
-      http.read_timeout = 120
-      http
-    end
+class TestJson < Minitest::Test
+  def test_loads_list_of_transactions
+    WebMock.allow_net_connect!
+    hash = '00000000000000000009cf4a72b39c634586e6e328365f0d7293964111148094'
+    uri = URI("https://chain.api.btc.com/v3/block/#{hash}/tx")
+    hash = Sibit::Json.new.get(uri)
+    list = hash['data']['list']
+    assert(list.count > 1)
   end
 end
