@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) 2019 Yegor Bugayenko
+# Copyright (c) 2019-2020 Yegor Bugayenko
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the 'Software'), to deal
@@ -34,7 +34,7 @@ require_relative 'json'
 # https://www.blockchain.com/api/blockchain_api
 #
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
-# Copyright:: Copyright (c) 2019 Yegor Bugayenko
+# Copyright:: Copyright (c) 2019-2020 Yegor Bugayenko
 # License:: MIT
 class Sibit
   # Blockchain.info API.
@@ -133,7 +133,7 @@ class Sibit
       #{tx.outputs.map { |o| "out: #{o.script.bth} / #{num(o.value, p)}" }.join("\n    ")}
     Min tx fee: #{num(Bitcoin.network[:min_tx_fee], p)}
     Fee requested: #{num(f, p)} as \"#{fee}\"
-    Fee left: #{num(left, p)}
+    Fee actually paid: #{num(left, p)}
     Tx size: #{size} bytes
     Unspent: #{num(unspent, p)}
     Amount: #{num(satoshi, p)}
@@ -153,6 +153,11 @@ class Sibit
       Sibit::Json.new(http: @http, log: @log).get(
         URI('https://blockchain.info/latestblock')
       )['hash']
+    end
+
+    # This method should fetch a Blockchain block and return as a hash.
+    def block(_hash)
+      raise Sibit::Error, 'Not implemented yet'
     end
 
     private

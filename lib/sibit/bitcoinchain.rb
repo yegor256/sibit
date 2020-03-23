@@ -28,14 +28,14 @@ require_relative 'log'
 require_relative 'http'
 require_relative 'json'
 
-# Btc.com API.
+# Bitcoinchain.com API.
 #
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
 # Copyright:: Copyright (c) 2019-2020 Yegor Bugayenko
 # License:: MIT
 class Sibit
   # Btc.com API.
-  class Btc
+  class Bitcoinchain
     # Constructor.
     def initialize(log: Sibit::Log.new, http: Sibit::Http.new, dry: false)
       @http = http
@@ -50,17 +50,9 @@ class Sibit
 
     # Gets the balance of the address, in satoshi.
     def balance(address)
-      uri = URI("https://chain.api.btc.com/v3/address/#{address}/unspent")
-      json = Sibit::Json.new(http: @http, log: @log).get(uri)
-      data = json['data']
-      if data.nil?
-        @log.info("The balance of #{address} is zero (not found)")
-        return 0
-      end
-      txns = data['list']
-      balance = txns.map { |tx| tx['value'] }.inject(&:+) || 0
-      @log.info("The balance of #{address} is #{balance}, total txns: #{txns.count}")
-      balance
+      Sibit::Json.new(http: @http, log: @log).get(
+        URI("https://api-r.bitcoinchain.com/v1/address/#{address}")
+      )[0]['balance']
     end
 
     # Get recommended fees, in satoshi per byte.
@@ -75,54 +67,37 @@ class Sibit
 
     # Gets the hash of the latest block.
     def latest
-      uri = URI('https://chain.api.btc.com/v3/block/latest')
-      json = Sibit::Json.new(http: @http, log: @log).get(uri)
-      hash = json['data']['hash']
-      @log.info("The hash of the latest block is #{hash}")
-      hash
+      Sibit::Json.new(http: @http, log: @log).get(
+        URI('https://api-r.bitcoinchain.com/v1/status')
+      )['hash']
     end
 
     # This method should fetch a Blockchain block and return as a hash.
     def block(hash)
       head = Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://chain.api.btc.com/v3/block/#{hash}")
-      )
-      nxt = head['data']['next_block_hash']
+        URI("https://api-r.bitcoinchain.com/v1/block/#{hash}")
+      )[0]
+      nxt = head['next_block']
       nxt = nil if nxt == '0000000000000000000000000000000000000000000000000000000000000000'
       {
-        hash: head['data']['hash'],
-        orphan: head['data']['is_orphan'],
+        hash: head['hash'],
+        orphan: !head['is_main'],
         next: nxt,
-        previous: head['data']['prev_block_hash'],
-        txns: txns(hash)
-      }
-    end
-
-    private
-
-    def txns(hash)
-      page = 1
-      psize = 50
-      all = []
-      loop do
-        txns = Sibit::Json.new(http: @http, log: @log).get(
-          URI("https://chain.api.btc.com/v3/block/#{hash}/tx?page=#{page}&pagesize=#{psize}")
-        )['data']['list'].map do |t|
+        previous: head['prev_block'],
+        txns: Sibit::Json.new(http: @http, log: @log).get(
+          URI("https://api-r.bitcoinchain.com/v1/block/txs/#{hash}")
+        )[0]['txs'].map do |t|
           {
-            hash: t['hash'],
-            outputs: t['outputs'].reject { |o| o['spent_by_tx'] }.map do |o|
+            hash: t['self_hash'],
+            outputs: t['outputs'].select { |o| o['spent'] }.map do |o|
               {
-                address: o['addresses'][0],
+                address: o['receiver'],
                 value: o['value']
               }
             end
           }
         end
-        all += txns
-        page += 1
-        break if txns.length < psize
-      end
-      all
+      }
     end
   end
 end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) 2019 Yegor Bugayenko
+# Copyright (c) 2019-2020 Yegor Bugayenko
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the 'Software'), to deal
@@ -28,7 +28,7 @@ require_relative 'sibit/blockchain'
 # Sibit main class.
 #
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
-# Copyright:: Copyright (c) 2019 Yegor Bugayenko
+# Copyright:: Copyright (c) 2019-2020 Yegor Bugayenko
 # License:: MIT
 class Sibit
   # Constructor.
@@ -113,6 +113,62 @@ class Sibit
   # Gets the hash of the latest block.
   def latest
     first_one(&:latest)
+  end
+
+  # You call this method and provide a callback. You provide the hash
+  # of the starting block. The method will go through the Blockchain,
+  # fetch blocks and find transactions, one by one, passing them to the
+  # callback provided. When finished, the method returns the hash of
+  # a new block, seen last.
+  #
+  # The callback will be called with three arguments:
+  # 1) Bitcoin address of the receiver, 2) transaction hash, 3) amount
+  # in satoshi.
+  def scan(start, max: 4)
+    block = start
+    count = 0
+    wrong = []
+    loop do
+      json = first_one { |api| api.block(block) }
+      if json[:orphan]
+        steps = 4
+        @log.info("Orphan block found at #{block}, moving #{steps} steps back...")
+        wrong << block
+        steps.times do
+          block = json[:previous]
+          wrong << block
+          @log.info("Moved back to #{block}")
+          json = first_one { |api| api.block(block) }
+        end
+        next
+      end
+      checked = 0
+      checked_outputs = 0
+      json[:txns].each do |t|
+        t[:outputs].each_with_index do |o, i|
+          address = o[:address]
+          checked_outputs += 1
+          hash = "#{t[:hash]}:#{i}"
+          satoshi = o[:value]
+          yield(address, hash, satoshi)
+          @log.info("Bitcoin tx found at #{hash} for #{satoshi} sent to #{address}")
+        end
+        checked += 1
+      end
+      @log.info("We checked #{checked} txns and #{checked_outputs} outputs in block #{block}")
+      n = json[:next]
+      if n.nil?
+        @log.info("The next_block is empty in block #{block}, this is the end of Blockchain")
+        break
+      end
+      block = n
+      count += 1
+      if count > max
+        @log.info("Too many blocks (#{count}) in one go, let's get back to it next time")
+        break
+      end
+    end
+    block
   end
 
   private

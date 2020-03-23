@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) 2019 Yegor Bugayenko
+# Copyright (c) 2019-2020 Yegor Bugayenko
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the 'Software'), to deal
@@ -27,7 +27,7 @@ require_relative '../lib/sibit'
 
 # Sibit.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
-# Copyright:: Copyright (c) 2019 Yegor Bugayenko
+# Copyright:: Copyright (c) 2019-2020 Yegor Bugayenko
 # License:: MIT
 class TestSibit < Minitest::Test
   def test_loads_fees
@@ -166,5 +166,38 @@ class TestSibit < Minitest::Test
         target, change
       )
     end
+  end
+
+  def test_scan
+    api = Object.new
+    def api.block(hash)
+      {
+        hash: hash,
+        orphan: false,
+        next: 'next',
+        previous: 'previous',
+        txns: [
+          {
+            hash: 'hash',
+            outputs: [
+              {
+                address: 'addr',
+                value: 123
+              }
+            ]
+          }
+        ]
+      }
+    end
+    sibit = Sibit.new(api: api)
+    found = false
+    tail = sibit.scan('head') do |addr, tx, satoshi|
+      assert_equal(123, satoshi)
+      assert_equal('addr', addr)
+      assert_equal('hash:0', tx)
+      found = true
+    end
+    assert(found)
+    assert_equal('next', tail)
   end
 end

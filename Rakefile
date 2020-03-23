@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) 2019 Yegor Bugayenko
+# Copyright (c) 2019-2020 Yegor Bugayenko
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the 'Software'), to deal
@@ -66,7 +66,7 @@ Cucumber::Rake::Task.new(:'features:html') do |t|
 end
 
 task :copyright do
-  sh "grep -q -r '#{Date.today.strftime('%Y')}' \
+  sh "grep -q -r '2019-#{Date.today.strftime('%Y')}' \
     --include '*.rb' \
     --include '*.txt' \
     --include 'Rakefile' \

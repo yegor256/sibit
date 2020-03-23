@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) 2019 Yegor Bugayenko
+# Copyright (c) 2019-2020 Yegor Bugayenko
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the 'Software'), to deal
@@ -26,15 +26,12 @@ require_relative '../lib/sibit/json'
 
 # Sibit::Json test.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
-# Copyright:: Copyright (c) 2019 Yegor Bugayenko
+# Copyright:: Copyright (c) 2019-2020 Yegor Bugayenko
 # License:: MIT
 class TestJson < Minitest::Test
-  def test_loads_list_of_transactions
+  def test_loads_hash
     WebMock.allow_net_connect!
-    hash = '00000000000000000009cf4a72b39c634586e6e328365f0d7293964111148094'
-    uri = URI("https://chain.api.btc.com/v3/block/#{hash}/tx")
-    hash = Sibit::Json.new.get(uri)
-    list = hash['data']['list']
-    assert(list.count > 1)
+    json = Sibit::Json.new.get(URI('https://api-r.bitcoinchain.com/v1/status'))
+    assert(!json['hash'].nil?)
   end
 end
