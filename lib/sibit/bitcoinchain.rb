@@ -72,11 +72,13 @@ class Sibit
       )['hash']
     end
 
-    # This method should fetch a Blockchain block and return as a hash.
+    # This method should fetch a Blockchain block and return as a hash. Raises
+    # an exception if the block is not found.
     def block(hash)
       head = Sibit::Json.new(http: @http, log: @log).get(
         URI("https://api-r.bitcoinchain.com/v1/block/#{hash}")
       )[0]
+      raise Sibit::Error, "The block #{hash} is not found" if head.nil?
       nxt = head['next_block']
       nxt = nil if nxt == '0000000000000000000000000000000000000000000000000000000000000000'
       {
