@@ -40,6 +40,19 @@ class TestFake < Minitest::Test
       sibit.pay(0, 'M', {}, '', '')
     )
     assert_equal('00000000000000000008df8a6e1b61d1136803ac9791b8725235c9f780b4ed71', sibit.latest)
-    assert_equal({}, sibit.get_json('/'))
+  end
+
+  def test_scan_works
+    sibit = Sibit.new(api: Sibit::Fake.new)
+    hash = '1234567'
+    found = false
+    tail = sibit.scan(hash) do |addr, tx, satoshi|
+      assert_equal(1000, satoshi)
+      assert_equal('1HqhZx8U18TYS5paraTM1MzUQWb7ZbcG9u', addr)
+      assert_equal("#{hash}:0", tx)
+      found = true
+    end
+    assert(found)
+    assert_equal(hash, tail)
   end
 end

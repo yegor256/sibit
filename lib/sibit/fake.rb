@@ -50,8 +50,24 @@ class Sibit
       '00000000000000000008df8a6e1b61d1136803ac9791b8725235c9f780b4ed71'
     end
 
-    def get_json(_uri)
-      {}
+    def block(hash)
+      {
+        hash: hash,
+        orphan: false,
+        next: hash,
+        previous: hash,
+        txns: [
+          {
+            hash: hash,
+            outputs: [
+              {
+                address: '1HqhZx8U18TYS5paraTM1MzUQWb7ZbcG9u',
+                value: 1000
+              }
+            ]
+          }
+        ]
+      }
     end
   end
 end
