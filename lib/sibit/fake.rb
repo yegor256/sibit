@@ -42,8 +42,12 @@ class Sibit
       100_000_000
     end
 
-    def pay(_amount, _fee, _sources, _target, _change)
-      '9dfe55a30b5ee732005158c589179a398117117a68d21531fb6c78b85b544c54'
+    def utxos(_sources)
+      []
+    end
+
+    def push(hex)
+      # Nothing to do here
     end
 
     def latest

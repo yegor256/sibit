@@ -68,11 +68,6 @@ class Sibit
       raise Sibit::Error, 'Not implemented yet'
     end
 
-    # Sends a payment and returns the transaction hash.
-    def pay(_amount, _fee, _sources, _target, _change)
-      raise Sibit::Error, 'Not implemented yet'
-    end
-
     # Gets the hash of the latest block.
     def latest
       uri = URI('https://chain.api.btc.com/v3/block/latest')
@@ -80,6 +75,16 @@ class Sibit
       hash = json['data']['hash']
       @log.info("The hash of the latest block is #{hash}")
       hash
+    end
+
+    # Fetch all unspent outputs per address.
+    def utxos(_sources)
+      raise Sibit::Error, 'Not implemented yet'
+    end
+
+    # Push this transaction (in hex format) to the network.
+    def push(_hex)
+      raise Sibit::Error, 'Not implemented yet'
     end
 
     # This method should fetch a Blockchain block and return as a hash.

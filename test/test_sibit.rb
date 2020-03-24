@@ -24,6 +24,9 @@ require 'minitest/autorun'
 require 'webmock/minitest'
 require 'json'
 require_relative '../lib/sibit'
+require_relative '../lib/sibit/earn'
+require_relative '../lib/sibit/fake'
+require_relative '../lib/sibit/blockchain'
 
 # Sibit.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
@@ -34,7 +37,7 @@ class TestSibit < Minitest::Test
     stub_request(
       :get, 'https://bitcoinfees.earn.com/api/v1/fees/recommended'
     ).to_return(body: '{"fastestFee":300,"halfHourFee":200,"hourFee":180}')
-    sibit = Sibit.new
+    sibit = Sibit.new(api: Sibit::Earn.new)
     fees = sibit.fees
     assert_equal(60, fees[:S])
     assert_equal(180, fees[:M])
@@ -124,7 +127,7 @@ class TestSibit < Minitest::Test
       'https://blockchain.info/unspent?active=1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi&limit=1000'
     ).to_return(body: JSON.pretty_generate(json))
     stub_request(:post, 'https://blockchain.info/pushtx').to_return(status: 200)
-    sibit = Sibit.new
+    sibit = Sibit.new(api: [Sibit::Earn.new, Sibit::Blockchain.new])
     target = sibit.create(sibit.generate)
     change = sibit.create(sibit.generate)
     tx = sibit.pay(

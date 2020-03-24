@@ -31,6 +31,7 @@ require_relative '../lib/sibit/version'
 require_relative '../lib/sibit/blockchain'
 require_relative '../lib/sibit/btc'
 require_relative '../lib/sibit/bitcoinchain'
+require_relative '../lib/sibit/earn'
 
 begin
   begin
@@ -57,7 +58,11 @@ Options are:"
         exit
       end
       o.bool '--verbose', 'Print all possible debug messages'
-      o.array '--api', 'Ordered List of APIs to use, e.g. "blockchain,btc"', default: ['blockchain']
+      o.array(
+        '--api',
+        'Ordered List of APIs to use, e.g. "earn,blockchain,btc,bitcoinchain"',
+        default: %w[earn blockchain btc bitcoinchain]
+      )
     end
   rescue Slop::Error => ex
     raise ex.message
@@ -73,6 +78,8 @@ Options are:"
       api = Sibit::Btc.new(http: http, log: log, dry: opts[:dry])
     elsif a == 'bitcoinchain'
       api = Sibit::Bitcoinchain.new(http: http, log: log, dry: opts[:dry])
+    elsif a == 'earn'
+      api = Sibit::Earn.new(http: http, log: log, dry: opts[:dry])
     else
       raise Sibit::Error, "Unknown API \"#{a}\""
     end

@@ -20,7 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-require 'bitcoin'
 require 'json'
 require 'uri'
 require_relative 'version'
@@ -28,17 +27,14 @@ require_relative 'error'
 require_relative 'http'
 require_relative 'json'
 
-# Blockchain.info API.
-#
-# It works through the Blockchain API:
-# https://www.blockchain.com/api/blockchain_api
+# Earn.com API.
 #
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
 # Copyright:: Copyright (c) 2019-2020 Yegor Bugayenko
 # License:: MIT
 class Sibit
   # Blockchain.info API.
-  class Blockchain
+  class Earn
     # Constructor.
     def initialize(log: Sibit::Log.new, http: Sibit::Http.new, dry: false)
       @http = http
@@ -47,65 +43,49 @@ class Sibit
     end
 
     # Current price of BTC in USD (float returned).
-    def price(currency)
-      h = Sibit::Json.new(http: @http, log: @log).get(
-        URI('https://blockchain.info/ticker')
-      )[currency]
-      raise Error, "Unrecognized currency #{currency}" if h.nil?
-      price = h['15m']
-      @log.info("The price of BTC is #{price} USD")
-      price
+    def price(_currency)
+      raise Sibit::Error, 'price() doesn\'t work here'
     end
 
     # Gets the balance of the address, in satoshi.
-    def balance(address)
-      json = Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://blockchain.info/rawaddr/#{address}")
-      )
-      @log.info("Total transactions: #{json['n_tx']}")
-      @log.info("Received/sent: #{json['total_received']}/#{json['total_sent']}")
-      json['final_balance']
+    def balance(_address)
+      raise Sibit::Error, 'balance() doesn\'t work here'
     end
 
-    # Get recommended fees.
+    # Get recommended fees, in satoshi per byte. The method returns
+    # a hash: { S: 12, M: 45, L: 100, XL: 200 }
     def fees
-      raise Sibit::Error, 'fees() not implemented yet'
+      json = Sibit::Json.new(http: @http, log: @log).get(
+        URI('https://bitcoinfees.earn.com/api/v1/fees/recommended')
+      )
+      @log.info("Current recommended Bitcoin fees: \
+  #{json['hourFee']}/#{json['halfHourFee']}/#{json['fastestFee']} sat/byte")
+      {
+        S: json['hourFee'] / 3,
+        M: json['hourFee'],
+        L: json['halfHourFee'],
+        XL: json['fastestFee']
+      }
     end
 
     # Fetch all unspent outputs per address.
-    def utxos(sources)
-      Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://blockchain.info/unspent?active=#{sources.keys.join('|')}&limit=1000")
-      )['unspent_outputs'].map do |u|
-        {
-          value: u['value'],
-          hash: u['tx_hash_big_endian'],
-          index: u['tx_output_n'],
-          confirmations: u['confirmations'],
-          script: [u['script']].pack('H*')
-        }
-      end
+    def utxos(_sources)
+      raise Sibit::Error, 'Not implemented yet'
     end
 
     # Push this transaction (in hex format) to the network.
-    def push(hex)
-      return if @dry
-      Sibit::Json.new(http: @http, log: @log).post(
-        URI('https://blockchain.info/pushtx'),
-        hex
-      )
+    def push(_hex)
+      raise Sibit::Error, 'Not implemented yet'
     end
 
     # Gets the hash of the latest block.
     def latest
-      Sibit::Json.new(http: @http, log: @log).get(
-        URI('https://blockchain.info/latestblock')
-      )['hash']
+      raise Sibit::Error, 'latest() doesn\'t work here'
     end
 
     # This method should fetch a Blockchain block and return as a hash.
     def block(_hash)
-      raise Sibit::Error, 'block() not implemented yet'
+      raise Sibit::Error, 'block() doesn\'t work here'
     end
   end
 end

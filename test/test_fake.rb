@@ -35,10 +35,7 @@ class TestFake < Minitest::Test
     assert_equal(4_000, sibit.price)
     assert_equal(12, sibit.fees[:S])
     assert_equal(100_000_000, sibit.balance(''))
-    assert_equal(
-      '9dfe55a30b5ee732005158c589179a398117117a68d21531fb6c78b85b544c54',
-      sibit.pay(0, 'M', {}, '', '')
-    )
+    assert_equal([], sibit.utxos(nil))
     assert_equal('00000000000000000008df8a6e1b61d1136803ac9791b8725235c9f780b4ed71', sibit.latest)
   end
 

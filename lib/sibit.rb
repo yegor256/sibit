@@ -105,9 +105,61 @@ class Sibit
   # +target+: the target address to send to
   # +change+: the address where the change has to be sent to
   def pay(amount, fee, sources, target, change)
-    first_one do |api|
-      api.pay(amount, fee, sources, target, change)
+    p = price('USD')
+    satoshi = satoshi(amount)
+    builder = Bitcoin::Builder::TxBuilder.new
+    unspent = 0
+    size = 100
+    utxos = first_one { |api| api.utxos(sources) }
+    @log.info("#{utxos.count} UTXOs found, these will be used \
+(value/confirmations at tx_hash):")
+    utxos.each do |utxo|
+      unspent += utxo[:value]
+      builder.input do |i|
+        i.prev_out(utxo[:hash])
+        i.prev_out_index(utxo[:index])
+        i.prev_out_script = utxo[:script]
+        address = Bitcoin::Script.new(utxo[:script]).get_address
+        i.signature_key(key(sources[address]))
+      end
+      size += 180
+      @log.info(
+        "  #{num(utxo[:value], p)}/#{utxo[:confirmations]} at #{utxo[:hash]}"
+      )
+      break if unspent > satoshi
     end
+    if unspent < satoshi
+      raise Error, "Not enough funds to send #{num(satoshi, p)}, only #{num(unspent, p)} left"
+    end
+    builder.output(satoshi, target)
+    f = mfee(fee, size)
+    satoshi += f if f.negative?
+    raise Error, "The fee #{f.abs} covers the entire amount" if satoshi.zero?
+    raise Error, "The fee #{f.abs} is bigger than the amount #{satoshi}" if satoshi.negative?
+    tx = builder.tx(
+      input_value: unspent,
+      leave_fee: true,
+      extra_fee: [f, Bitcoin.network[:min_tx_fee]].max,
+      change_address: change
+    )
+    left = unspent - tx.outputs.map(&:value).inject(&:+)
+    @log.info("A new Bitcoin transaction #{tx.hash} prepared:
+  #{tx.in.count} input#{tx.in.count > 1 ? 's' : ''}:
+    #{tx.inputs.map { |i| " in: #{i.prev_out.bth}:#{i.prev_out_index}" }.join("\n    ")}
+  #{tx.out.count} output#{tx.out.count > 1 ? 's' : ''}:
+    #{tx.outputs.map { |o| "out: #{o.script.bth} / #{num(o.value, p)}" }.join("\n    ")}
+  Min tx fee: #{num(Bitcoin.network[:min_tx_fee], p)}
+  Fee requested: #{num(f, p)} as \"#{fee}\"
+  Fee actually paid: #{num(left, p)}
+  Tx size: #{size} bytes
+  Unspent: #{num(unspent, p)}
+  Amount: #{num(satoshi, p)}
+  Target address: #{target}
+  Change address is #{change}")
+    first_one do |api|
+      api.push(tx.to_payload.bth)
+    end
+    tx.hash
   end
 
   # Gets the hash of the latest block.
@@ -186,7 +238,51 @@ class Sibit
         @log.info("The API #{api.class.name} failed: #{e.message}")
       end
     end
-    raise Sibit::Error, 'No APIs managed to succeed' unless done
+    unless done
+      raise Sibit::Error, "No APIs out of #{@api.length} managed to succeed: \
+#{@api.map { |a| a.class.name }.join(', ')}"
+    end
     result
+  end
+
+  def num(satoshi, usd)
+    format(
+      '%<satoshi>ss/$%<dollars>0.2f',
+      satoshi: satoshi.to_s.gsub(/\d(?=(...)+$)/, '\0,'),
+      dollars: satoshi * usd / 100_000_000
+    )
+  end
+
+  # Convert text to amount.
+  def satoshi(amount)
+    return amount if amount.is_a?(Integer)
+    raise Error, 'Amount should either be a String or Integer' unless amount.is_a?(String)
+    return (amount.gsub(/BTC$/, '').to_f * 100_000_000).to_i if amount.end_with?('BTC')
+    raise Error, "Can't understand the amount #{amount.inspect}"
+  end
+
+  # Calculates a fee in satoshi for the transaction of the specified size.
+  # The +fee+ argument could be a number in satoshi, in which case it will
+  # be returned as is, or a string like "XL" or "S", in which case the
+  # fee will be calculated using the +size+ argument (which is the size
+  # of the transaction in bytes).
+  def mfee(fee, size)
+    return fee.to_i if fee.is_a?(Integer)
+    raise Error, 'Fee should either be a String or Integer' unless fee.is_a?(String)
+    mul = 1
+    if fee.start_with?('+', '-')
+      mul = -1 if fee.start_with?('-')
+      fee = fee[1..-1]
+    end
+    sat = fees[fee.to_sym]
+    raise Error, "Can't understand the fee: #{fee.inspect}" if sat.nil?
+    mul * sat * size
+  end
+
+  # Make key from private key string in Hash160.
+  def key(hash160)
+    key = Bitcoin::Key.new
+    key.priv = hash160
+    key
   end
 end
