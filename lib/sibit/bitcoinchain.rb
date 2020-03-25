@@ -54,7 +54,9 @@ class Sibit
         URI("https://api-r.bitcoinchain.com/v1/address/#{address}")
       )[0]
       raise Sibit::Error, "Address #{address} not found" if json.nil?
-      (json['balance'] * 100_000_000).to_i
+      b = (json['balance'] * 100_000_000).to_i
+      @log.info("The balance of #{address} is #{b} satoshi")
+      b
     end
 
     # Get recommended fees, in satoshi per byte.
