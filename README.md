@@ -113,6 +113,41 @@ tx = sibit.pay(10_000_000, 'XL', { address => pkey }, target, change)
 
 Should work.
 
+## APIs
+
+The library works through one (or a few) public APIs for fetching
+Bitcoin data and pushing transactions to the network. At the moment we
+work with the following APIs:
+
+  * [Blockchain.com](https://www.blockchain.com/api/blockchain_api)
+  * [BTC.com](https://btc.com/api-doc)
+  * [Cryptoapis.io](https://docs.cryptoapis.io/rest-apis/blockchain-as-a-service-apis/btc/index)
+  * [Bitcoinchain.com](https://bitcoinchain.com/api)
+  * [Earn.com](https://bitcoinfees.earn.com/api)
+
+The first one in this list is used by default. If you want to use a diffent
+one, you just specify it in the constructor of `Sibit` object:
+
+```ruby
+require 'sibit'
+require 'sibit/btc'
+sibit = Sibit.new(api: Sibit::Btc.new)
+```
+
+You may also use a combination of APIs. This may be very useful since
+some APIs are not reliable. You can provide an array of objects and they
+will be used one by one, until a successful response is obtained:
+
+```ruby
+require 'sibit'
+require 'sibit/btc'
+require 'sibit/cryptoapis'
+sibit = Sibit.new(api: [Sibit::Btc.new, Sibit::Cryptoapis.new('key')])
+```
+
+If you think we may need to use some other API, you can submit a ticket,
+or implement it yourself and submit a pull request.
+
 ## How to install
 
 To install on a fresh Ubuntu 18:
