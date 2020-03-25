@@ -46,7 +46,7 @@ class Sibit
 
     # Current price of BTC in USD (float returned).
     def price(_currency)
-      raise Sibit::Error, 'Not implemented yet'
+      raise Sibit::Error, 'Cryptoapis doesn\'t provide BTC price'
     end
 
     # Gets the balance of the address, in satoshi.
