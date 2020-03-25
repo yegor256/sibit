@@ -30,7 +30,7 @@ require_relative '../lib/sibit'
 # Copyright:: Copyright (c) 2019-2020 Yegor Bugayenko
 # License:: MIT
 class TestLive < Minitest::Test
-  def test_fetch_block
+  def test_block
     for_each do |api|
       hash = '000000003031a0e73735690c5a1ff2a4be82553b2a12b776fbd3a215dc8f778d'
       json = api.block(hash)
@@ -55,6 +55,7 @@ class TestLive < Minitest::Test
     for_each do |api|
       hash = '1GkQmKAmHtNfnD3LHhTkewJxKHVSta4m2a'
       satoshi = api.balance(hash)
+      assert(satoshi.is_a?(Integer), "Wrong type of balance: #{satoshi.class.name}")
       assert_equal(5_000_028_421, satoshi)
     end
   end
@@ -73,7 +74,7 @@ class TestLive < Minitest::Test
     WebMock.allow_net_connect!
     apis = []
     require_relative '../lib/sibit/cryptoapis'
-    apis << Sibit::Cryptoapis.new('--api-key--')
+    apis << Sibit::Cryptoapis.new('-key-')
     require_relative '../lib/sibit/btc'
     apis << Sibit::Btc.new
     require_relative '../lib/sibit/bitcoinchain'

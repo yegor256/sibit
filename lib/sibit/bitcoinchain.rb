@@ -50,9 +50,9 @@ class Sibit
 
     # Gets the balance of the address, in satoshi.
     def balance(address)
-      Sibit::Json.new(http: @http, log: @log).get(
+      (Sibit::Json.new(http: @http, log: @log).get(
         URI("https://api-r.bitcoinchain.com/v1/address/#{address}")
-      )[0]['balance'] * 100_000_000
+      )[0]['balance'] * 100_000_000).to_i
     end
 
     # Get recommended fees, in satoshi per byte.

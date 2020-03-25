@@ -33,9 +33,10 @@ require_relative '../lib/sibit/cryptoapis'
 class TestCryptoapis < Minitest::Test
   def test_fetch_block
     hash = '000000000000000007341915521967247f1dec17b3a311b8a8f4495392f1439b'
-    stub_request(:get, "https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/#{hash}")
+    url = 'https://api.cryptoapis.io/v1/bc/btc/mainnet'
+    stub_request(:get, "#{url}/blocks/#{hash}")
       .to_return(body: '{"payload": {"nextblockhash": "n", "hash": "h", "previousblockhash": "p"}}')
-    stub_request(:get, "https://api.cryptoapis.io/v1/bc/btc/mainnet/txs/block/#{hash}")
+    stub_request(:get, "#{url}/txs/block/#{hash}?index=0&limit=200")
       .to_return(body: '{"payload": [{"hash": "thash",
         "txouts": [{"addresses": ["a1"], "value": 123}]}]}')
     sibit = Sibit::Cryptoapis.new('-')

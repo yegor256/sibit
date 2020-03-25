@@ -51,10 +51,10 @@ class Sibit
 
     # Gets the balance of the address, in satoshi.
     def balance(address)
-      Sibit::Json.new(http: @http, log: @log).get(
+      (Sibit::Json.new(http: @http, log: @log).get(
         URI("https://api.cryptoapis.io/v1/bc/btc/mainnet/address/#{address}"),
         headers: headers
-      )['payload']['balance'].to_f * 100_000_000
+      )['payload']['balance'].to_f * 100_000_000).to_i
     end
 
     # Get recommended fees, in satoshi per byte.
@@ -95,8 +95,30 @@ class Sibit
         orphan: false,
         next: head['nextblockhash'],
         previous: head['previousblockhash'],
-        txns: Sibit::Json.new(http: @http, log: @log).get(
-          URI("https://api.cryptoapis.io/v1/bc/btc/mainnet/txs/block/#{hash}"),
+        txns: txns(hash)
+      }
+    end
+
+    private
+
+    def headers
+      {
+        'X-API-Key': @key
+      }
+    end
+
+    def txns(hash)
+      index = 0
+      limit = 200
+      all = []
+      loop do
+        txns = Sibit::Json.new(http: @http, log: @log).get(
+          URI(
+            [
+              'https://api.cryptoapis.io/v1/bc/btc/mainnet/txs/block/',
+              "#{hash}?index=#{index}&limit=#{limit}"
+            ].join
+          ),
           headers: headers
         )['payload'].map do |t|
           {
@@ -109,15 +131,11 @@ class Sibit
             end
           }
         end
-      }
-    end
-
-    private
-
-    def headers
-      {
-        'X-API-Key': @key
-      }
+        all += txns
+        index += txns.length
+        break if txns.length < limit
+      end
+      all
     end
   end
 end
