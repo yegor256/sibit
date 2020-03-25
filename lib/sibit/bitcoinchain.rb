@@ -84,6 +84,9 @@ class Sibit
         URI("https://api-r.bitcoinchain.com/v1/block/#{hash}")
       )[0]
       raise Sibit::Error, "The block #{hash} is not found" if head.nil?
+      txs = Sibit::Json.new(http: @http, log: @log).get(
+        URI("https://api-r.bitcoinchain.com/v1/block/txs/#{hash}")
+      )
       nxt = head['next_block']
       nxt = nil if nxt == '0000000000000000000000000000000000000000000000000000000000000000'
       {
@@ -91,15 +94,13 @@ class Sibit
         orphan: !head['is_main'],
         next: nxt,
         previous: head['prev_block'],
-        txns: Sibit::Json.new(http: @http, log: @log).get(
-          URI("https://api-r.bitcoinchain.com/v1/block/txs/#{hash}")
-        )[0]['txs'].map do |t|
+        txns: txs[0]['txs'].map do |t|
           {
             hash: t['self_hash'],
-            outputs: t['outputs'].select { |o| o['spent'] }.map do |o|
+            outputs: t['outputs'].map do |o|
               {
                 address: o['receiver'],
-                value: o['value']
+                value: o['value'] * 100_000_000
               }
             end
           }

@@ -175,7 +175,8 @@ class Sibit
   #
   # The callback will be called with three arguments:
   # 1) Bitcoin address of the receiver, 2) transaction hash, 3) amount
-  # in satoshi.
+  # in satoshi. The callback should return non-false if the transaction
+  # found was useful.
   def scan(start, max: 4)
     block = start
     count = 0
@@ -202,8 +203,9 @@ class Sibit
           checked_outputs += 1
           hash = "#{t[:hash]}:#{i}"
           satoshi = o[:value]
-          yield(address, hash, satoshi)
-          @log.info("Bitcoin tx found at #{hash} for #{satoshi} sent to #{address}")
+          if yield(address, hash, satoshi)
+            @log.info("Bitcoin tx found at #{hash} for #{satoshi} sent to #{address}")
+          end
         end
         checked += 1
       end

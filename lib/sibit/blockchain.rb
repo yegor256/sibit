@@ -104,27 +104,28 @@ class Sibit
     end
 
     # This method should fetch a Blockchain block and return as a hash.
-    def block(hash)
-      json = Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://blockchain.info/rawblock/#{hash}")
-      )
-      {
-        hash: json['hash'],
-        orphan: !json['main_chain'],
-        next: json['next_block'][0],
-        previous: json['prev_block'],
-        txns: json['tx'].map do |t|
-          {
-            hash: t['hash'],
-            outputs: t['out'].map do |o|
-              {
-                address: o['hash'],
-                value: o['value']
-              }
-            end
-          }
-        end
-      }
+    def block(_hash)
+      raise Sibit::Error, 'Blockchain.com API fails to return next_block'
+      # json = Sibit::Json.new(http: @http, log: @log).get(
+      #   URI("https://blockchain.info/rawblock/#{hash}")
+      # )
+      # {
+      #   hash: json['hash'],
+      #   orphan: !json['main_chain'],
+      #   next: json['next_block'][0],
+      #   previous: json['prev_block'],
+      #   txns: json['tx'].map do |t|
+      #     {
+      #       hash: t['hash'],
+      #       outputs: t['out'].map do |o|
+      #         {
+      #           address: o['addr'],
+      #           value: o['value']
+      #         }
+      #       end
+      #     }
+      #   end
+      # }
     end
   end
 end
