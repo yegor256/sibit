@@ -66,9 +66,11 @@ class Sibit
 
     # Gets the hash of the latest block.
     def latest
-      Sibit::Json.new(http: @http, log: @log).get(
+      hash = Sibit::Json.new(http: @http, log: @log).get(
         URI('https://api-r.bitcoinchain.com/v1/status')
       )['hash']
+      @log.info("The latest block hash is #{hash}")
+      hash
     end
 
     # Fetch all unspent outputs per address.

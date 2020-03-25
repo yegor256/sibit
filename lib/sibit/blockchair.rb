@@ -52,9 +52,13 @@ class Sibit
 
     # Gets the balance of the address, in satoshi.
     def balance(address)
-      Sibit::Json.new(http: @http, log: @log).get(
+      json = Sibit::Json.new(http: @http, log: @log).get(
         URI("https://api.blockchair.com/bitcoin/dashboards/address/#{address}?#{the_key}")
-      )['data'][address]['address']['balance']
+      )['data'][address]
+      raise Sibit::Error, "Address #{address} not found" if json.nil?
+      b = json['address']['balance']
+      @log.info("The balance of #{address} is #{b} satoshi")
+      b
     end
 
     # Get recommended fees, in satoshi per byte.
