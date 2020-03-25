@@ -28,16 +28,17 @@ require_relative 'log'
 require_relative 'http'
 require_relative 'json'
 
-# Bitcoinchain.com API.
+# Cryptoapis.io API.
 #
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
 # Copyright:: Copyright (c) 2019-2020 Yegor Bugayenko
 # License:: MIT
 class Sibit
   # Btc.com API.
-  class Bitcoinchain
+  class Cryptoapis
     # Constructor.
-    def initialize(log: Sibit::Log.new, http: Sibit::Http.new, dry: false)
+    def initialize(key, log: Sibit::Log.new, http: Sibit::Http.new, dry: false)
+      @key = key
       @http = http
       @log = log
       @dry = dry
@@ -51,8 +52,9 @@ class Sibit
     # Gets the balance of the address, in satoshi.
     def balance(address)
       Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://api-r.bitcoinchain.com/v1/address/#{address}")
-      )[0]['balance'] * 100_000_000
+        URI("https://api.cryptoapis.io/v1/bc/btc/mainnet/address/#{address}"),
+        headers: headers
+      )['payload']['balance'].to_f * 100_000_000
     end
 
     # Get recommended fees, in satoshi per byte.
@@ -63,8 +65,9 @@ class Sibit
     # Gets the hash of the latest block.
     def latest
       Sibit::Json.new(http: @http, log: @log).get(
-        URI('https://api-r.bitcoinchain.com/v1/status')
-      )['hash']
+        URI('https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/latest'),
+        headers: headers
+      )['payload']['hash']
     end
 
     # Fetch all unspent outputs per address.
@@ -73,38 +76,47 @@ class Sibit
     end
 
     # Push this transaction (in hex format) to the network.
-    def push(_hex)
-      raise Sibit::Error, 'Not implemented yet'
+    def push(hex)
+      Sibit::Json.new(http: @http, log: @log).post(
+        URI('https://api.cryptoapis.io/v1/bc/btc/testnet/txs/send'),
+        JSON.pretty_generate(hex: hex),
+        headers: headers
+      )
     end
 
-    # This method should fetch a Blockchain block and return as a hash. Raises
-    # an exception if the block is not found.
+    # This method should fetch a Blockchain block and return as a hash.
     def block(hash)
       head = Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://api-r.bitcoinchain.com/v1/block/#{hash}")
-      )[0]
-      raise Sibit::Error, "The block #{hash} is not found" if head.nil?
-      txs = Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://api-r.bitcoinchain.com/v1/block/txs/#{hash}")
-      )
-      nxt = head['next_block']
-      nxt = nil if nxt == '0000000000000000000000000000000000000000000000000000000000000000'
+        URI("https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/#{hash}"),
+        headers: headers
+      )['payload']
       {
         hash: head['hash'],
-        orphan: !head['is_main'],
-        next: nxt,
-        previous: head['prev_block'],
-        txns: txs[0]['txs'].map do |t|
+        orphan: false,
+        next: head['nextblockhash'],
+        previous: head['previousblockhash'],
+        txns: Sibit::Json.new(http: @http, log: @log).get(
+          URI("https://api.cryptoapis.io/v1/bc/btc/mainnet/txs/block/#{hash}"),
+          headers: headers
+        )['payload'].map do |t|
           {
-            hash: t['self_hash'],
-            outputs: t['outputs'].map do |o|
+            hash: t['hash'],
+            outputs: t['txouts'].map do |o|
               {
-                address: o['receiver'],
-                value: o['value'] * 100_000_000
+                address: o['addresses'][0],
+                value: o['amount'].to_f * 100_000_000
               }
             end
           }
         end
+      }
+    end
+
+    private
+
+    def headers
+      {
+        'X-API-Key': @key
       }
     end
   end

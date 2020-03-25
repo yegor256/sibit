@@ -24,9 +24,6 @@ require 'minitest/autorun'
 require 'webmock/minitest'
 require 'json'
 require_relative '../lib/sibit'
-require_relative '../lib/sibit/blockchain'
-require_relative '../lib/sibit/btc'
-require_relative '../lib/sibit/bitcoinchain'
 
 # Live tests.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
@@ -34,7 +31,6 @@ require_relative '../lib/sibit/bitcoinchain'
 # License:: MIT
 class TestLive < Minitest::Test
   def test_fetch_block
-    skip
     for_each do |api|
       hash = '000000003031a0e73735690c5a1ff2a4be82553b2a12b776fbd3a215dc8f778d'
       json = api.block(hash)
@@ -55,11 +51,36 @@ class TestLive < Minitest::Test
     end
   end
 
+  def test_balance
+    for_each do |api|
+      hash = '1GkQmKAmHtNfnD3LHhTkewJxKHVSta4m2a'
+      satoshi = api.balance(hash)
+      assert_equal(5_000_028_421, satoshi)
+    end
+  end
+
+  def test_latest
+    for_each do |api|
+      hash = api.latest
+      assert_equal(64, hash.length)
+    end
+  end
+
   private
 
   def for_each
+    skip
     WebMock.allow_net_connect!
-    [Sibit::Btc.new, Sibit::Bitcoinchain.new, Sibit::Blockchain.new].each do |api|
+    apis = []
+    require_relative '../lib/sibit/cryptoapis'
+    apis << Sibit::Cryptoapis.new('--api-key--')
+    require_relative '../lib/sibit/btc'
+    apis << Sibit::Btc.new
+    require_relative '../lib/sibit/bitcoinchain'
+    apis << Sibit::Bitcoinchain.new
+    require_relative '../lib/sibit/blockchain'
+    apis << Sibit::Blockchain.new
+    apis.each do |api|
       begin
         yield api
       rescue Sibit::Error => e

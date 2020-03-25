@@ -48,14 +48,16 @@ class Sibit
     # Send GET request to the HTTP and return JSON response.
     # This method will also log the process and will validate the
     # response for correctness.
-    def get(uri)
+    def get(uri, headers: {})
       start = Time.now
       res = @http.client(uri).get(
         "#{uri.path}?#{uri.query}",
-        'Accept' => 'application/json',
-        'User-Agent' => user_agent,
-        'Accept-Charset' => 'UTF-8',
-        'Accept-Encoding' => ''
+        {
+          'Accept' => 'application/json',
+          'User-Agent' => user_agent,
+          'Accept-Charset' => 'UTF-8',
+          'Accept-Encoding' => ''
+        }.merge(headers)
       )
       unless res.code == '200'
         raise Sibit::Error, "Failed to retrieve #{uri} (#{res.code}): #{res.body}"
@@ -64,16 +66,18 @@ class Sibit
       JSON.parse(res.body)
     end
 
-    def post(uri, body)
+    def post(uri, body, headers: {})
       start = Time.now
       res = @http.client(uri).post(
         "#{uri.path}?#{uri.query}",
         "tx=#{CGI.escape(body)}",
-        'Accept' => 'text/plain',
-        'User-Agent' => user_agent,
-        'Accept-Charset' => 'UTF-8',
-        'Accept-Encoding' => '',
-        'Content-Type' => 'application/x-www-form-urlencoded'
+        {
+          'Accept' => 'text/plain',
+          'User-Agent' => user_agent,
+          'Accept-Charset' => 'UTF-8',
+          'Accept-Encoding' => '',
+          'Content-Type' => 'application/x-www-form-urlencoded'
+        }.merge(headers)
       )
       unless res.code == '200'
         raise Sibit::Error, "Failed to post tx to #{uri}: #{res.code}\n#{res.body}"
