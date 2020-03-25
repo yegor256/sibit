@@ -73,6 +73,8 @@ class TestLive < Minitest::Test
     skip
     WebMock.allow_net_connect!
     apis = []
+    require_relative '../lib/sibit/blockchair'
+    apis << Sibit::Blockchair.new
     require_relative '../lib/sibit/cryptoapis'
     apis << Sibit::Cryptoapis.new('-key-')
     require_relative '../lib/sibit/btc'

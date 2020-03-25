@@ -123,9 +123,10 @@ work with the following APIs:
   * [BTC.com](https://btc.com/api-doc)
   * [Cryptoapis.io](https://docs.cryptoapis.io/rest-apis/blockchain-as-a-service-apis/btc/index)
   * [Bitcoinchain.com](https://bitcoinchain.com/api)
+  * [Blockchair.com](https://blockchair.com/api/docs)
   * [Earn.com](https://bitcoinfees.earn.com/api)
 
-The first one in this list is used by default. If you want to use a diffent
+The first one in this list is used by default. If you want to use a different
 one, you just specify it in the constructor of `Sibit` object:
 
 ```ruby
@@ -135,7 +136,8 @@ sibit = Sibit.new(api: Sibit::Btc.new)
 ```
 
 You may also use a combination of APIs. This may be very useful since
-some APIs are not reliable. You can provide an array of objects and they
+some APIs are not reliable and others don't have all the features required.
+You can provide an array of objects and they
 will be used one by one, until a successful response is obtained:
 
 ```ruby
