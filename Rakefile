@@ -37,6 +37,7 @@ task default: %i[clean test features rubocop copyright]
 
 require 'rake/testtask'
 Rake::TestTask.new(:test) do |test|
+  ENV['skip_live'] = 'yes'
   Rake::Cleaner.cleanup_files(['coverage'])
   test.libs << 'lib' << 'test'
   test.pattern = 'test/**/test_*.rb'

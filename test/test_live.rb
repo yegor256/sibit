@@ -67,12 +67,23 @@ class TestLive < Minitest::Test
     end
   end
 
+  def test_utxos
+    for_each do |api|
+      json = api.utxos(['12fCwqBN4XsHq4iu2Wbfgq5e8YhqEGP3ee'])
+      assert_equal(3, json.length)
+      assert(json.find { |t| t[:value] == 16_200_000 }, 'UTXO not found')
+      assert(json.find { |t| t[:script].unpack('H*').first.start_with?('76a9141231e760') })
+    end
+  end
+
   private
 
   def for_each
-    skip
+    skip if ENV['skip_live']
     WebMock.allow_net_connect!
     apis = []
+    require_relative '../lib/sibit/blockchain'
+    apis << Sibit::Blockchain.new
     require_relative '../lib/sibit/blockchair'
     apis << Sibit::Blockchair.new
     require_relative '../lib/sibit/cryptoapis'
@@ -81,8 +92,6 @@ class TestLive < Minitest::Test
     apis << Sibit::Btc.new
     require_relative '../lib/sibit/bitcoinchain'
     apis << Sibit::Bitcoinchain.new
-    require_relative '../lib/sibit/blockchain'
-    apis << Sibit::Blockchain.new
     apis.each do |api|
       begin
         yield api

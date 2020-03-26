@@ -110,7 +110,7 @@ class Sibit
     builder = Bitcoin::Builder::TxBuilder.new
     unspent = 0
     size = 100
-    utxos = first_one { |api| api.utxos(sources) }
+    utxos = first_one { |api| api.utxos(sources.keys) }
     @log.info("#{utxos.count} UTXOs found, these will be used \
 (value/confirmations at tx_hash):")
     utxos.each do |utxo|

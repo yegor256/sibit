@@ -45,7 +45,7 @@ class Sibit
 
     # Current price of BTC in USD (float returned).
     def price(_currency)
-      raise Sibit::Error, 'Btc.com API doesn\'t provide BTC price'
+      raise Sibit::Error, 'Btc.com API doesn\'t provide prices'
     end
 
     # Gets the balance of the address, in satoshi.
@@ -65,7 +65,7 @@ class Sibit
 
     # Get recommended fees, in satoshi per byte.
     def fees
-      raise Sibit::Error, 'Not implemented yet'
+      raise Sibit::Error, 'Btc.com doesn\'t provide recommended fees'
     end
 
     # Gets the hash of the latest block.
@@ -78,13 +78,34 @@ class Sibit
     end
 
     # Fetch all unspent outputs per address.
-    def utxos(_sources)
-      raise Sibit::Error, 'Not implemented yet'
+    def utxos(sources)
+      txns = []
+      sources.each do |hash|
+        json = Sibit::Json.new(http: @http, log: @log).get(
+          URI("https://chain.api.btc.com/v3/address/#{hash}/unspent")
+        )
+        json['data']['list'].each do |u|
+          outs = Sibit::Json.new(http: @http, log: @log).get(
+            URI("https://chain.api.btc.com/v3/tx/#{u['tx_hash']}?verbose=3")
+          )['data']['outputs']
+          outs.each_with_index do |o, i|
+            next unless o['addresses'].include?(hash)
+            txns << {
+              value: o['value'],
+              hash: u['tx_hash'],
+              index: i,
+              confirmations: u['confirmations'],
+              script: [o['script_hex']].pack('H*')
+            }
+          end
+        end
+      end
+      txns
     end
 
     # Push this transaction (in hex format) to the network.
     def push(_hex)
-      raise Sibit::Error, 'Not implemented yet'
+      raise Sibit::Error, 'Btc.com doesn\'t provide payment gateway'
     end
 
     # This method should fetch a Blockchain block and return as a hash.

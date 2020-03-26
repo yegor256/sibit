@@ -69,13 +69,14 @@ class Sibit
 
     # Get recommended fees.
     def fees
-      raise Sibit::Error, 'fees() not implemented yet'
+      raise Sibit::Error, 'fees() is not provided by Blockchain API'
     end
 
-    # Fetch all unspent outputs per address.
+    # Fetch all unspent outputs per address. The argument is an array
+    # of Bitcoin addresses.
     def utxos(sources)
       Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://blockchain.info/unspent?active=#{sources.keys.join('|')}&limit=1000")
+        URI("https://blockchain.info/unspent?active=#{sources.join('|')}&limit=1000")
       )['unspent_outputs'].map do |u|
         {
           value: u['value'],
