@@ -57,6 +57,16 @@ class Sibit
       price
     end
 
+    # The height of the block.
+    def height(hash)
+      json = Sibit::Json.new(http: @http, log: @log).get(
+        URI("https://blockchain.info/rawblock/#{hash}")
+      )
+      h = json['height']
+      @log.info("The height of #{hash} is #{h}")
+      h
+    end
+
     # Gets the balance of the address, in satoshi.
     def balance(address)
       json = Sibit::Json.new(http: @http, log: @log).get(

@@ -63,6 +63,16 @@ class Sibit
       balance
     end
 
+    # The height of the block.
+    def height(hash)
+      json = Sibit::Json.new(http: @http, log: @log).get(
+        URI("https://chain.api.btc.com/v3/block/#{hash}")
+      )
+      h = json['data']['height']
+      @log.info("The height of #{hash} is #{h}")
+      h
+    end
+
     # Get recommended fees, in satoshi per byte.
     def fees
       raise Sibit::Error, 'Btc.com doesn\'t provide recommended fees'

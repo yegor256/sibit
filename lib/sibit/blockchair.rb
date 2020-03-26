@@ -50,6 +50,11 @@ class Sibit
       raise Sibit::Error, 'Blockchair doesn\'t provide BTC price'
     end
 
+    # The height of the block.
+    def height(_hash)
+      raise Sibit::Error, 'Blockchair API doesn\'t provide height()'
+    end
+
     # Gets the balance of the address, in satoshi.
     def balance(address)
       json = Sibit::Json.new(http: @http, log: @log).get(

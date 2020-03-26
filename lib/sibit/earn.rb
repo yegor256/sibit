@@ -52,6 +52,11 @@ class Sibit
       raise Sibit::Error, 'balance() doesn\'t work here'
     end
 
+    # The height of the block.
+    def height(_hash)
+      raise Sibit::Error, 'Earn API doesn\'t provide height()'
+    end
+
     # Get recommended fees, in satoshi per byte. The method returns
     # a hash: { S: 12, M: 45, L: 100, XL: 200 }
     def fees

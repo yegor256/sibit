@@ -67,6 +67,14 @@ class TestLive < Minitest::Test
     end
   end
 
+  def test_height
+    for_each do |api|
+      hash = '000000003031a0e73735690c5a1ff2a4be82553b2a12b776fbd3a215dc8f778d'
+      height = api.height(hash)
+      assert_equal(6, height)
+    end
+  end
+
   def test_utxos
     for_each do |api|
       json = api.utxos(['12fCwqBN4XsHq4iu2Wbfgq5e8YhqEGP3ee'])
@@ -87,7 +95,7 @@ class TestLive < Minitest::Test
     require_relative '../lib/sibit/blockchair'
     apis << Sibit::Blockchair.new
     require_relative '../lib/sibit/cryptoapis'
-    apis << Sibit::Cryptoapis.new('-key-')
+    apis << Sibit::Cryptoapis.new('')
     require_relative '../lib/sibit/btc'
     apis << Sibit::Btc.new
     require_relative '../lib/sibit/bitcoinchain'

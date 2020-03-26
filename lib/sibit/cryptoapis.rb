@@ -49,6 +49,17 @@ class Sibit
       raise Sibit::Error, 'Cryptoapis doesn\'t provide BTC price'
     end
 
+    # The height of the block.
+    def height(hash)
+      json = Sibit::Json.new(http: @http, log: @log).get(
+        URI("https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/#{hash}"),
+        headers: headers
+      )['payload']
+      h = json['height']
+      @log.info("The height of #{hash} is #{h}")
+      h
+    end
+
     # Gets the balance of the address, in satoshi.
     def balance(address)
       json = Sibit::Json.new(http: @http, log: @log).get(
@@ -107,6 +118,7 @@ class Sibit
     private
 
     def headers
+      return {} if @key.nil? || @key.empty?
       {
         'X-API-Key': @key
       }
