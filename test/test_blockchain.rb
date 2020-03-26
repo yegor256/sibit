@@ -32,7 +32,6 @@ require_relative '../lib/sibit/blockchain'
 # License:: MIT
 class TestBlockchain < Minitest::Test
   def test_fetch_block
-    skip
     hash = '0000000000000000000f676241aabc9b62b748d26192a44bc25720c34de27d19'
     stub_request(:get, "https://blockchain.info/rawblock/#{hash}")
       .to_return(body: '{"next_block": "n", "prev_block": "p", "hash": "h",
