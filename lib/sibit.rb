@@ -258,7 +258,9 @@ class Sibit
   # Convert text to amount.
   def satoshi(amount)
     return amount if amount.is_a?(Integer)
-    raise Error, 'Amount should either be a String or Integer' unless amount.is_a?(String)
+    unless amount.is_a?(String)
+      raise Error, "Amount should either be a String or Integer, #{amount.class.name} provided"
+    end
     return (amount.gsub(/BTC$/, '').to_f * 100_000_000).to_i if amount.end_with?('BTC')
     raise Error, "Can't understand the amount #{amount.inspect}"
   end

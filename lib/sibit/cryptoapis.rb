@@ -62,7 +62,7 @@ class Sibit
 
     # Get recommended fees, in satoshi per byte.
     def fees
-      raise Sibit::Error, 'Not implemented yet'
+      raise Sibit::Error, 'Cryptoapis doesn\'t provide recommended fees'
     end
 
     # Gets the hash of the latest block.
