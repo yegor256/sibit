@@ -69,7 +69,7 @@ class Sibit
         URI('https://bitcoinfees.earn.com/api/v1/fees/recommended')
       )
       @log.info("Current recommended Bitcoin fees: \
-  #{json['hourFee']}/#{json['halfHourFee']}/#{json['fastestFee']} sat/byte")
+#{json['hourFee']}/#{json['halfHourFee']}/#{json['fastestFee']} sat/byte")
       {
         S: json['hourFee'] / 3,
         M: json['hourFee'],

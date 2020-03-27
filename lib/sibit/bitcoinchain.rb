@@ -59,6 +59,7 @@ class Sibit
         URI("https://api-r.bitcoinchain.com/v1/block/#{hash}")
       )[0]['next_block']
       nxt = nil if nxt == '0000000000000000000000000000000000000000000000000000000000000000'
+      @log.info("The next block of #{hash} is #{nxt}")
       nxt
     end
 

@@ -74,17 +74,17 @@ class Sibit
 
     # Get recommended fees, in satoshi per byte.
     def fees
-      raise Sibit::Error, 'Not implemented yet'
+      raise Sibit::Error, 'Blockchair doesn\'t implement fees()'
     end
 
     # Gets the hash of the latest block.
     def latest
-      raise Sibit::Error, 'Not implemented yet'
+      raise Sibit::Error, 'Blockchair doesn\'t implement latest()'
     end
 
     # Fetch all unspent outputs per address.
     def utxos(_sources)
-      raise Sibit::Error, 'Not implemented yet'
+      raise Sibit::Error, 'Blockchair doesn\'t implement utxos()'
     end
 
     # Push this transaction (in hex format) to the network.
@@ -93,11 +93,12 @@ class Sibit
         URI("https://api.blockchair.com/bitcoin/push/transaction?#{the_key}"),
         "data=#{hex}"
       )
+      @log.info("Transaction (#{hex.length} in hex) has been pushed to Blockchair")
     end
 
     # This method should fetch a Blockchain block and return as a hash.
     def block(_hash)
-      raise Sibit::Error, 'Not implemented yet'
+      raise Sibit::Error, 'Blockchair doesn\'t implement block()'
     end
 
     private
