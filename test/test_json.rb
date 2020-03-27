@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 require 'minitest/autorun'
+require 'webmock/minitest'
 require 'uri'
 require_relative '../lib/sibit/json'
 
@@ -30,8 +31,10 @@ require_relative '../lib/sibit/json'
 # License:: MIT
 class TestJson < Minitest::Test
   def test_loads_hash
-    WebMock.allow_net_connect!
-    json = Sibit::Json.new.get(URI('https://api-r.bitcoinchain.com/v1/status'))
-    assert(!json['hash'].nil?)
+    stub_request(:get, 'https://hello.com').to_return(body: '{"test":123}')
+    json = Sibit::Json.new.get(URI('https://hello.com'))
+    assert_equal(123, json['test'])
+    json = Sibit::Json.new.get(URI('https://hello.com/'))
+    assert_equal(123, json['test'])
   end
 end
