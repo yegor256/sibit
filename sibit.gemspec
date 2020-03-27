@@ -36,9 +36,9 @@ Gem::Specification.new do |s|
   s.version = Sibit::VERSION
   s.license = 'MIT'
   s.summary = 'Simple Bitcoin Client'
-  s.description = 'This is a simple Bitcoin client, to use from command line \
-or from your Ruby app. You don\'t need to run any Bitcoin software, \
-no need to install anything, etc. All you need is just a command line \
+  s.description = 'This is a simple Bitcoin client, to use from command line
+or from your Ruby app. You don\'t need to run any Bitcoin software,
+no need to install anything, etc. All you need is just a command line
 and Ruby 2.3+.'
   s.authors = ['Yegor Bugayenko']
   s.email = 'yegor256@gmail.com'

@@ -236,6 +236,7 @@ class Sibit
         break
       end
     end
+    @log.info("Scanned from #{start} to #{json[:hash]} (#{count} blocks)")
     json[:hash]
   end
 
