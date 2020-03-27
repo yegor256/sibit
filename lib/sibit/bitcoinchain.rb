@@ -66,11 +66,14 @@ class Sibit
     # Gets the balance of the address, in satoshi.
     def balance(address)
       json = Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://api-r.bitcoinchain.com/v1/address/#{address}")
+        URI("https://api-r.bitcoinchain.com/v1/address/#{address}"),
+        accept: [200, 409]
       )[0]
-      raise Sibit::Error, "Address #{address} not found" if json.nil?
       b = json['balance']
-      raise Sibit::Error, "The balance of #{address} is not visible" if b.nil?
+      if b.nil?
+        @log.info("The balance of #{address} is not visible")
+        return 0
+      end
       b *= 100_000_000
       b = b.to_i
       @log.info("The balance of #{address} is #{b} satoshi")

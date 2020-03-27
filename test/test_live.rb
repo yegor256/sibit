@@ -23,6 +23,7 @@
 require 'minitest/autorun'
 require 'webmock/minitest'
 require 'json'
+require 'backtrace'
 require_relative '../lib/sibit'
 
 # Live tests.
@@ -57,6 +58,14 @@ class TestLive < Minitest::Test
       satoshi = api.balance(hash)
       assert(satoshi.is_a?(Integer), "Wrong type of balance: #{satoshi.class.name}")
       assert_equal(5_000_028_421, satoshi)
+    end
+  end
+
+  def test_absent_balance
+    for_each do |api|
+      hash = '12NJ7DxjBMCkk7EFdb6nXnMsuJV1nAXGiM'
+      satoshi = api.balance(hash)
+      assert_equal(0, satoshi)
     end
   end
 
@@ -108,14 +117,14 @@ class TestLive < Minitest::Test
     skip if ENV['skip_live']
     WebMock.allow_net_connect!
     apis = []
+    require_relative '../lib/sibit/btc'
+    apis << Sibit::Btc.new
     require_relative '../lib/sibit/blockchain'
     apis << Sibit::Blockchain.new
     require_relative '../lib/sibit/blockchair'
     apis << Sibit::Blockchair.new
     require_relative '../lib/sibit/cryptoapis'
     apis << Sibit::Cryptoapis.new('')
-    require_relative '../lib/sibit/btc'
-    apis << Sibit::Btc.new
     require_relative '../lib/sibit/cex'
     apis << Sibit::Cex.new
     require_relative '../lib/sibit/bitcoinchain'
@@ -124,7 +133,7 @@ class TestLive < Minitest::Test
       begin
         yield api
       rescue Sibit::Error => e
-        puts e.message
+        puts Backtrace.new(e).to_s
       end
     end
   end

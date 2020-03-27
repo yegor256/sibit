@@ -87,7 +87,7 @@ class TestSibit < Minitest::Test
   def test_get_balance
     stub_request(
       :get,
-      'https://blockchain.info/rawaddr/1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f'
+      'https://blockchain.info/rawaddr/1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f?limit=0'
     ).to_return(body: '{"final_balance": 100}')
     sibit = Sibit.new
     balance = sibit.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')

@@ -66,7 +66,10 @@ class Sibit
       json = Sibit::Json.new(http: @http, log: @log).get(
         URI("https://api.blockchair.com/bitcoin/dashboards/address/#{address}?#{the_key}")
       )['data'][address]
-      raise Sibit::Error, "Address #{address} not found" if json.nil?
+      if json.nil?
+        @log.info("Address #{address} not found")
+        return 0
+      end
       b = json['address']['balance']
       @log.info("The balance of #{address} is #{b} satoshi")
       b

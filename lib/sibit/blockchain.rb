@@ -75,9 +75,9 @@ class Sibit
     # Gets the balance of the address, in satoshi.
     def balance(address)
       json = Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://blockchain.info/rawaddr/#{address}")
+        URI("https://blockchain.info/rawaddr/#{address}?limit=0"),
+        accept: [200, 500]
       )
-      @log.info("Total transactions: #{json['n_tx']}")
       @log.info("Received/sent: #{json['total_received']}/#{json['total_sent']}")
       json['final_balance']
     end

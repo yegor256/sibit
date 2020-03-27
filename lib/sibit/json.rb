@@ -48,7 +48,7 @@ class Sibit
     # Send GET request to the HTTP and return JSON response.
     # This method will also log the process and will validate the
     # response for correctness.
-    def get(uri, headers: {})
+    def get(uri, headers: {}, accept: [200])
       start = Time.now
       res = @http.client(uri).get(
         "#{uri.path.empty? ? '/' : uri.path}#{uri.query ? "?#{uri.query}" : ''}",
@@ -59,7 +59,7 @@ class Sibit
           'Accept-Encoding' => ''
         }.merge(headers)
       )
-      unless res.code == '200'
+      unless accept.include?(res.code.to_i)
         raise Sibit::Error, "Failed to retrieve #{uri} (#{res.code}): #{res.body}"
       end
       @log.info("GET #{uri}: #{res.code}/#{res.body.length}b in #{age(start)}")

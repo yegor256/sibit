@@ -54,12 +54,11 @@ class Sibit
     def balance(address)
       uri = URI("https://chain.api.btc.com/v3/address/#{address}/unspent")
       json = Sibit::Json.new(http: @http, log: @log).get(uri)
-      data = json['data']
-      if data.nil?
+      if json['err_no'] == 1
         @log.info("The balance of #{address} is zero (not found)")
         return 0
       end
-      txns = data['list']
+      txns = json['data']['list']
       balance = txns.map { |tx| tx['value'] }.inject(&:+) || 0
       @log.info("The balance of #{address} is #{balance}, total txns: #{txns.count}")
       balance
