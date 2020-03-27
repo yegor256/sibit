@@ -171,7 +171,7 @@ class Sibit
   # of the starting block. The method will go through the Blockchain,
   # fetch blocks and find transactions, one by one, passing them to the
   # callback provided. When finished, the method returns the hash of
-  # a new block, seen last.
+  # a new block, not scanned yet.
   #
   # The callback will be called with three arguments:
   # 1) Bitcoin address of the receiver, 2) transaction hash, 3) amount
