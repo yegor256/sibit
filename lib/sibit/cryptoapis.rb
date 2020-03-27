@@ -45,7 +45,7 @@ class Sibit
     end
 
     # Current price of BTC in USD (float returned).
-    def price(_currency)
+    def price(_currency = 'USD')
       raise Sibit::Error, 'Cryptoapis doesn\'t provide BTC price'
     end
 

@@ -67,6 +67,13 @@ class TestLive < Minitest::Test
     end
   end
 
+  def test_price
+    for_each do |api|
+      price = api.price
+      assert(price.is_a?(Float))
+    end
+  end
+
   def test_height
     for_each do |api|
       hash = '000000003031a0e73735690c5a1ff2a4be82553b2a12b776fbd3a215dc8f778d'
@@ -98,6 +105,8 @@ class TestLive < Minitest::Test
     apis << Sibit::Cryptoapis.new('')
     require_relative '../lib/sibit/btc'
     apis << Sibit::Btc.new
+    require_relative '../lib/sibit/cex'
+    apis << Sibit::Cex.new
     require_relative '../lib/sibit/bitcoinchain'
     apis << Sibit::Bitcoinchain.new
     apis.each do |api|

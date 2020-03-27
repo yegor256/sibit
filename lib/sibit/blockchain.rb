@@ -47,7 +47,7 @@ class Sibit
     end
 
     # Current price of BTC in USD (float returned).
-    def price(currency)
+    def price(currency = 'USD')
       h = Sibit::Json.new(http: @http, log: @log).get(
         URI('https://blockchain.info/ticker')
       )[currency]

@@ -22,82 +22,68 @@
 
 require 'uri'
 require 'json'
-require 'cgi'
-require_relative 'version'
 require_relative 'error'
 require_relative 'log'
 require_relative 'http'
 require_relative 'json'
 
-# Blockchair.com API.
+# Cex.io API.
 #
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
 # Copyright:: Copyright (c) 2019-2020 Yegor Bugayenko
 # License:: MIT
 class Sibit
   # Btc.com API.
-  class Blockchair
+  class Cex
     # Constructor.
-    def initialize(key: nil, log: Sibit::Log.new, http: Sibit::Http.new, dry: false)
-      @key = key
+    def initialize(log: Sibit::Log.new, http: Sibit::Http.new, dry: false)
       @http = http
       @log = log
       @dry = dry
     end
 
     # Current price of BTC in USD (float returned).
-    def price(_currency = 'USD')
-      raise Sibit::Error, 'Blockchair doesn\'t provide BTC price'
+    def price(currency = 'USD')
+      json = Sibit::Json.new(http: @http, log: @log).get(
+        URI("https://cex.io/api/last_price/BTC/#{currency}")
+      )
+      p = json['lprice'].to_f
+      @log.info("The price of BTC is #{p} #{currency}")
+      p
+    end
+
+    # Gets the balance of the address, in satoshi.
+    def balance(_address)
+      raise Sibit::Error, 'Cex.io doesn\'t implement balance()'
     end
 
     # The height of the block.
     def height(_hash)
-      raise Sibit::Error, 'Blockchair API doesn\'t provide height()'
-    end
-
-    # Gets the balance of the address, in satoshi.
-    def balance(address)
-      json = Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://api.blockchair.com/bitcoin/dashboards/address/#{address}?#{the_key}")
-      )['data'][address]
-      raise Sibit::Error, "Address #{address} not found" if json.nil?
-      b = json['address']['balance']
-      @log.info("The balance of #{address} is #{b} satoshi")
-      b
+      raise Sibit::Error, 'Cex.io doesn\'t implement height()'
     end
 
     # Get recommended fees, in satoshi per byte.
     def fees
-      raise Sibit::Error, 'Not implemented yet'
+      raise Sibit::Error, 'Cex.io doesn\'t implement fees()'
     end
 
     # Gets the hash of the latest block.
     def latest
-      raise Sibit::Error, 'Not implemented yet'
+      raise Sibit::Error, 'Cex.io doesn\'t implement latest()'
     end
 
     # Fetch all unspent outputs per address.
     def utxos(_sources)
-      raise Sibit::Error, 'Not implemented yet'
+      raise Sibit::Error, 'Cex.io doesn\'t implement utxos()'
     end
 
     # Push this transaction (in hex format) to the network.
-    def push(hex)
-      Sibit::Json.new(http: @http, log: @log).post(
-        URI("https://api.blockchair.com/bitcoin/push/transaction?#{the_key}"),
-        "data=#{hex}"
-      )
+    def push(_hex)
+      raise Sibit::Error, 'Cex.io doesn\'t implement push()'
     end
 
-    # This method should fetch a Blockchain block and return as a hash.
     def block(_hash)
-      raise Sibit::Error, 'Not implemented yet'
-    end
-
-    private
-
-    def the_key
-      @key.nil? ? '' : "key=#{CGI.escape(@key)}"
+      raise Sibit::Error, 'Cex.io doesn\'t implement block()'
     end
   end
 end
