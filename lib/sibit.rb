@@ -181,6 +181,7 @@ class Sibit
     block = start
     count = 0
     wrong = []
+    json = {}
     loop do
       json = first_one { |api| api.block(block) }
       if json[:orphan]
@@ -221,7 +222,7 @@ class Sibit
         break
       end
     end
-    block
+    json[:hash]
   end
 
   private
