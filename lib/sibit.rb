@@ -171,7 +171,7 @@ class Sibit
   # of the starting block. The method will go through the Blockchain,
   # fetch blocks and find transactions, one by one, passing them to the
   # callback provided. When finished, the method returns the hash of
-  # a new block, not scanned yet.
+  # a new block, not scanned yet or NIL if it's the end of Blockchain.
   #
   # The callback will be called with three arguments:
   # 1) Bitcoin address of the receiver, 2) transaction hash, 3) amount
@@ -210,12 +210,11 @@ class Sibit
         checked += 1
       end
       @log.info("We checked #{checked} txns and #{checked_outputs} outputs in block #{block}")
-      n = json[:next]
-      if n.nil?
-        @log.info("The next_block is empty in block #{block}, this is the end of Blockchain")
+      block = json[:next]
+      if block.nil?
+        @log.info("The next_block is empty in block #{json[:hash]}, this is the end of Blockchain")
         break
       end
-      block = n
       count += 1
       if count > max
         @log.info("Too many blocks (#{count}) in one go, let's get back to it next time")
