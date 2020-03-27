@@ -47,7 +47,7 @@ class Sibit
 
     # Current price of BTC in USD (float returned).
     def price(_currency = 'USD')
-      raise Sibit::Error, 'Btc.com API doesn\'t provide prices'
+      raise Sibit::NotSupportedError, 'Btc.com API doesn\'t provide prices'
     end
 
     # Gets the balance of the address, in satoshi.
@@ -87,7 +87,7 @@ class Sibit
 
     # Get recommended fees, in satoshi per byte.
     def fees
-      raise Sibit::Error, 'Btc.com doesn\'t provide recommended fees'
+      raise Sibit::NotSupportedError, 'Btc.com doesn\'t provide recommended fees'
     end
 
     # Gets the hash of the latest block.
@@ -127,7 +127,7 @@ class Sibit
 
     # Push this transaction (in hex format) to the network.
     def push(_hex)
-      raise Sibit::Error, 'Btc.com doesn\'t provide payment gateway'
+      raise Sibit::NotSupportedError, 'Btc.com doesn\'t provide payment gateway'
     end
 
     # This method should fetch a Blockchain block and return as a hash.

@@ -54,41 +54,41 @@ class Sibit
 
     # Get hash of the block after this one.
     def next_of(_hash)
-      raise Sibit::Error, 'Cex.io API doesn\'t provide next_of()'
+      raise Sibit::NotSupportedError, 'Cex.io API doesn\'t provide next_of()'
     end
 
     # Gets the balance of the address, in satoshi.
     def balance(_address)
-      raise Sibit::Error, 'Cex.io doesn\'t implement balance()'
+      raise Sibit::NotSupportedError, 'Cex.io doesn\'t implement balance()'
     end
 
     # The height of the block.
     def height(_hash)
-      raise Sibit::Error, 'Cex.io doesn\'t implement height()'
+      raise Sibit::NotSupportedError, 'Cex.io doesn\'t implement height()'
     end
 
     # Get recommended fees, in satoshi per byte.
     def fees
-      raise Sibit::Error, 'Cex.io doesn\'t implement fees()'
+      raise Sibit::NotSupportedError, 'Cex.io doesn\'t implement fees()'
     end
 
     # Gets the hash of the latest block.
     def latest
-      raise Sibit::Error, 'Cex.io doesn\'t implement latest()'
+      raise Sibit::NotSupportedError, 'Cex.io doesn\'t implement latest()'
     end
 
     # Fetch all unspent outputs per address.
     def utxos(_sources)
-      raise Sibit::Error, 'Cex.io doesn\'t implement utxos()'
+      raise Sibit::NotSupportedError, 'Cex.io doesn\'t implement utxos()'
     end
 
     # Push this transaction (in hex format) to the network.
     def push(_hex)
-      raise Sibit::Error, 'Cex.io doesn\'t implement push()'
+      raise Sibit::NotSupportedError, 'Cex.io doesn\'t implement push()'
     end
 
     def block(_hash)
-      raise Sibit::Error, 'Cex.io doesn\'t implement block()'
+      raise Sibit::NotSupportedError, 'Cex.io doesn\'t implement block()'
     end
   end
 end

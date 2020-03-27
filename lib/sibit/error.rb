@@ -28,4 +28,7 @@
 class Sibit
   # The error.
   class Error < StandardError; end
+
+  # The operation is not supported.
+  class NotSupportedError < Error; end
 end

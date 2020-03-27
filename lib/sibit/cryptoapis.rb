@@ -46,7 +46,7 @@ class Sibit
 
     # Current price of BTC in USD (float returned).
     def price(_currency = 'USD')
-      raise Sibit::Error, 'Cryptoapis doesn\'t provide BTC price'
+      raise Sibit::NotSupportedError, 'Cryptoapis doesn\'t provide BTC price'
     end
 
     # Get hash of the block after this one.
@@ -81,7 +81,7 @@ class Sibit
 
     # Get recommended fees, in satoshi per byte.
     def fees
-      raise Sibit::Error, 'Cryptoapis doesn\'t provide recommended fees'
+      raise Sibit::NotSupportedError, 'Cryptoapis doesn\'t provide recommended fees'
     end
 
     # Gets the hash of the latest block.
@@ -96,7 +96,7 @@ class Sibit
 
     # Fetch all unspent outputs per address.
     def utxos(_sources)
-      raise Sibit::Error, 'Not implemented yet'
+      raise Sibit::NotSupportedError, 'Not implemented yet'
     end
 
     # Push this transaction (in hex format) to the network.

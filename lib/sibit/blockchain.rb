@@ -59,7 +59,7 @@ class Sibit
 
     # Get hash of the block after this one.
     def next_of(_hash)
-      raise Sibit::Error, 'Blockchain API doesn\'t provide next_of()'
+      raise Sibit::NotSupportedError, 'Blockchain API doesn\'t provide next_of()'
     end
 
     # The height of the block.
@@ -84,7 +84,7 @@ class Sibit
 
     # Get recommended fees.
     def fees
-      raise Sibit::Error, 'fees() is not provided by Blockchain API'
+      raise Sibit::NotSupportedError, 'fees() is not provided by Blockchain API'
     end
 
     # Fetch all unspent outputs per address. The argument is an array

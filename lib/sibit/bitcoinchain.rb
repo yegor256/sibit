@@ -45,12 +45,12 @@ class Sibit
 
     # Current price of BTC in USD (float returned).
     def price(_currency = 'USD')
-      raise Sibit::Error, 'Bitcoinchain API doesn\'t provide BTC price'
+      raise Sibit::NotSupportedError, 'Bitcoinchain API doesn\'t provide BTC price'
     end
 
     # The height of the block.
     def height(_hash)
-      raise Sibit::Error, 'Bitcoinchain API doesn\'t provide height()'
+      raise Sibit::NotSupportedError, 'Bitcoinchain API doesn\'t provide height()'
     end
 
     # Get hash of the block after this one.
@@ -82,7 +82,7 @@ class Sibit
 
     # Get recommended fees, in satoshi per byte.
     def fees
-      raise Sibit::Error, 'Not implemented yet'
+      raise Sibit::NotSupportedError, 'Not implemented yet'
     end
 
     # Gets the hash of the latest block.
@@ -96,12 +96,12 @@ class Sibit
 
     # Fetch all unspent outputs per address.
     def utxos(_sources)
-      raise Sibit::Error, 'Not implemented yet'
+      raise Sibit::NotSupportedError, 'Not implemented yet'
     end
 
     # Push this transaction (in hex format) to the network.
     def push(_hex)
-      raise Sibit::Error, 'Not implemented yet'
+      raise Sibit::NotSupportedError, 'Not implemented yet'
     end
 
     # This method should fetch a Blockchain block and return as a hash. Raises

@@ -44,22 +44,22 @@ class Sibit
 
     # Current price of BTC in USD (float returned).
     def price(_currency)
-      raise Sibit::Error, 'price() doesn\'t work here'
+      raise Sibit::NotSupportedError, 'price() doesn\'t work here'
     end
 
     # Gets the balance of the address, in satoshi.
     def balance(_address)
-      raise Sibit::Error, 'balance() doesn\'t work here'
+      raise Sibit::NotSupportedError, 'balance() doesn\'t work here'
     end
 
     # Get hash of the block after this one.
     def next_of(_hash)
-      raise Sibit::Error, 'Earn.com API doesn\'t provide next_of()'
+      raise Sibit::NotSupportedError, 'Earn.com API doesn\'t provide next_of()'
     end
 
     # The height of the block.
     def height(_hash)
-      raise Sibit::Error, 'Earn API doesn\'t provide height()'
+      raise Sibit::NotSupportedError, 'Earn API doesn\'t provide height()'
     end
 
     # Get recommended fees, in satoshi per byte. The method returns
@@ -80,22 +80,22 @@ class Sibit
 
     # Fetch all unspent outputs per address.
     def utxos(_sources)
-      raise Sibit::Error, 'Not implemented yet'
+      raise Sibit::NotSupportedError, 'Not implemented yet'
     end
 
     # Push this transaction (in hex format) to the network.
     def push(_hex)
-      raise Sibit::Error, 'Not implemented yet'
+      raise Sibit::NotSupportedError, 'Not implemented yet'
     end
 
     # Gets the hash of the latest block.
     def latest
-      raise Sibit::Error, 'latest() doesn\'t work here'
+      raise Sibit::NotSupportedError, 'latest() doesn\'t work here'
     end
 
     # This method should fetch a Blockchain block and return as a hash.
     def block(_hash)
-      raise Sibit::Error, 'block() doesn\'t work here'
+      raise Sibit::NotSupportedError, 'block() doesn\'t work here'
     end
   end
 end
