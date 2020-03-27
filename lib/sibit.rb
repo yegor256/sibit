@@ -81,6 +81,20 @@ class Sibit
     end
   end
 
+  # Get the height of the block.
+  def height(hash)
+    first_one do |api|
+      api.height(hash)
+    end
+  end
+
+  # Get the hash of the next block.
+  def next_of(hash)
+    first_one do |api|
+      api.next_of(hash)
+    end
+  end
+
   # Get recommended fees, in satoshi per byte. The method returns
   # a hash: { S: 12, M: 45, L: 100, XL: 200 }
   def fees

@@ -34,6 +34,14 @@ class Sibit
       4_000
     end
 
+    def next_of(_hash)
+      nil
+    end
+
+    def height(_hash)
+      1
+    end
+
     def fees
       { S: 12, M: 45, L: 100, XL: 200 }
     end
