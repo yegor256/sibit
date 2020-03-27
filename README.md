@@ -119,12 +119,13 @@ The library works through one (or a few) public APIs for fetching
 Bitcoin data and pushing transactions to the network. At the moment we
 work with the following APIs:
 
-  * [Blockchain.com](https://www.blockchain.com/api/blockchain_api)
-  * [BTC.com](https://btc.com/api-doc)
-  * [Cryptoapis.io](https://docs.cryptoapis.io/rest-apis/blockchain-as-a-service-apis/btc/index)
-  * [Bitcoinchain.com](https://bitcoinchain.com/api)
-  * [Blockchair.com](https://blockchair.com/api/docs)
-  * [Earn.com](https://bitcoinfees.earn.com/api)
+  * [Blockchain.com](https://www.blockchain.com/api/blockchain_api): `Sibit::Blockchain`
+  * [BTC.com](https://btc.com/api-doc): `Sibit::Btc`
+  * [Cryptoapis.io](https://docs.cryptoapis.io/rest-apis/blockchain-as-a-service-apis/btc/index): `Sibit::Cryptoapis`
+  * [Bitcoinchain.com](https://bitcoinchain.com/api): `Sibit::Bitcoinchain`
+  * [Blockchair.com](https://blockchair.com/api/docs): `Sibit::Blockchair`
+  * [Cex.io](https://cex.io/rest-api): `Sibit::Cex`
+  * [Earn.com](https://bitcoinfees.earn.com/api): `Sibit::Earn`
 
 The first one in this list is used by default. If you want to use a different
 one, you just specify it in the constructor of `Sibit` object:

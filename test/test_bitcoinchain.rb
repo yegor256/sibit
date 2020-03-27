@@ -36,7 +36,6 @@ class TestBitcoinchain < Minitest::Test
       :get,
       'https://api-r.bitcoinchain.com/v1/status'
     ).to_return(body: '{"hash": "test"}')
-    WebMock.allow_net_connect!
     sibit = Sibit::Bitcoinchain.new
     hash = sibit.latest
     assert_equal('test', hash)
