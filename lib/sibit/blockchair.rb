@@ -55,6 +55,12 @@ class Sibit
       raise Sibit::Error, 'Blockchair API doesn\'t provide height()'
     end
 
+    # Get hash of the block after this one.
+    def next_of(_hash)
+      # They don't provide next block hash
+      raise Sibit::Error, 'Blockchair API doesn\'t provide next_of()'
+    end
+
     # Gets the balance of the address, in satoshi.
     def balance(address)
       json = Sibit::Json.new(http: @http, log: @log).get(

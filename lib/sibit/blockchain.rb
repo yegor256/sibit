@@ -57,6 +57,11 @@ class Sibit
       price
     end
 
+    # Get hash of the block after this one.
+    def next_of(_hash)
+      raise Sibit::Error, 'Blockchain API doesn\'t provide next_of()'
+    end
+
     # The height of the block.
     def height(hash)
       json = Sibit::Json.new(http: @http, log: @log).get(

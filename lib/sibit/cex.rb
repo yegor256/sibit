@@ -52,6 +52,11 @@ class Sibit
       p
     end
 
+    # Get hash of the block after this one.
+    def next_of(_hash)
+      raise Sibit::Error, 'Cex.io API doesn\'t provide next_of()'
+    end
+
     # Gets the balance of the address, in satoshi.
     def balance(_address)
       raise Sibit::Error, 'Cex.io doesn\'t implement balance()'

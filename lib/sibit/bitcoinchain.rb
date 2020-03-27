@@ -53,6 +53,15 @@ class Sibit
       raise Sibit::Error, 'Bitcoinchain API doesn\'t provide height()'
     end
 
+    # Get hash of the block after this one.
+    def next_of(hash)
+      nxt = Sibit::Json.new(http: @http, log: @log).get(
+        URI("https://api-r.bitcoinchain.com/v1/block/#{hash}")
+      )[0]['next_block']
+      nxt = nil if nxt == '0000000000000000000000000000000000000000000000000000000000000000'
+      nxt
+    end
+
     # Gets the balance of the address, in satoshi.
     def balance(address)
       json = Sibit::Json.new(http: @http, log: @log).get(

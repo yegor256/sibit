@@ -52,6 +52,11 @@ class Sibit
       raise Sibit::Error, 'balance() doesn\'t work here'
     end
 
+    # Get hash of the block after this one.
+    def next_of(_hash)
+      raise Sibit::Error, 'Earn.com API doesn\'t provide next_of()'
+    end
+
     # The height of the block.
     def height(_hash)
       raise Sibit::Error, 'Earn API doesn\'t provide height()'

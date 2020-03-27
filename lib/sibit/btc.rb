@@ -30,6 +30,8 @@ require_relative 'json'
 
 # Btc.com API.
 #
+# Here: https://btc.com/api-doc
+#
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
 # Copyright:: Copyright (c) 2019-2020 Yegor Bugayenko
 # License:: MIT
@@ -61,6 +63,16 @@ class Sibit
       balance = txns.map { |tx| tx['value'] }.inject(&:+) || 0
       @log.info("The balance of #{address} is #{balance}, total txns: #{txns.count}")
       balance
+    end
+
+    # Get hash of the block after this one.
+    def next_of(hash)
+      head = Sibit::Json.new(http: @http, log: @log).get(
+        URI("https://chain.api.btc.com/v3/block/#{hash}")
+      )
+      nxt = head['data']['next_block_hash']
+      nxt = nil if nxt == '0000000000000000000000000000000000000000000000000000000000000000'
+      nxt
     end
 
     # The height of the block.

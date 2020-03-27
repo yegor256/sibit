@@ -74,6 +74,17 @@ class TestLive < Minitest::Test
     end
   end
 
+  def test_next_of
+    for_each do |api|
+      hash = '000000003031a0e73735690c5a1ff2a4be82553b2a12b776fbd3a215dc8f778d'
+      nxt = api.next_of(hash)
+      assert_equal(
+        '0000000071966c2b1d065fd446b1e485b2c9d9594acd2007ccbd5441cfc89444',
+        nxt
+      )
+    end
+  end
+
   def test_height
     for_each do |api|
       hash = '000000003031a0e73735690c5a1ff2a4be82553b2a12b776fbd3a215dc8f778d'
