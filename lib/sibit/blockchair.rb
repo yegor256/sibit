@@ -70,8 +70,9 @@ class Sibit
         @log.info("Address #{address} not found")
         return 0
       end
-      b = json['address']['balance']
-      @log.info("The balance of #{address} is #{b} satoshi")
+      a = json['address']
+      b = a['balance']
+      @log.info("The balance of #{address} is #{b} satoshi (#{a['transactions'].length} txns)")
       b
     end
 

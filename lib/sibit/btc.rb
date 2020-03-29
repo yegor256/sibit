@@ -71,7 +71,8 @@ class Sibit
       )
       nxt = head['data']['next_block_hash']
       nxt = nil if nxt == '0000000000000000000000000000000000000000000000000000000000000000'
-      @log.info("The next block of #{hash} is #{nxt}")
+      @log.info("The block #{hash} is the latest, there is no next block") if nxt.nil?
+      @log.info("The next block of #{hash} is #{nxt}") unless nxt.nil?
       nxt
     end
 

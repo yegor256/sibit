@@ -78,8 +78,9 @@ class Sibit
         URI("https://blockchain.info/rawaddr/#{address}?limit=0"),
         accept: [200, 500]
       )
-      @log.info("Received/sent: #{json['total_received']}/#{json['total_sent']}")
-      json['final_balance']
+      b = json['final_balance']
+      @log.info("The balance of #{address} is #{b} satoshi (#{json['n_tx']} txns)")
+      b
     end
 
     # Get recommended fees.

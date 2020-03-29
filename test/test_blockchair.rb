@@ -34,7 +34,8 @@ class TestBlockchair < Minitest::Test
   def test_fetch_balance
     hash = '1GkQmKAmHtNfnD3LHhTkewJxKHVSta4m2a'
     stub_request(:get, "https://api.blockchair.com/bitcoin/dashboards/address/#{hash}")
-      .to_return(body: "{\"data\": {\"#{hash}\": {\"address\": {\"balance\": 1}}}}")
+      .to_return(body: "{\"data\": {\"#{hash}\": {\"address\":
+        {\"balance\": 1, \"transactions\": []}}}}")
     sibit = Sibit::Blockchair.new
     satoshi = sibit.balance(hash)
     assert_equal(1, satoshi)
