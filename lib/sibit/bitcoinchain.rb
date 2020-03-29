@@ -55,9 +55,11 @@ class Sibit
 
     # Get hash of the block after this one.
     def next_of(hash)
-      nxt = Sibit::Json.new(http: @http, log: @log).get(
+      block = Sibit::Json.new(http: @http, log: @log).get(
         URI("https://api-r.bitcoinchain.com/v1/block/#{hash}")
-      )[0]['next_block']
+      )[0]
+      raise Sibit::Error, "Block #{hash} not found" if block.nil?
+      nxt = block['next_block']
       nxt = nil if nxt == '0000000000000000000000000000000000000000000000000000000000000000'
       @log.info("The block #{hash} is the latest, there is no next block") if nxt.nil?
       @log.info("The next block of #{hash} is #{nxt}") unless nxt.nil?
