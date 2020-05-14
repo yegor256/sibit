@@ -69,7 +69,9 @@ class Sibit
       head = Sibit::Json.new(http: @http, log: @log).get(
         URI("https://chain.api.btc.com/v3/block/#{hash}")
       )
-      nxt = head['data']['next_block_hash']
+      data = head['data']
+      raise Sibit::Error, "The block #{hash} not found" if data.nil?
+      nxt = data['next_block_hash']
       nxt = nil if nxt == '0000000000000000000000000000000000000000000000000000000000000000'
       @log.info("The block #{hash} is the latest, there is no next block") if nxt.nil?
       @log.info("The next block of #{hash} is #{nxt}") unless nxt.nil?
