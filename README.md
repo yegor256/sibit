@@ -107,7 +107,7 @@ pkey = sibit.generate
 address = sibit.create(pkey)
 balance = sibit.balance(address)
 target = sibit.create(pkey) # where to send coins to
-change = sibit.create(pkey) # where the change will sent to
+change = sibit.create(pkey) # where the change will be sent to
 tx = sibit.pay(10_000_000, 'XL', { address => pkey }, target, change)
 ```
 
