@@ -1,15 +1,11 @@
 assets:
   rubygems.yml: yegor256/home#assets/rubygems.yml
 install: |
-  export GEM_HOME=~/.ruby
-  export GEM_PATH=$GEM_HOME:$GEM_PATH
-  sudo apt-get -y update
-  sudo gem install pdd -v 0.20.5
-  bundle install
+  pdd -f /dev/null
+  sudo bundle install --no-color "--gemfile=$(pwd)/Gemfile"
 release:
   script: |-
     bundle exec rake
-    rm -rf *.gem
     sed -i "s/1\.0\.snapshot/${tag}/g" lib/sibit/version.rb
     git add lib/sibit/version.rb
     git commit -m "version set to ${tag}"
@@ -19,7 +15,6 @@ release:
 merge:
   script: |-
     bundle exec rake
-    pdd -f /dev/null
 deploy:
   script: |-
     echo "There is nothing to deploy"

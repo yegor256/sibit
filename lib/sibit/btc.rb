@@ -83,7 +83,9 @@ class Sibit
       json = Sibit::Json.new(http: @http, log: @log).get(
         URI("https://chain.api.btc.com/v3/block/#{hash}")
       )
-      h = json['data']['height']
+      data = json['data']
+      raise Sibit::Error, "The block #{hash} not found" if data.nil?
+      h = data['height']
       @log.info("The height of #{hash} is #{h}")
       h
     end
@@ -97,7 +99,9 @@ class Sibit
     def latest
       uri = URI('https://chain.api.btc.com/v3/block/latest')
       json = Sibit::Json.new(http: @http, log: @log).get(uri)
-      hash = json['data']['hash']
+      data = json['data']
+      raise Sibit::Error, 'The latest block not found' if data.nil?
+      hash = data['hash']
       @log.info("The hash of the latest block is #{hash}")
       hash
     end
@@ -109,7 +113,9 @@ class Sibit
         json = Sibit::Json.new(http: @http, log: @log).get(
           URI("https://chain.api.btc.com/v3/address/#{hash}/unspent")
         )
-        json['data']['list'].each do |u|
+        data = json['data']
+        raise Sibit::Error, "The address #{hash} not found" if data.nil?
+        data['list'].each do |u|
           outs = Sibit::Json.new(http: @http, log: @log).get(
             URI("https://chain.api.btc.com/v3/tx/#{u['tx_hash']}?verbose=3")
           )['data']['outputs']
@@ -138,13 +144,15 @@ class Sibit
       head = Sibit::Json.new(http: @http, log: @log).get(
         URI("https://chain.api.btc.com/v3/block/#{hash}")
       )
-      nxt = head['data']['next_block_hash']
+      data = head['data']
+      raise Sibit::Error, "The block #{hash} not found" if data.nil?
+      nxt = data['next_block_hash']
       nxt = nil if nxt == '0000000000000000000000000000000000000000000000000000000000000000'
       {
-        hash: head['data']['hash'],
-        orphan: head['data']['is_orphan'],
+        hash: data['hash'],
+        orphan: data['is_orphan'],
         next: nxt,
-        previous: head['data']['prev_block_hash'],
+        previous: data['prev_block_hash'],
         txns: txns(hash)
       }
     end
