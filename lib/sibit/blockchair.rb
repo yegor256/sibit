@@ -72,7 +72,7 @@ class Sibit
       end
       a = json['address']
       b = a['balance']
-      @log.info("The balance of #{address} is #{b} satoshi (#{a['transactions'].length} txns)")
+      @log.info("The balance of #{address} is #{b} satoshi")
       b
     end
 
