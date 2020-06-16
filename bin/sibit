@@ -32,6 +32,7 @@ require_relative '../lib/sibit/blockchain'
 require_relative '../lib/sibit/btc'
 require_relative '../lib/sibit/bitcoinchain'
 require_relative '../lib/sibit/earn'
+require_relative '../lib/sibit/firstof'
 
 begin
   begin
@@ -86,7 +87,7 @@ Options are:"
     api = RetriableProxy.for_object(api, on: Sibit::Error) if opts[:attempts] > 1
     api
   end
-  sibit = Sibit.new(log: log, api: apis)
+  sibit = Sibit.new(log: log, api: Sibit::FirstOf.new(apis, log: log))
   case opts.arguments[0]
   when 'price'
     puts sibit.price

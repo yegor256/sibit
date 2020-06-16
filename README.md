@@ -145,7 +145,14 @@ will be used one by one, until a successful response is obtained:
 require 'sibit'
 require 'sibit/btc'
 require 'sibit/cryptoapis'
-sibit = Sibit.new(api: [Sibit::Btc.new, Sibit::Cryptoapis.new('key')])
+sibit = Sibit.new(
+  api: Sibit::FirstOf.new(
+    [
+      Sibit::Btc.new,
+      Sibit::Cryptoapis.new('key')
+    ]
+  )
+)
 ```
 
 If you think we may need to use some other API, you can submit a ticket,

@@ -27,6 +27,7 @@ require_relative '../lib/sibit'
 require_relative '../lib/sibit/earn'
 require_relative '../lib/sibit/fake'
 require_relative '../lib/sibit/blockchain'
+require_relative '../lib/sibit/firstof'
 
 # Sibit.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
@@ -127,7 +128,7 @@ class TestSibit < Minitest::Test
       'https://blockchain.info/unspent?active=1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi&limit=1000'
     ).to_return(body: JSON.pretty_generate(json))
     stub_request(:post, 'https://blockchain.info/pushtx').to_return(status: 200)
-    sibit = Sibit.new(api: [Sibit::Earn.new, Sibit::Blockchain.new])
+    sibit = Sibit.new(api: Sibit::FirstOf.new([Sibit::Earn.new, Sibit::Blockchain.new]))
     target = sibit.create(sibit.generate)
     change = sibit.create(sibit.generate)
     tx = sibit.pay(

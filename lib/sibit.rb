@@ -55,9 +55,7 @@ class Sibit
 
   # Current price of 1 BTC in USD (or another currency), float returned.
   def price(currency = 'USD')
-    first_one do |api|
-      api.price(currency)
-    end
+    @api.price(currency)
   end
 
   # Generates new Bitcon private key and returns in Hash160 format.
@@ -76,29 +74,23 @@ class Sibit
 
   # Gets the balance of the address, in satoshi.
   def balance(address)
-    first_one do |api|
-      api.balance(address)
-    end
+    @api.balance(address)
   end
 
   # Get the height of the block.
   def height(hash)
-    first_one do |api|
-      api.height(hash)
-    end
+    @api.height(hash)
   end
 
   # Get the hash of the next block.
   def next_of(hash)
-    first_one do |api|
-      api.next_of(hash)
-    end
+    @api.next_of(hash)
   end
 
   # Get recommended fees, in satoshi per byte. The method returns
   # a hash: { S: 12, M: 45, L: 100, XL: 200 }
   def fees
-    first_one(&:fees)
+    @api.fees
   end
 
   # Sends a payment and returns the transaction hash.
@@ -124,7 +116,7 @@ class Sibit
     builder = Bitcoin::Builder::TxBuilder.new
     unspent = 0
     size = 100
-    utxos = first_one { |api| api.utxos(sources.keys) }
+    utxos = @api.utxos(sources.keys)
     @log.info("#{utxos.count} UTXOs found, these will be used \
 (value/confirmations at tx_hash):")
     utxos.each do |utxo|
@@ -170,15 +162,13 @@ class Sibit
   Amount: #{num(satoshi, p)}
   Target address: #{target}
   Change address is #{change}")
-    first_one do |api|
-      api.push(tx.to_payload.bth)
-    end
+    @api.push(tx.to_payload.bth)
     tx.hash
   end
 
   # Gets the hash of the latest block.
   def latest
-    first_one(&:latest)
+    @api.latest
   end
 
   # You call this method and provide a callback. You provide the hash
@@ -197,7 +187,7 @@ class Sibit
     wrong = []
     json = {}
     loop do
-      json = first_one { |api| api.block(block) }
+      json = @api.block(block)
       if json[:orphan]
         steps = 4
         @log.info("Orphan block found at #{block}, moving #{steps} steps back...")
@@ -206,7 +196,7 @@ class Sibit
           block = json[:previous]
           wrong << block
           @log.info("Moved back to #{block}")
-          json = first_one { |api| api.block(block) }
+          json = @api.block(block)
         end
         next
       end
@@ -241,26 +231,6 @@ class Sibit
   end
 
   private
-
-  def first_one
-    return yield @api unless @api.is_a?(Array)
-    done = false
-    result = nil
-    @api.each do |api|
-      begin
-        result = yield api
-        done = true
-        break
-      rescue Sibit::Error => e
-        @log.info("The API #{api.class.name} failed: #{e.message}")
-      end
-    end
-    unless done
-      raise Sibit::Error, "No APIs out of #{@api.length} managed to succeed: \
-#{@api.map { |a| a.class.name }.join(', ')}"
-    end
-    result
-  end
 
   def num(satoshi, usd)
     format(
