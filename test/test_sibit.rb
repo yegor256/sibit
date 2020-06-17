@@ -28,6 +28,7 @@ require_relative '../lib/sibit/earn'
 require_relative '../lib/sibit/fake'
 require_relative '../lib/sibit/blockchain'
 require_relative '../lib/sibit/firstof'
+require_relative '../lib/sibit/bestof'
 
 # Sibit.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
@@ -157,7 +158,7 @@ class TestSibit < Minitest::Test
       :get,
       'https://blockchain.info/unspent?active=1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi&limit=1000'
     ).to_return(body: JSON.pretty_generate(json))
-    sibit = Sibit.new
+    sibit = Sibit.new(api: Sibit::BestOf.new([Sibit::Fake.new, Sibit::Fake.new]))
     target = sibit.create(sibit.generate)
     change = sibit.create(sibit.generate)
     assert_raises Sibit::Error do

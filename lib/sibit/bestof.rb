@@ -23,14 +23,14 @@
 require_relative 'error'
 require_relative 'log'
 
-# API first of.
+# API best of.
 #
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
 # Copyright:: Copyright (c) 2019-2020 Yegor Bugayenko
 # License:: MIT
 class Sibit
-  # First of API.
-  class FirstOf
+  # Best of API.
+  class BestOf
     # Constructor.
     def initialize(list, log: Sibit::Log.new)
       @list = list
@@ -39,28 +39,28 @@ class Sibit
 
     # Current price of BTC in USD (float returned).
     def price(currency = 'USD')
-      first_of do |api|
+      best_of do |api|
         api.price(currency)
       end
     end
 
     # Gets the balance of the address, in satoshi.
     def balance(address)
-      first_of do |api|
+      best_of do |api|
         api.balance(address)
       end
     end
 
     # Get the height of the block.
     def height(hash)
-      first_of do |api|
+      best_of do |api|
         api.height(hash)
       end
     end
 
     # Get the hash of the next block.
     def next_of(hash)
-      first_of do |api|
+      best_of do |api|
         api.next_of(hash)
       end
     end
@@ -68,55 +68,52 @@ class Sibit
     # Get recommended fees, in satoshi per byte. The method returns
     # a hash: { S: 12, M: 45, L: 100, XL: 200 }
     def fees
-      first_of(&:fees)
+      best_of(&:fees)
     end
 
     # Fetch all unspent outputs per address.
     def utxos(keys)
-      first_of do |api|
+      best_of do |api|
         api.utxos(keys)
       end
     end
 
     # Latest block hash.
     def latest
-      first_of(&:latest)
+      best_of(&:latest)
     end
 
     # Push this transaction (in hex format) to the network.
     def push(hex)
-      first_of do |api|
+      best_of do |api|
         api.push(hex)
       end
     end
 
     # This method should fetch a block and return as a hash.
     def block(hash)
-      first_of do |api|
+      best_of do |api|
         api.block(hash)
       end
     end
 
     private
 
-    def first_of
+    def best_of
       return yield @list unless @list.is_a?(Array)
-      done = false
-      result = nil
+      results = []
       @list.each do |api|
         begin
-          result = yield api
-          done = true
-          break
+          results << yield(api)
         rescue Sibit::Error => e
           @log.info("The API #{api.class.name} failed: #{e.message}")
         end
       end
-      unless done
+      if results.empty?
         raise Sibit::Error, "No APIs out of #{@api.length} managed to succeed: \
 #{@api.map { |a| a.class.name }.join(', ')}"
       end
-      result
+      results.group_by(&:to_s).values.max_by(&:size)[0]
     end
   end
 end
