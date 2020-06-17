@@ -214,13 +214,13 @@ class Sibit
         end
         checked += 1
       end
+      count += 1
       @log.info("We checked #{checked} txns and #{checked_outputs} outputs in block #{block}")
       block = json[:next]
       if block.nil?
         @log.info("The next_block is empty in block #{json[:hash]}, this is the end of Blockchain")
         break
       end
-      count += 1
       if count > max
         @log.info("Too many blocks (#{count}) in one go, let's get back to it next time")
         break
