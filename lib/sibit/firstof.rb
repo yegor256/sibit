@@ -113,8 +113,8 @@ class Sibit
         end
       end
       unless done
-        raise Sibit::Error, "No APIs out of #{@api.length} managed to succeed at #{method}(): \
-#{@api.map { |a| a.class.name }.join(', ')}"
+        raise Sibit::Error, "No APIs out of #{@list.length} managed to succeed at #{method}(): \
+#{@list.map { |a| a.class.name }.join(', ')}"
       end
       result
     end

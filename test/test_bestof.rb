@@ -47,4 +47,16 @@ class TestBestOf < Minitest::Test
     assert_equal(64, sibit.latest.length)
     assert_equal(12, sibit.fees[:S])
   end
+
+  def test_all_fail
+    api = Class.new do
+      def latest
+        raise Sibit::Error, 'intentionally'
+      end
+    end.new
+    sibit = Sibit::BestOf.new([api, api])
+    assert_raises Sibit::Error do
+      sibit.latest
+    end
+  end
 end
