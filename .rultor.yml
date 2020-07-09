@@ -5,7 +5,7 @@ install: |
   sudo bundle install --no-color "--gemfile=$(pwd)/Gemfile"
 release:
   script: |-
-    bundle exec rake
+    bundle exec rake clean test rubocop copyright
     sed -i "s/1\.0\.snapshot/${tag}/g" lib/sibit/version.rb
     git add lib/sibit/version.rb
     git commit -m "version set to ${tag}"
@@ -14,7 +14,7 @@ release:
     gem push *.gem --config-file ../rubygems.yml
 merge:
   script: |-
-    bundle exec rake
+    bundle exec rake clean test rubocop copyright
 deploy:
   script: |-
     echo "There is nothing to deploy"
