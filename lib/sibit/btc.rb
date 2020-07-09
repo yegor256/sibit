@@ -58,7 +58,12 @@ class Sibit
         @log.info("The balance of #{address} is zero (not found)")
         return 0
       end
-      txns = json['data']['list']
+      data = json['data']
+      if data.nil?
+        @log.info("The balance of #{address} is probably zero (not found)")
+        return 0
+      end
+      txns = data['list']
       balance = txns.map { |tx| tx['value'] }.inject(&:+) || 0
       @log.info("The balance of #{address} is #{balance}, total txns: #{txns.count}")
       balance
