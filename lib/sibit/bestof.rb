@@ -32,9 +32,10 @@ class Sibit
   # Best of API.
   class BestOf
     # Constructor.
-    def initialize(list, log: Sibit::Log.new)
+    def initialize(list, log: Sibit::Log.new, verbose: false)
       @list = list
       @log = log
+      @verbose = verbose
     end
 
     # Current price of BTC in USD (float returned).
@@ -106,7 +107,7 @@ class Sibit
         begin
           results << yield(api)
         rescue Sibit::Error => e
-          @log.info("The API #{api.class.name} failed at #{method}(): #{e.message}")
+          @log.info("The API #{api.class.name} failed at #{method}(): #{e.message}") if @verbose
         end
       end
       if results.empty?

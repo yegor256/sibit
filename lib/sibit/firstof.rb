@@ -32,9 +32,10 @@ class Sibit
   # First of API.
   class FirstOf
     # Constructor.
-    def initialize(list, log: Sibit::Log.new)
+    def initialize(list, log: Sibit::Log.new, verbose: false)
       @list = list
       @log = log
+      @verbose = verbose
     end
 
     # Current price of BTC in USD (float returned).
@@ -109,7 +110,7 @@ class Sibit
           done = true
           break
         rescue Sibit::Error => e
-          @log.info("The API #{api.class.name} failed at #{method}(): #{e.message}")
+          @log.info("The API #{api.class.name} failed at #{method}(): #{e.message}") if @verbose
         end
       end
       unless done
