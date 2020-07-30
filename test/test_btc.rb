@@ -42,6 +42,17 @@ class TestBtc < Minitest::Test
     assert_equal(0, balance)
   end
 
+  def test_get_zero_balance_no_txns
+    stub_request(
+      :get,
+      'https://chain.api.btc.com/v3/address/1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f/unspent'
+    ).to_return(body: '{"data":{}}')
+    sibit = Sibit::Btc.new
+    balance = sibit.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')
+    assert(balance.is_a?(Integer))
+    assert_equal(0, balance)
+  end
+
   def test_get_broken_balance
     stub_request(
       :get,
