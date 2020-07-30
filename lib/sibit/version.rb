@@ -26,5 +26,5 @@
 # License:: MIT
 class Sibit
   # Current version of the library.
-  VERSION = '1.0.snapshot'
+  VERSION = '0.19.4'
 end
