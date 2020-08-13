@@ -173,9 +173,11 @@ class Sibit
       psize = 50
       all = []
       loop do
-        txns = Sibit::Json.new(http: @http, log: @log).get(
+        data = Sibit::Json.new(http: @http, log: @log).get(
           URI("https://chain.api.btc.com/v3/block/#{hash}/tx?page=#{page}&pagesize=#{psize}")
-        )['data']['list'].map do |t|
+        )['data']
+        raise Sibit::Error, "The block #{hash} has no data at page #{page}" if data.nil?
+        txns = data['list'].map do |t|
           {
             hash: t['hash'],
             outputs: t['outputs'].reject { |o| o['spent_by_tx'] }.map do |o|
