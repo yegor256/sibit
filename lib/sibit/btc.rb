@@ -177,7 +177,9 @@ class Sibit
           URI("https://chain.api.btc.com/v3/block/#{hash}/tx?page=#{page}&pagesize=#{psize}")
         )['data']
         raise Sibit::Error, "The block #{hash} has no data at page #{page}" if data.nil?
-        txns = data['list'].map do |t|
+        list = data['list']
+        raise Sibit::Error, "The list is empty for block #{hash} at page #{page}" if list.nil?
+        txns = list.map do |t|
           {
             hash: t['hash'],
             outputs: t['outputs'].reject { |o| o['spent_by_tx'] }.map do |o|
