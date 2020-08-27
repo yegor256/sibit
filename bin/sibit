@@ -29,9 +29,12 @@ require 'retriable_proxy'
 require_relative '../lib/sibit'
 require_relative '../lib/sibit/version'
 require_relative '../lib/sibit/blockchain'
+require_relative '../lib/sibit/blockchair'
 require_relative '../lib/sibit/btc'
 require_relative '../lib/sibit/bitcoinchain'
+require_relative '../lib/sibit/cex'
 require_relative '../lib/sibit/earn'
+require_relative '../lib/sibit/fake'
 require_relative '../lib/sibit/firstof'
 
 begin
@@ -62,7 +65,7 @@ Options are:"
       o.array(
         '--api',
         'Ordered List of APIs to use, e.g. "earn,blockchain,btc,bitcoinchain"',
-        default: %w[earn blockchain btc bitcoinchain]
+        default: %w[earn blockchain btc bitcoinchain blockchair cex]
       )
     end
   rescue Slop::Error => ex
@@ -79,6 +82,12 @@ Options are:"
       api = Sibit::Btc.new(http: http, log: log, dry: opts[:dry])
     elsif a == 'bitcoinchain'
       api = Sibit::Bitcoinchain.new(http: http, log: log, dry: opts[:dry])
+    elsif a == 'blockchair'
+      api = Sibit::Blockchair.new(http: http, log: log, dry: opts[:dry])
+    elsif a == 'cex'
+      api = Sibit::Cex.new(http: http, log: log, dry: opts[:dry])
+    elsif a == 'fake'
+      api = Sibit::Fake.new
     elsif a == 'earn'
       api = Sibit::Earn.new(http: http, log: log, dry: opts[:dry])
     else
@@ -87,7 +96,7 @@ Options are:"
     api = RetriableProxy.for_object(api, on: Sibit::Error) if opts[:attempts] > 1
     api
   end
-  sibit = Sibit.new(log: log, api: Sibit::FirstOf.new(apis, log: log))
+  sibit = Sibit.new(log: log, api: Sibit::FirstOf.new(apis, log: log, verbose: true))
   case opts.arguments[0]
   when 'price'
     puts sibit.price

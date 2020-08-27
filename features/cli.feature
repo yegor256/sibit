@@ -31,5 +31,5 @@ Feature: Command Line Processing
     Then Exit code is zero
 
   Scenario: Bitcoin fees can be printed
-    When I run bin/sibit with "fees --verbose"
+    When I run bin/sibit with "fees --verbose --api=fake"
     Then Exit code is zero

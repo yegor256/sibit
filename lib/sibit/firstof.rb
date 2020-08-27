@@ -105,6 +105,7 @@ class Sibit
       done = false
       result = nil
       @list.each do |api|
+        @log.info("Calling #{api.class.name}##{method}()...")
         begin
           result = yield api
           done = true
