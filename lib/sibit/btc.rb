@@ -95,6 +95,7 @@ class Sibit
       data = json['data']
       raise Sibit::Error, "The block #{hash} not found" if data.nil?
       h = data['height']
+      raise Sibit::Error, "The block #{hash} found but the height is absent" if h.nil?
       @log.info("The height of #{hash} is #{h}")
       h
     end
@@ -124,7 +125,9 @@ class Sibit
         )
         data = json['data']
         raise Sibit::Error, "The address #{hash} not found" if data.nil?
-        data['list'].each do |u|
+        txns = data['list']
+        next if txns.nil?
+        txns.each do |u|
           outs = Sibit::Json.new(http: @http, log: @log).get(
             URI("https://chain.api.btc.com/v3/tx/#{u['tx_hash']}?verbose=3")
           )['data']['outputs']
