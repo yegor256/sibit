@@ -62,7 +62,7 @@ class Sibit
       unless accept.include?(res.code.to_i)
         raise Sibit::Error, "Failed to retrieve #{uri} (#{res.code}): #{res.body}"
       end
-      @log.info("GET #{uri}: #{res.code}/#{res.body.length}b in #{age(start)}")
+      @log.info("GET #{uri}: #{res.code}/#{length(res.body.length)} in #{age(start)}")
       JSON.parse(res.body)
     end
 
@@ -89,6 +89,16 @@ class Sibit
 
     def age(start)
       "#{((Time.now - start) * 1000).round}ms"
+    end
+
+    def length(bytes)
+      if bytes > 1024 * 1024
+        "#{bytes / (1024 * 1024)}mb"
+      elsif bytes > 1024
+        "#{bytes / 1024}kb"
+      else
+        "#{bytes}b"
+      end
     end
 
     def user_agent
