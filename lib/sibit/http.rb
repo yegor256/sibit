@@ -33,7 +33,7 @@ class Sibit
     def client(uri)
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
-      http.read_timeout = 120
+      http.read_timeout = 240
       http
     end
   end
@@ -47,7 +47,7 @@ class Sibit
     def client(uri)
       http = Net::HTTP.new(uri.host, uri.port, @host, @port.to_i)
       http.use_ssl = true
-      http.read_timeout = 120
+      http.read_timeout = 240
       http
     end
   end
