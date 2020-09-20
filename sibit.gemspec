@@ -49,7 +49,6 @@ and Ruby 2.3+.'
   s.rdoc_options = ['--charset=UTF-8']
   s.extra_rdoc_files = ['README.md', 'LICENSE.txt']
   s.add_runtime_dependency 'backtrace', '~> 0.3'
-  s.add_runtime_dependency 'bitcoin', '0.2.0'
   s.add_runtime_dependency 'bitcoin-ruby', '0.0.19'
   s.add_runtime_dependency 'json', '~> 2'
   s.add_runtime_dependency 'retriable_proxy', '1.0.2'
