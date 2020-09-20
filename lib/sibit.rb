@@ -48,7 +48,7 @@ class Sibit
   # The +api+ argument can be an object or an array of objects. If an array
   # is provided, we will make an attempt to try them one by one, until
   # one of them succeedes.
-  def initialize(log: STDOUT, api: Sibit::Blockchain.new(log: Sibit::Log.new(log)))
+  def initialize(log: $stdout, api: Sibit::Blockchain.new(log: Sibit::Log.new(log)))
     @log = Sibit::Log.new(log)
     @api = api
   end

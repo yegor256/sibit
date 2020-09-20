@@ -107,7 +107,7 @@ class TestLive < Minitest::Test
       json = api.utxos(['12fCwqBN4XsHq4iu2Wbfgq5e8YhqEGP3ee'])
       assert_equal(3, json.length)
       assert(json.find { |t| t[:value] == 16_200_000 }, 'UTXO not found')
-      assert(json.find { |t| t[:script].unpack('H*').first.start_with?('76a9141231e760') })
+      assert(json.find { |t| t[:script].unpack1('H*').start_with?('76a9141231e760') })
     end
   end
 
@@ -130,11 +130,9 @@ class TestLive < Minitest::Test
     require_relative '../lib/sibit/bitcoinchain'
     apis << Sibit::Bitcoinchain.new
     apis.each do |api|
-      begin
-        yield api
-      rescue Sibit::Error => e
-        puts Backtrace.new(e).to_s
-      end
+      yield api
+    rescue Sibit::Error => e
+      puts Backtrace.new(e).to_s
     end
   end
 end

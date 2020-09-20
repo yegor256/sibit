@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+require 'backtrace'
 require_relative 'error'
 require_relative 'log'
 
@@ -102,6 +103,7 @@ class Sibit
 
     def first_of(method)
       return yield @list unless @list.is_a?(Array)
+      errors = []
       done = false
       result = nil
       @list.each do |api|
@@ -111,10 +113,12 @@ class Sibit
           done = true
           break
         rescue Sibit::Error => e
+          errors << e
           @log.info("The API #{api.class.name} failed at #{method}(): #{e.message}") if @verbose
         end
       end
       unless done
+        errors.each { |e| @log.info(Backtrace.new(e).to_s) }
         raise Sibit::Error, "No APIs out of #{@list.length} managed to succeed at #{method}(): \
 #{@list.map { |a| a.class.name }.join(', ')}"
       end

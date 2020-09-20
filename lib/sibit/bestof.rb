@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+require 'backtrace'
 require_relative 'error'
 require_relative 'log'
 
@@ -103,14 +104,15 @@ class Sibit
     def best_of(method)
       return yield @list unless @list.is_a?(Array)
       results = []
+      errors = []
       @list.each do |api|
-        begin
-          results << yield(api)
-        rescue Sibit::Error => e
-          @log.info("The API #{api.class.name} failed at #{method}(): #{e.message}") if @verbose
-        end
+        results << yield(api)
+      rescue Sibit::Error => e
+        errors << e
+        @log.info("The API #{api.class.name} failed at #{method}(): #{e.message}") if @verbose
       end
       if results.empty?
+        errors.each { |e| @log.info(Backtrace.new(e).to_s) }
         raise Sibit::Error, "No APIs out of #{@list.length} managed to succeed at #{method}(): \
 #{@list.map { |a| a.class.name }.join(', ')}"
       end

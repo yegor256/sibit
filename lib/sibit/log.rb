@@ -34,7 +34,7 @@ class Sibit
     # provide anything, the console will be used. The object you provide
     # has to respond to the method +info+ or +puts+ in order to receive logging
     # messages.
-    def initialize(log = STDOUT)
+    def initialize(log = $stdout)
       @log = log
     end
 

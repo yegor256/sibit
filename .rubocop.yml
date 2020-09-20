@@ -1,12 +1,13 @@
 AllCops:
+  NewCops: enable
   Exclude:
     - 'assets/**/*'
   DisplayCopNames: true
-  TargetRubyVersion: 2.3
+  TargetRubyVersion: 2.5
 
 Style/ClassAndModuleChildren:
   Enabled: false
-Metrics/LineLength:
+Layout/LineLength:
   Max: 100
 Layout/EndOfLine:
   EnforcedStyle: lf

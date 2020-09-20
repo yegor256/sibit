@@ -21,7 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-STDOUT.sync = true
+$stdout.sync = true
 
 require 'slop'
 require 'backtrace'
@@ -68,27 +68,28 @@ Options are:"
         default: %w[earn blockchain btc bitcoinchain blockchair cex]
       )
     end
-  rescue Slop::Error => ex
-    raise ex.message
+  rescue Slop::Error => e
+    raise e.message
   end
   raise 'Try --help' if opts.arguments.empty?
-  log = Sibit::Log.new(opts[:verbose] ? STDOUT : nil)
+  log = Sibit::Log.new(opts[:verbose] ? $stdout : nil)
   http = opts[:proxy] ? Sibit::HttpProxy.new(opts[:proxy]) : Sibit::Http.new
   apis = opts[:api].map(&:downcase).map do |a|
     api = nil
-    if a == 'blockchain'
+    case a
+    when 'blockchain'
       api = Sibit::Blockchain.new(http: http, log: log, dry: opts[:dry])
-    elsif a == 'btc'
+    when 'btc'
       api = Sibit::Btc.new(http: http, log: log, dry: opts[:dry])
-    elsif a == 'bitcoinchain'
+    when 'bitcoinchain'
       api = Sibit::Bitcoinchain.new(http: http, log: log, dry: opts[:dry])
-    elsif a == 'blockchair'
+    when 'blockchair'
       api = Sibit::Blockchair.new(http: http, log: log, dry: opts[:dry])
-    elsif a == 'cex'
+    when 'cex'
       api = Sibit::Cex.new(http: http, log: log, dry: opts[:dry])
-    elsif a == 'fake'
+    when 'fake'
       api = Sibit::Fake.new
-    elsif a == 'earn'
+    when 'earn'
       api = Sibit::Earn.new(http: http, log: log, dry: opts[:dry])
     else
       raise Sibit::Error, "Unknown API \"#{a}\""
@@ -105,7 +106,7 @@ Options are:"
     text = %i[S M L XL].map do |m|
       sat = fees[m] * 250
       usd = sat * sibit.price / 100_000_000
-      "#{m}: #{sat}sat / $#{format('%.02f', usd)}"
+      "#{m}: #{sat}sat / $#{format('%<usd>.02f', usd: usd)}"
     end.join("\n")
     puts text
   when 'latest'
@@ -141,11 +142,11 @@ Options are:"
   else
     raise "Command #{opts.arguments[0]} is not supported"
   end
-rescue StandardError => ex
+rescue StandardError => e
   if opts[:verbose]
-    puts Backtrace.new(ex).to_s
+    puts Backtrace.new(e).to_s
   else
-    puts "ERROR: #{ex.message}"
+    puts "ERROR: #{e.message}"
   end
   exit(255)
 end
