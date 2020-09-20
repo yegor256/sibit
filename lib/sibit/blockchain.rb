@@ -62,8 +62,12 @@ class Sibit
       json = Sibit::Json.new(http: @http, log: @log).get(
         URI("https://blockchain.info/rawblock/#{hash}")
       )
-      nxt = json['next_block']
-      @log.info("The next block of #{hash} is #{nxt}")
+      nxt = json['next_block'][0]
+      if nxt.nil?
+        @log.info("There is no block after #{hash}")
+      else
+        @log.info("The next block of #{hash} is #{nxt}")
+      end
       nxt
     end
 
