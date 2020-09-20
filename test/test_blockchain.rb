@@ -45,4 +45,13 @@ class TestBlockchain < Minitest::Test
     assert_equal('h1', json[:txns][0][:hash])
     assert(json[:txns][0][:outputs].is_a?(Array))
   end
+
+  def test_next_of
+    hash = '0000000000000000000f676241aabc9b62b748d26192a44bc25720c34de27d19'
+    stub_request(:get, "https://blockchain.info/rawblock/#{hash}")
+      .to_return(body: '{"next_block": "nxt"}')
+    sibit = Sibit::Blockchain.new
+    nxt = sibit.next_of(hash)
+    assert_equal('nxt', nxt)
+  end
 end

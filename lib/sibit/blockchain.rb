@@ -58,8 +58,13 @@ class Sibit
     end
 
     # Get hash of the block after this one.
-    def next_of(_hash)
-      raise Sibit::NotSupportedError, 'Blockchain API doesn\'t provide next_of()'
+    def next_of(hash)
+      json = Sibit::Json.new(http: @http, log: @log).get(
+        URI("https://blockchain.info/rawblock/#{hash}")
+      )
+      nxt = json['next_block']
+      @log.info("The next block of #{hash} is #{nxt}")
+      nxt
     end
 
     # The height of the block.
