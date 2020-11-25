@@ -20,13 +20,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-require 'uri'
+require 'iri'
 require 'json'
-require_relative 'version'
+require 'uri'
 require_relative 'error'
-require_relative 'log'
 require_relative 'http'
 require_relative 'json'
+require_relative 'log'
+require_relative 'version'
 
 # Btc.com API.
 #
@@ -52,7 +53,7 @@ class Sibit
 
     # Gets the balance of the address, in satoshi.
     def balance(address)
-      uri = URI("https://chain.api.btc.com/v3/address/#{address}/unspent")
+      uri = Iri.new('https://chain.api.btc.com/v3/address').append(address).append('unspent')
       json = Sibit::Json.new(http: @http, log: @log).get(uri)
       if json['err_no'] == 1
         @log.info("The balance of #{address} is zero (not found)")
@@ -76,13 +77,13 @@ class Sibit
     # Get hash of the block after this one.
     def next_of(hash)
       head = Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://chain.api.btc.com/v3/block/#{hash}")
+        Iri.new('https://chain.api.btc.com/v3/block').append(hash)
       )
       data = head['data']
       raise Sibit::Error, "The block #{hash} not found" if data.nil?
       nxt = data['next_block_hash']
       nxt = nil if nxt == '0000000000000000000000000000000000000000000000000000000000000000'
-      @log.info("The block #{hash} is the latest, there is no next block") if nxt.nil?
+      @log.info("In BTC.com the block #{hash} is the latest, there is no next block") if nxt.nil?
       @log.info("The next block of #{hash} is #{nxt}") unless nxt.nil?
       nxt
     end
@@ -90,7 +91,7 @@ class Sibit
     # The height of the block.
     def height(hash)
       json = Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://chain.api.btc.com/v3/block/#{hash}")
+        Iri.new('https://chain.api.btc.com/v3/block').append(hash)
       )
       data = json['data']
       raise Sibit::Error, "The block #{hash} not found" if data.nil?
@@ -107,7 +108,7 @@ class Sibit
 
     # Gets the hash of the latest block.
     def latest
-      uri = URI('https://chain.api.btc.com/v3/block/latest')
+      uri = Iri.new('https://chain.api.btc.com/v3/block/latest')
       json = Sibit::Json.new(http: @http, log: @log).get(uri)
       data = json['data']
       raise Sibit::Error, 'The latest block not found' if data.nil?
@@ -121,7 +122,7 @@ class Sibit
       txns = []
       sources.each do |hash|
         json = Sibit::Json.new(http: @http, log: @log).get(
-          URI("https://chain.api.btc.com/v3/address/#{hash}/unspent")
+          Iri.new('https://chain.api.btc.com/v3/address').append(hash).append('unspent')
         )
         data = json['data']
         raise Sibit::Error, "The address #{hash} not found" if data.nil?
@@ -129,7 +130,7 @@ class Sibit
         next if txns.nil?
         txns.each do |u|
           outs = Sibit::Json.new(http: @http, log: @log).get(
-            URI("https://chain.api.btc.com/v3/tx/#{u['tx_hash']}?verbose=3")
+            Iri.new('https://chain.api.btc.com/v3/tx').append(u['tx_hash']).add(verbose: 3)
           )['data']['outputs']
           outs.each_with_index do |o, i|
             next unless o['addresses'].include?(hash)
@@ -154,7 +155,7 @@ class Sibit
     # This method should fetch a Blockchain block and return as a hash.
     def block(hash)
       head = Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://chain.api.btc.com/v3/block/#{hash}")
+        Iri.new('https://chain.api.btc.com/v3/block').append(hash)
       )
       data = head['data']
       raise Sibit::Error, "The block #{hash} not found" if data.nil?
@@ -177,7 +178,8 @@ class Sibit
       all = []
       loop do
         data = Sibit::Json.new(http: @http, log: @log).get(
-          URI("https://chain.api.btc.com/v3/block/#{hash}/tx?page=#{page}&pagesize=#{psize}")
+          Iri.new('https://chain.api.btc.com/v3/block')
+            .append(hash).append('tx').add(page: page, pagesize: psize)
         )['data']
         raise Sibit::Error, "The block #{hash} has no data at page #{page}" if data.nil?
         list = data['list']

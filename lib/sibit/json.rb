@@ -48,8 +48,9 @@ class Sibit
     # Send GET request to the HTTP and return JSON response.
     # This method will also log the process and will validate the
     # response for correctness.
-    def get(uri, headers: {}, accept: [200])
+    def get(address, headers: {}, accept: [200])
       start = Time.now
+      uri = URI(address.to_s)
       res = @http.client(uri).get(
         "#{uri.path.empty? ? '/' : uri.path}#{uri.query ? "?#{uri.query}" : ''}",
         {
@@ -66,8 +67,9 @@ class Sibit
       JSON.parse(res.body)
     end
 
-    def post(uri, body, headers: {})
+    def post(address, body, headers: {})
       start = Time.now
+      uri = URI(address.to_s)
       res = @http.client(uri).post(
         "#{uri.path}?#{uri.query}",
         "tx=#{CGI.escape(body)}",

@@ -21,12 +21,13 @@
 # SOFTWARE.
 
 require 'bitcoin'
+require 'iri'
 require 'json'
 require 'uri'
-require_relative 'version'
 require_relative 'error'
 require_relative 'http'
 require_relative 'json'
+require_relative 'version'
 
 # Blockchain.info API.
 #
@@ -49,7 +50,7 @@ class Sibit
     # Current price of BTC in USD (float returned).
     def price(currency = 'USD')
       h = Sibit::Json.new(http: @http, log: @log).get(
-        URI('https://blockchain.info/ticker')
+        Iri.new('https://blockchain.info/ticker')
       )[currency]
       raise Error, "Unrecognized currency #{currency}" if h.nil?
       price = h['15m']
@@ -61,7 +62,7 @@ class Sibit
     def next_of(_hash)
       raise Sibit::NotSupportedError, 'next_of() in Blockchain API is broken, always returns NULL'
       # json = Sibit::Json.new(http: @http, log: @log).get(
-      #   URI("https://blockchain.info/rawblock/#{hash}")
+      #   Iri.new('https://blockchain.info/rawblock').append(hash)
       # )
       # nxt = json['next_block'][0]
       # if nxt.nil?
@@ -75,7 +76,7 @@ class Sibit
     # The height of the block.
     def height(hash)
       json = Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://blockchain.info/rawblock/#{hash}")
+        Iri.new('https://blockchain.info/rawblock').append(hash)
       )
       h = json['height']
       @log.info("The height of #{hash} is #{h}")
@@ -85,7 +86,7 @@ class Sibit
     # Gets the balance of the address, in satoshi.
     def balance(address)
       json = Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://blockchain.info/rawaddr/#{address}?limit=0"),
+        Iri.new('https://blockchain.info/rawaddr').append(address).add(limit: 0),
         accept: [200, 500]
       )
       b = json['final_balance']
@@ -102,7 +103,7 @@ class Sibit
     # of Bitcoin addresses.
     def utxos(sources)
       Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://blockchain.info/unspent?active=#{sources.join('|')}&limit=1000")
+        Iri.new('https://blockchain.info/unspent').add(active: sources.join('|'), limit: 1000)
       )['unspent_outputs'].map do |u|
         {
           value: u['value'],
@@ -118,7 +119,7 @@ class Sibit
     def push(hex)
       return if @dry
       Sibit::Json.new(http: @http, log: @log).post(
-        URI('https://blockchain.info/pushtx'),
+        Iri.new('https://blockchain.info/pushtx'),
         hex
       )
     end
@@ -126,7 +127,7 @@ class Sibit
     # Gets the hash of the latest block.
     def latest
       hash = Sibit::Json.new(http: @http, log: @log).get(
-        URI('https://blockchain.info/latestblock')
+        Iri.new('https://blockchain.info/latestblock')
       )['hash']
       @log.info("The latest block hash is #{hash}")
       hash
@@ -135,7 +136,7 @@ class Sibit
     # This method should fetch a Blockchain block and return as a hash.
     def block(hash)
       json = Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://blockchain.info/rawblock/#{hash}")
+        Iri.new('https://blockchain.info/rawblock').append(hash)
       )
       {
         hash: json['hash'],

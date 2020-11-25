@@ -20,13 +20,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-require 'uri'
+require 'iri'
 require 'json'
-require_relative 'version'
+require 'uri'
 require_relative 'error'
-require_relative 'log'
 require_relative 'http'
 require_relative 'json'
+require_relative 'log'
+require_relative 'version'
 
 # Bitcoinchain.com API.
 #
@@ -56,7 +57,7 @@ class Sibit
     # Get hash of the block after this one.
     def next_of(hash)
       block = Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://api-r.bitcoinchain.com/v1/block/#{hash}")
+        Iri.new('https://api-r.bitcoinchain.com/v1/block').append(hash)
       )[0]
       raise Sibit::Error, "Block #{hash} not found" if block.nil?
       nxt = block['next_block']
@@ -69,7 +70,7 @@ class Sibit
     # Gets the balance of the address, in satoshi.
     def balance(address)
       json = Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://api-r.bitcoinchain.com/v1/address/#{address}"),
+        Iri.new('https://api-r.bitcoinchain.com/v1/address').append(address),
         accept: [200, 409]
       )[0]
       b = json['balance']
@@ -91,7 +92,7 @@ class Sibit
     # Gets the hash of the latest block.
     def latest
       hash = Sibit::Json.new(http: @http, log: @log).get(
-        URI('https://api-r.bitcoinchain.com/v1/status')
+        Iri.new('https://api-r.bitcoinchain.com/v1/status')
       )['hash']
       @log.info("The latest block hash is #{hash}")
       hash
@@ -111,11 +112,11 @@ class Sibit
     # an exception if the block is not found.
     def block(hash)
       head = Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://api-r.bitcoinchain.com/v1/block/#{hash}")
+        Iri.new('https://api-r.bitcoinchain.com/v1/block').append(hash)
       )[0]
       raise Sibit::Error, "The block #{hash} is not found" if head.nil?
       txs = Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://api-r.bitcoinchain.com/v1/block/txs/#{hash}")
+        Iri.new('https://api-r.bitcoinchain.com/v1/block/txs').append(hash)
       )
       nxt = head['next_block']
       nxt = nil if nxt == '0000000000000000000000000000000000000000000000000000000000000000'

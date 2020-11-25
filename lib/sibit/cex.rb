@@ -45,7 +45,7 @@ class Sibit
     # Current price of BTC in USD (float returned).
     def price(currency = 'USD')
       json = Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://cex.io/api/last_price/BTC/#{currency}")
+        Iri.new('https://cex.io/api/last_price/BTC').append(currency)
       )
       p = json['lprice'].to_f
       @log.info("The price of BTC is #{p} #{currency}")

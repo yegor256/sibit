@@ -20,13 +20,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-require 'uri'
+require 'iri'
 require 'json'
-require_relative 'version'
+require 'uri'
 require_relative 'error'
-require_relative 'log'
 require_relative 'http'
 require_relative 'json'
+require_relative 'log'
+require_relative 'version'
 
 # Cryptoapis.io API.
 #
@@ -52,7 +53,7 @@ class Sibit
     # Get hash of the block after this one.
     def next_of(hash)
       nxt = Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/#{hash}"),
+        Iri.new('https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks').append(hash),
         headers: headers
       )['payload']['hash']
       @log.info("The block #{hash} is the latest, there is no next block") if nxt.nil?
@@ -63,7 +64,7 @@ class Sibit
     # The height of the block.
     def height(hash)
       json = Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/#{hash}"),
+        Iri.new('https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks').append(hash),
         headers: headers
       )['payload']
       h = json['height']
@@ -74,7 +75,7 @@ class Sibit
     # Gets the balance of the address, in satoshi.
     def balance(address)
       json = Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://api.cryptoapis.io/v1/bc/btc/mainnet/address/#{address}"),
+        Iri.new('https://api.cryptoapis.io/v1/bc/btc/mainnet/address').append(address),
         headers: headers
       )['payload']
       b = (json['balance'].to_f * 100_000_000).to_i
@@ -90,7 +91,7 @@ class Sibit
     # Gets the hash of the latest block.
     def latest
       hash = Sibit::Json.new(http: @http, log: @log).get(
-        URI('https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/latest'),
+        Iri.new('https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/latest'),
         headers: headers
       )['payload']['hash']
       @log.info("The latest block hash is #{hash}")
@@ -105,7 +106,7 @@ class Sibit
     # Push this transaction (in hex format) to the network.
     def push(hex)
       Sibit::Json.new(http: @http, log: @log).post(
-        URI('https://api.cryptoapis.io/v1/bc/btc/testnet/txs/send'),
+        Iri.new('https://api.cryptoapis.io/v1/bc/btc/testnet/txs/send'),
         JSON.pretty_generate(hex: hex),
         headers: headers
       )
@@ -114,7 +115,7 @@ class Sibit
     # This method should fetch a Blockchain block and return as a hash.
     def block(hash)
       head = Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/#{hash}"),
+        Iri.new('https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks').append(hash),
         headers: headers
       )['payload']
       {
@@ -141,12 +142,8 @@ class Sibit
       all = []
       loop do
         txns = Sibit::Json.new(http: @http, log: @log).get(
-          URI(
-            [
-              'https://api.cryptoapis.io/v1/bc/btc/mainnet/txs/block/',
-              "#{hash}?index=#{index}&limit=#{limit}"
-            ].join
-          ),
+          Iri.new('https://api.cryptoapis.io/v1/bc/btc/mainnet/txs/block/')
+            .append(hash).add(index: index, limit: limit),
           headers: headers
         )['payload'].map do |t|
           {

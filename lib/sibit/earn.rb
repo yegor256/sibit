@@ -20,12 +20,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+require 'iri'
 require 'json'
 require 'uri'
-require_relative 'version'
 require_relative 'error'
 require_relative 'http'
 require_relative 'json'
+require_relative 'version'
 
 # Earn.com API.
 #
@@ -66,7 +67,7 @@ class Sibit
     # a hash: { S: 12, M: 45, L: 100, XL: 200 }
     def fees
       json = Sibit::Json.new(http: @http, log: @log).get(
-        URI('https://bitcoinfees.earn.com/api/v1/fees/recommended')
+        Iri.new('https://bitcoinfees.earn.com/api/v1/fees/recommended')
       )
       @log.info("Current recommended Bitcoin fees: \
 #{json['hourFee']}/#{json['halfHourFee']}/#{json['fastestFee']} sat/byte")

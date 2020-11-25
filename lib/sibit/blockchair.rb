@@ -20,14 +20,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-require 'uri'
-require 'json'
 require 'cgi'
-require_relative 'version'
+require 'iri'
+require 'json'
+require 'uri'
 require_relative 'error'
-require_relative 'log'
 require_relative 'http'
 require_relative 'json'
+require_relative 'log'
+require_relative 'version'
 
 # Blockchair.com API.
 #
@@ -64,7 +65,7 @@ class Sibit
     # Gets the balance of the address, in satoshi.
     def balance(address)
       json = Sibit::Json.new(http: @http, log: @log).get(
-        URI("https://api.blockchair.com/bitcoin/dashboards/address/#{address}?#{the_key}")
+        Iri.new('https://api.blockchair.com/bitcoin/dashboards/address').append(address).fragment(the_key)
       )['data'][address]
       if json.nil?
         @log.info("Address #{address} not found")
@@ -94,7 +95,7 @@ class Sibit
     # Push this transaction (in hex format) to the network.
     def push(hex)
       Sibit::Json.new(http: @http, log: @log).post(
-        URI("https://api.blockchair.com/bitcoin/push/transaction?#{the_key}"),
+        Iri.new('https://api.blockchair.com/bitcoin/push/transaction').fragment(the_key),
         "data=#{hex}"
       )
       @log.info("Transaction (#{hex.length} in hex) has been pushed to Blockchair")
