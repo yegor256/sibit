@@ -55,6 +55,7 @@ class Sibit
 
   # Current price of 1 BTC in USD (or another currency), float returned.
   def price(currency = 'USD')
+    raise Error, "Invalid currency #{currency.inspect}" unless /^[A-Z]{3}$/.match?(currency)
     @api.price(currency)
   end
 
@@ -74,16 +75,19 @@ class Sibit
 
   # Gets the balance of the address, in satoshi.
   def balance(address)
+    raise Error, "Invalid address #{address.inspect}" unless /^[0-9A-Z]+$/.match?(address)
     @api.balance(address)
   end
 
   # Get the height of the block.
   def height(hash)
+    raise Error, "Invalid block hash #{hash.inspect}" unless /^[0-9a-f]{64}$/.match?(hash)
     @api.height(hash)
   end
 
   # Get the hash of the next block.
   def next_of(hash)
+    raise Error, "Invalid block hash #{hash.inspect}" unless /^[0-9a-f]{64}$/.match?(hash)
     @api.next_of(hash)
   end
 
