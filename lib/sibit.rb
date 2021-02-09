@@ -187,6 +187,7 @@ class Sibit
   # found was useful.
   def scan(start, max: 4)
     raise Error, "Invalid block hash #{start.inspect}" unless /^[0-9a-f]{64}$/.match?(start)
+    raise Error, "The max number must be above zero: #{max}" if max < 1
     block = start
     count = 0
     wrong = []
