@@ -196,7 +196,7 @@ class TestSibit < Minitest::Test
     end
     sibit = Sibit.new(api: api)
     found = false
-    tail = sibit.scan('head') do |addr, tx, satoshi|
+    tail = sibit.scan('00000000000000000008df8a6e1b61d1136803ac9791b8725235c9f780b4ed71') do |addr, tx, satoshi|
       assert_equal(123, satoshi)
       assert_equal('addr', addr)
       assert_equal('hash:0', tx)

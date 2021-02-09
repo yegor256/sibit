@@ -41,7 +41,7 @@ class TestFake < Minitest::Test
 
   def test_scan_works
     sibit = Sibit.new(api: Sibit::Fake.new)
-    hash = '1234567'
+    hash = '00000000000000000008df8a6e1b61d1136803ac9791b8725235c9f780b4ed71'
     found = false
     tail = sibit.scan(hash) do |addr, tx, satoshi|
       assert_equal(1000, satoshi)

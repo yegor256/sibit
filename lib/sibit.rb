@@ -75,7 +75,7 @@ class Sibit
 
   # Gets the balance of the address, in satoshi.
   def balance(address)
-    raise Error, "Invalid address #{address.inspect}" unless /^[0-9A-Z]+$/.match?(address)
+    raise Error, "Invalid address #{address.inspect}" unless /^[0-9a-zA-Z]+$/.match?(address)
     @api.balance(address)
   end
 
@@ -186,6 +186,7 @@ class Sibit
   # in satoshi. The callback should return non-false if the transaction
   # found was useful.
   def scan(start, max: 4)
+    raise Error, "Invalid block hash #{start.inspect}" unless /^[0-9a-f]{64}$/.match?(start)
     block = start
     count = 0
     wrong = []
