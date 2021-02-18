@@ -65,6 +65,8 @@ class Sibit
       end
       @log.info("GET #{uri}: #{res.code}/#{length(res.body.length)} in #{age(start)}")
       JSON.parse(res.body)
+    rescue JSON::ParserError => e
+      raise Sibit::Error, "Can't parse JSON: #{e.message}"
     end
 
     def post(address, body, headers: {})
