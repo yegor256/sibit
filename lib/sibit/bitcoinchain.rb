@@ -121,6 +121,7 @@ class Sibit
       nxt = head['next_block']
       nxt = nil if nxt == '0000000000000000000000000000000000000000000000000000000000000000'
       {
+        provider: self.class.name,
         hash: head['hash'],
         orphan: !head['is_main'],
         next: nxt,

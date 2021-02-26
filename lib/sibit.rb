@@ -221,7 +221,8 @@ class Sibit
         checked += 1
       end
       count += 1
-      @log.info("We checked #{checked} txns and #{checked_outputs} outputs in block #{block}")
+      @log.info("We checked #{checked} txns and #{checked_outputs} outputs
+in block #{block} (by #{json[:provider]})")
       block = json[:next]
       if block.nil?
         @log.info("The next_block is empty in block #{json[:hash]}, this is the end of Blockchain")

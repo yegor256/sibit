@@ -162,6 +162,7 @@ class Sibit
       nxt = data['next_block_hash']
       nxt = nil if nxt == '0000000000000000000000000000000000000000000000000000000000000000'
       {
+        provider: self.class.name,
         hash: data['hash'],
         orphan: data['is_orphan'],
         next: nxt,

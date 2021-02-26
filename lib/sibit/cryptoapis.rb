@@ -119,6 +119,7 @@ class Sibit
         headers: headers
       )['payload']
       {
+        provider: self.class.name,
         hash: head['hash'],
         orphan: false,
         next: head['nextblockhash'],

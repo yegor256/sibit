@@ -139,6 +139,7 @@ class Sibit
         Iri.new('https://blockchain.info/rawblock').append(hash)
       )
       {
+        provider: self.class.name,
         hash: json['hash'],
         orphan: !json['main_chain'],
         next: json['next_block'][0],

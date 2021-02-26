@@ -64,6 +64,7 @@ class Sibit
 
     def block(hash)
       {
+        provider: self.class.name,
         hash: hash,
         orphan: false,
         next: hash,
