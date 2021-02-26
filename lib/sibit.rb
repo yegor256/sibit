@@ -225,7 +225,11 @@ class Sibit
 in block #{block} (by #{json[:provider]})")
       block = json[:next]
       if block.nil?
-        @log.info("The next_block is empty in block #{json[:hash]}, this is the end of Blockchain")
+        @log.info("The next_block is empty in #{json[:hash]}, this may be the end of Blockchain...")
+        block = @api.next_of(json[:hash])
+      end
+      if block.nil?
+        @log.info("The block #{json[:hash]} is definitely the end of Blockchain, we stop.")
         break
       end
       if count > max

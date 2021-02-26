@@ -74,7 +74,7 @@ class Sibit
       balance
     end
 
-    # Get hash of the block after this one.
+    # Get hash of the block after this one, or NIL if it's the last one in Blockchain.
     def next_of(hash)
       head = Sibit::Json.new(http: @http, log: @log).get(
         Iri.new('https://chain.api.btc.com/v3/block').append(hash)
