@@ -107,6 +107,8 @@ class Sibit
       errors = []
       @list.each do |api|
         results << yield(api)
+      rescue Sibit::NotSupportedError
+        # Just ignore it
       rescue Sibit::Error => e
         errors << e
         @log.info("The API #{api.class.name} failed at #{method}(): #{e.message}") if @verbose

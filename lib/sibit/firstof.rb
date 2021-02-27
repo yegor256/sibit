@@ -112,6 +112,8 @@ class Sibit
           result = yield api
           done = true
           break
+        rescue Sibit::NotSupportedError
+          # Just ignore it
         rescue Sibit::Error => e
           errors << e
           @log.info("The API #{api.class.name} failed at #{method}(): #{e.message}") if @verbose
