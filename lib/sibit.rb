@@ -221,7 +221,7 @@ class Sibit
         checked += 1
       end
       count += 1
-      @log.info("We checked #{checked} txns and #{checked_outputs} outputs
+      @log.info("We checked #{checked} txns and #{checked_outputs} outputs \
 in block #{block} (by #{json[:provider]})")
       block = json[:next]
       if block.nil?
