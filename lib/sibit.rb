@@ -224,9 +224,14 @@ class Sibit
       @log.info("We checked #{checked} txns and #{checked_outputs} outputs \
 in block #{block} (by #{json[:provider]})")
       block = json[:next]
-      if block.nil?
-        @log.info("The next_block is empty in #{json[:hash]}, this may be the end of Blockchain...")
-        block = @api.next_of(json[:hash])
+      begin
+        if block.nil?
+          @log.info("The next_block is empty in #{json[:hash]}, this may be the end...")
+          block = @api.next_of(json[:hash])
+        end
+      rescue Sibit::Error => e
+        @log.info("Failed to get the next_of(#{json[:hash]}), quitting: #{e.message}")
+        break
       end
       if block.nil?
         @log.info("The block #{json[:hash]} is definitely the end of Blockchain, we stop.")
