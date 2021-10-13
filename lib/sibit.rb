@@ -290,7 +290,3 @@ in block #{block} (by #{json[:provider]})")
     key
   end
 end
-
-@sibit = Sibit.new
-
-@sibit.fees
