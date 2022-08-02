@@ -26,11 +26,9 @@ lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require_relative 'lib/sibit/version'
 Gem::Specification.new do |s|
-  s.specification_version = 2 if s.respond_to? :specification_version=
   if s.respond_to? :required_rubygems_version=
     s.required_rubygems_version = Gem::Requirement.new('>= 0')
   end
-  s.rubygems_version = '2.2'
   s.required_ruby_version = '>= 2.5'
   s.name = 'sibit'
   s.version = Sibit::VERSION
@@ -45,23 +43,23 @@ and Ruby 2.3+.'
   s.homepage = 'http://github.com/yegor256/sibit'
   s.files = `git ls-files`.split($RS)
   s.executables = s.files.grep(%r{^bin/}) { |f| File.basename(f) }
-  s.test_files = s.files.grep(%r{^(test|spec|features)/})
   s.rdoc_options = ['--charset=UTF-8']
   s.extra_rdoc_files = ['README.md', 'LICENSE.txt']
   s.add_runtime_dependency 'backtrace', '~> 0.3'
-  s.add_runtime_dependency 'bitcoin-ruby', '0.0.19'
+  s.add_runtime_dependency 'bitcoin-ruby', '0.0.20'
   s.add_runtime_dependency 'iri', '~> 0.5'
   s.add_runtime_dependency 'json', '~> 2'
-  s.add_runtime_dependency 'retriable_proxy', '1.0.2'
+  s.add_runtime_dependency 'retriable_proxy', '~> 1.0'
   s.add_runtime_dependency 'slop', '~> 4.6'
-  s.add_development_dependency 'aruba', '~> 1.0'
-  s.add_development_dependency 'codecov', '0.2.11'
-  s.add_development_dependency 'cucumber', '~> 5.1'
-  s.add_development_dependency 'debase', '~> 0.2'
-  s.add_development_dependency 'minitest', '5.14.2'
-  s.add_development_dependency 'rake', '13.0.1'
-  s.add_development_dependency 'rspec-rails', '4.0.1'
-  s.add_development_dependency 'rubocop', '0.91.0'
-  s.add_development_dependency 'rubocop-rspec', '1.43.2'
-  s.add_development_dependency 'webmock', '3.9.1'
+  s.add_development_dependency 'aruba', '2.1.0'
+  s.add_development_dependency 'codecov', '0.6.0'
+  s.add_development_dependency 'cucumber', '8.0.0'
+  s.add_development_dependency 'debase', '0.2.4.1'
+  s.add_development_dependency 'minitest', '5.16.2'
+  s.add_development_dependency 'rake', '13.0.6'
+  s.add_development_dependency 'rspec-rails', '5.1.2'
+  s.add_development_dependency 'rubocop', '1.32.0'
+  s.add_development_dependency 'rubocop-rspec', '2.12.1'
+  s.add_development_dependency 'webmock', '3.15.0'
+  s.metadata['rubygems_mfa_required'] = 'true'
 end

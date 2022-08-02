@@ -4,6 +4,7 @@ AllCops:
     - 'assets/**/*'
   DisplayCopNames: true
   TargetRubyVersion: 2.5
+  SuggestExtensions: false
 
 Style/ClassAndModuleChildren:
   Enabled: false
