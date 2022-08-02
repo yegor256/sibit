@@ -96,7 +96,17 @@ class Sibit
 
     # Get recommended fees.
     def fees
-      raise Sibit::NotSupportedError, 'fees() is not provided by Blockchain API'
+      json = Sibit::Json.new(http: @http, log: @log).get(
+        Iri.new('https://api.blockchain.info/mempool/fees')
+      )
+      @log.info("Current recommended Bitcoin fees: \
+      #{json['regular']}/#{json['priority']}/#{json['limits']['max']} sat/byte")
+      {
+        S: json['regular'] / 3,
+        M: json['regular'],
+        L: json['priority'],
+        XL: json['limits']['max']
+      }
     end
 
     # Fetch all unspent outputs per address. The argument is an array

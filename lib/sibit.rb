@@ -24,7 +24,6 @@ require 'bitcoin'
 require_relative 'sibit/version'
 require_relative 'sibit/log'
 require_relative 'sibit/blockchain'
-
 # Sibit main class.
 #
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
