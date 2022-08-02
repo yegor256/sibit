@@ -5,6 +5,7 @@
 [![DevOps By Rultor.com](http://www.rultor.com/b/yegor256/sibit)](http://www.rultor.com/p/yegor256/sibit)
 [![We recommend RubyMine](https://www.elegantobjects.org/rubymine.svg)](https://www.jetbrains.com/ruby/)
 
+[![rake](https://github.com/yegor256/sibit/actions/workflows/rake.yml/badge.svg)](https://github.com/yegor256/sibit/actions/workflows/rake.yml)
 [![PDD status](http://www.0pdd.com/svg?name=yegor256/sibit)](http://www.0pdd.com/p?name=yegor256/sibit)
 [![Gem Version](https://badge.fury.io/rb/sibit.svg)](http://badge.fury.io/rb/sibit)
 [![Maintainability](https://api.codeclimate.com/v1/badges/74c909f06d4afa0d8001/maintainability)](https://codeclimate.com/github/yegor256/sibit/maintainability)
