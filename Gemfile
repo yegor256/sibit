@@ -22,3 +22,14 @@
 
 source 'https://rubygems.org'
 gemspec
+
+gem 'aruba', '2.1.0', require: false
+gem 'cucumber', '8.0.0', require: false
+# gem 'debase', '0.2.4.1', require: false
+gem 'minitest', '5.16.2', require: false
+gem 'rake', '13.0.6', require: false
+gem 'rspec-rails', '5.1.2', require: false
+gem 'rubocop', '1.32.0', require: false
+gem 'rubocop-rspec', '2.12.1', require: false
+gem 'simplecov', '0.22.0', require: false
+gem 'webmock', '3.18.0', require: false

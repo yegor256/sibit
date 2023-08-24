@@ -1,8 +1,9 @@
 docker:
-  image: yegor256/rultor-image:1.9.1
+  image: yegor256/rultor-image:1.21.0
 assets:
   rubygems.yml: yegor256/home#assets/rubygems.yml
 install: |
+  sudo gem install openssl -- --with-openssl-dir=/usr/local/rvm/rubies/ruby-3.0.1/lib/ruby/3.0.0/openssl
   pdd -f /dev/null
   sudo bundle install --no-color "--gemfile=$(pwd)/Gemfile"
 release:
