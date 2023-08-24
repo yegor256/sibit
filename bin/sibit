@@ -26,6 +26,7 @@ $stdout.sync = true
 # see https://stackoverflow.com/a/6048451/187141
 require 'openssl'
 OpenSSL::SSL::VERIFY_PEER ||= OpenSSL::SSL::VERIFY_NONE
+puts OpenSSL::X509::DEFAULT_CERT_FILE
 
 require 'slop'
 require 'backtrace'
@@ -70,6 +71,11 @@ Options are:"
         '--api',
         'Ordered List of APIs to use, e.g. "earn,blockchain,btc,bitcoinchain"',
         default: %w[earn blockchain btc bitcoinchain blockchair cex]
+      )
+      o.array(
+        '--skip-utxo',
+        'List of UTXTO that must be skipped while paying',
+        default: []
       )
     end
   rescue Slop::Error => e
@@ -141,7 +147,8 @@ Options are:"
     puts sibit.pay(
       amount, fee,
       sources.split(',').map { |p| p.split(':') }.to_h,
-      target, change
+      target, change,
+      skip_utxo: opts['skip-utxo']
     )
   else
     raise "Command #{opts.arguments[0]} is not supported"

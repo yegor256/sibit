@@ -113,7 +113,7 @@ class Sibit
   # their addresses as keys and private keys as values
   # +target+: the target address to send to
   # +change+: the address where the change has to be sent to
-  def pay(amount, fee, sources, target, change)
+  def pay(amount, fee, sources, target, change, skip_utxo: [])
     p = price('USD')
     satoshi = satoshi(amount)
     builder = Bitcoin::Builder::TxBuilder.new
@@ -123,6 +123,10 @@ class Sibit
     @log.info("#{utxos.count} UTXOs found, these will be used \
 (value/confirmations at tx_hash):")
     utxos.each do |utxo|
+      if skip_utxo.include?(utxo[:hash])
+        @log.info("UTXO skipped: #{utxo[:hash]}")
+        next
+      end
       unspent += utxo[:value]
       builder.input do |i|
         i.prev_out(utxo[:hash])
