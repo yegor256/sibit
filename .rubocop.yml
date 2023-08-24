@@ -32,3 +32,5 @@ Style/MultilineTernaryOperator:
   Enabled: false
 Layout/EmptyLineAfterGuardClause:
   Enabled: false
+Lint/OrAssignmentToConstant:
+  Enabled: false
