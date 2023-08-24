@@ -285,8 +285,6 @@ in block #{block} (by #{json[:provider]})")
 
   # Make key from private key string in Hash160.
   def key(hash160)
-    key = Bitcoin::Key.new
-    key.priv = hash160
-    key
+    Bitcoin::Key.new(hash160)
   end
 end
