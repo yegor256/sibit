@@ -183,3 +183,5 @@ $ bundle exec rake
 ```
 
 If it's clean and you don't see any error messages, submit your pull request.
+
+If it doesn't build on MacOS, check [this](https://github.com/lian/bitcoin-ruby/pull/308) out.
