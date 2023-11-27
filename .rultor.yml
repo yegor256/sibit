@@ -3,11 +3,11 @@ docker:
 assets:
   rubygems.yml: yegor256/home#assets/rubygems.yml
 install: |
+  rvm default 2.7.6 && source /usr/local/rvm/scripts/rvm
   pdd -f /dev/null
   sudo bundle install --no-color "--gemfile=$(pwd)/Gemfile"
 release:
   script: |-
-    rvm default 2.7.6 && source /usr/local/rvm/scripts/rvm
     bundle exec rake clean test rubocop copyright
     sed -i "s/0\.0\.0/${tag}/g" lib/sibit/version.rb
     git add lib/sibit/version.rb
