@@ -44,7 +44,7 @@ end
 
 Given(/^I have a "([^"]*)" file with content:$/) do |file, text|
   FileUtils.mkdir_p(File.dirname(file)) unless File.exist?(file)
-  File.write(file, text.gsub(/\\xFF/, 0xFF.chr))
+  File.write(file, text.gsub('\\xFF', 0xFF.chr))
 end
 
 When(%r{^I run bin/sibit with "([^"]*)"$}) do |arg|

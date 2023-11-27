@@ -132,7 +132,7 @@ class TestLive < Minitest::Test
     apis.each do |api|
       yield api
     rescue Sibit::Error => e
-      puts Backtrace.new(e).to_s
+      puts Backtrace.new(e)
     end
   end
 end

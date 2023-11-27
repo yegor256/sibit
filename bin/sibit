@@ -155,7 +155,7 @@ Options are:"
   end
 rescue StandardError => e
   if opts[:verbose]
-    puts Backtrace.new(e).to_s
+    puts Backtrace.new(e)
   else
     puts "ERROR: #{e.message}"
   end
