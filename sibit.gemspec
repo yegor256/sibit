@@ -52,5 +52,4 @@ and Ruby 2.3+.'
   s.add_runtime_dependency 'openssl', '~>2.0'
   s.add_runtime_dependency 'retriable_proxy', '~> 1.0'
   s.add_runtime_dependency 'slop', '~> 4.6'
-  s.metadata['rubygems_mfa_required'] = 'true'
 end

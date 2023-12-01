@@ -6,6 +6,8 @@ AllCops:
   TargetRubyVersion: 2.5
   SuggestExtensions: false
 
+Gemspec/RequireMFA:
+  Enabled: false
 Style/ClassAndModuleChildren:
   Enabled: false
 Layout/LineLength:
