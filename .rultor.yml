@@ -3,7 +3,6 @@ docker:
 assets:
   rubygems.yml: yegor256/home#assets/rubygems.yml
 install: |
-  rvm default 2.7.6 && source /usr/local/rvm/scripts/rvm
   gem install pdd
   pdd -f /dev/null
   bundle install --no-color "--gemfile=$(pwd)/Gemfile"
