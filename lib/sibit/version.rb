@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Copyright (c) 2019-2024 Yegor Bugayenko
+# Copyright (c) 2019-2025 Yegor Bugayenko
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the 'Software'), to deal
@@ -22,7 +22,7 @@
 
 # Sibit main class.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
-# Copyright:: Copyright (c) 2019-2024 Yegor Bugayenko
+# Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
 # License:: MIT
 class Sibit
   # Current version of the library.
