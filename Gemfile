@@ -23,7 +23,7 @@
 source 'https://rubygems.org'
 gemspec
 
-gem 'aruba', '2.2.0', require: false
+gem 'aruba', '2.3.0', require: false
 gem 'cucumber', '9.1.2', require: false
 # gem 'debase', '0.2.4.1', require: false
 gem 'minitest', '5.22.2', require: false
