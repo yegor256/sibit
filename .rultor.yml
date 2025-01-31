@@ -8,6 +8,7 @@ install: |
   pdd -f /dev/null
   bundle install --no-color "--gemfile=$(pwd)/Gemfile"
 release:
+  pre: false
   script: |-
     bundle exec rake clean test rubocop copyright
     sed -i "s/0\.0\.0/${tag}/g" lib/sibit/version.rb
