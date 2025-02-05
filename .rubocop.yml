@@ -36,7 +36,7 @@ Layout/EmptyLineAfterGuardClause:
   Enabled: false
 Lint/OrAssignmentToConstant:
   Enabled: false
-required:
+require:
   - rubocop-rake
   - rubocop-minitest
   - rubocop-performance
