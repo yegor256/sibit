@@ -6,7 +6,6 @@ AllCops:
   DisplayCopNames: true
   TargetRubyVersion: 2.5
   SuggestExtensions: false
-
 Gemspec/RequireMFA:
   Enabled: false
 Style/ClassAndModuleChildren:
@@ -37,3 +36,7 @@ Layout/EmptyLineAfterGuardClause:
   Enabled: false
 Lint/OrAssignmentToConstant:
   Enabled: false
+required:
+  - rubocop-rake
+  - rubocop-minitest
+  - rubocop-performance
