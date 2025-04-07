@@ -1,12 +1,12 @@
 <img alt="logo" src="/logo.svg" width="64px"/>
 
 [![EO principles respected here](https://www.elegantobjects.org/badge.svg)](https://www.elegantobjects.org)
-[![DevOps By Rultor.com](http://www.rultor.com/b/yegor256/sibit)](http://www.rultor.com/p/yegor256/sibit)
+[![DevOps By Rultor.com](https://www.rultor.com/b/yegor256/sibit)](https://www.rultor.com/p/yegor256/sibit)
 [![We recommend RubyMine](https://www.elegantobjects.org/rubymine.svg)](https://www.jetbrains.com/ruby/)
 
 [![rake](https://github.com/yegor256/sibit/actions/workflows/rake.yml/badge.svg)](https://github.com/yegor256/sibit/actions/workflows/rake.yml)
-[![PDD status](http://www.0pdd.com/svg?name=yegor256/sibit)](http://www.0pdd.com/p?name=yegor256/sibit)
-[![Gem Version](https://badge.fury.io/rb/sibit.svg)](http://badge.fury.io/rb/sibit)
+[![PDD status](https://www.0pdd.com/svg?name=yegor256/sibit)](https://www.0pdd.com/p?name=yegor256/sibit)
+[![Gem Version](https://badge.fury.io/rb/sibit.svg)](https://badge.fury.io/rb/sibit)
 [![Maintainability](https://api.codeclimate.com/v1/badges/74c909f06d4afa0d8001/maintainability)](https://codeclimate.com/github/yegor256/sibit/maintainability)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/yegor256/takes/sibit/master/LICENSE.txt)
 [![Test Coverage](https://img.shields.io/codecov/c/github/yegor256/sibit.svg)](https://codecov.io/github/yegor256/sibit?branch=master)
