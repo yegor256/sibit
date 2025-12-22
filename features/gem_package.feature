@@ -19,7 +19,8 @@ Feature: Gem Package
     """
     cd sibit
     gem build sibit.gemspec
-    gem specification --ruby sibit-*.gem > ../spec.rb
+    gemfile=$(ls -t sibit-*.gem | head -1)
+    gem specification --ruby "$gemfile" > ../spec.rb
     cd ..
     ruby execs.rb
     """

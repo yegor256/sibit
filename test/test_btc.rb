@@ -192,7 +192,8 @@ class TestBtc < Minitest::Test
     hash = '000000000000000007341915521967247f1dec17b3a311b8a8f4495392f1439b'
     zeros = '0000000000000000000000000000000000000000000000000000000000000000'
     stub_request(:get, "https://chain.api.btc.com/v3/block/#{hash}")
-      .to_return(body: "{\"data\": {\"next_block_hash\": \"#{zeros}\", \"hash\": \"h\", \"prev_block_hash\": \"p\"}}")
+      .to_return(body: "{\"data\": {\"next_block_hash\": \"#{zeros}\", \
+        \"hash\": \"h\", \"prev_block_hash\": \"p\"}}")
     stub_request(:get, "https://chain.api.btc.com/v3/block/#{hash}/tx?page=1&pagesize=50")
       .to_return(body: '{"data": {"list":[]}}')
     sibit = Sibit::Btc.new
