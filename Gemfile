@@ -10,7 +10,7 @@ gemspec
 
 gem 'aruba', '~>2.2', require: false
 gem 'cucumber', '~>9.1', require: false
-gem 'minitest', '~>6.0', require: false
+gem 'minitest', '~>5.0', require: false
 gem 'minitest-reporters', '~>1.7', require: false
 gem 'rake', '~>13.2', require: false
 gem 'rubocop', '~>1.62', require: false
