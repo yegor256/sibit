@@ -3,10 +3,14 @@
 # SPDX-FileCopyrightText: Copyright (c) 2019-2025 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
-require 'bitcoin'
 require_relative 'sibit/version'
 require_relative 'sibit/log'
 require_relative 'sibit/blockchain'
+require_relative 'sibit/bitcoin/base58'
+require_relative 'sibit/bitcoin/key'
+require_relative 'sibit/bitcoin/script'
+require_relative 'sibit/bitcoin/tx'
+require_relative 'sibit/bitcoin/txbuilder'
 # Sibit main class.
 #
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
@@ -50,9 +54,7 @@ class Sibit
 
   # Creates Bitcon address using the private key in Hash160 format.
   def create(pvt)
-    key = Bitcoin::Key.new
-    key.priv = pvt
-    key.addr
+    Bitcoin::Key.new(pvt).addr
   end
 
   # Gets the balance of the address, in satoshi.
@@ -99,7 +101,7 @@ class Sibit
   def pay(amount, fee, sources, target, change, skip_utxo: [])
     p = price('USD')
     satoshi = satoshi(amount)
-    builder = Bitcoin::Builder::TxBuilder.new
+    builder = Bitcoin::TxBuilder.new
     unspent = 0
     size = 100
     utxos = @api.utxos(sources.keys)
@@ -114,8 +116,8 @@ class Sibit
       builder.input do |i|
         i.prev_out(utxo[:hash])
         i.prev_out_index(utxo[:index])
-        i.prev_out_script = utxo[:script]
-        address = Bitcoin::Script.new(utxo[:script]).get_address
+        i.prev_out_script = script_hex(utxo[:script])
+        address = Bitcoin::Script.new(script_hex(utxo[:script])).address
         i.signature_key(key(sources[address]))
       end
       size += 180
@@ -135,16 +137,16 @@ class Sibit
     tx = builder.tx(
       input_value: unspent,
       leave_fee: true,
-      extra_fee: [f, Bitcoin.network[:min_tx_fee]].max,
+      extra_fee: [f, Bitcoin::MIN_TX_FEE].max,
       change_address: change
     )
     left = unspent - tx.outputs.map(&:value).inject(&:+)
     @log.info("A new Bitcoin transaction #{tx.hash} prepared:
   #{tx.in.count} input#{tx.in.count > 1 ? 's' : ''}:
-    #{tx.inputs.map { |i| " in: #{i.prev_out.bth}:#{i.prev_out_index}" }.join("\n    ")}
+    #{tx.inputs.map { |i| " in: #{i.prev_out.unpack1('H*')}:#{i.prev_out_index}" }.join("\n    ")}
   #{tx.out.count} output#{tx.out.count > 1 ? 's' : ''}:
-    #{tx.outputs.map { |o| "out: #{o.script.bth} / #{num(o.value, p)}" }.join("\n    ")}
-  Min tx fee: #{num(Bitcoin.network[:min_tx_fee], p)}
+    #{tx.outputs.map { |o| "out: #{o.script_hex} / #{num(o.value, p)}" }.join("\n    ")}
+  Min tx fee: #{num(Bitcoin::MIN_TX_FEE, p)}
   Fee requested: #{num(f, p)} as \"#{fee}\"
   Fee actually paid: #{num(left, p)}
   Tx size: #{size} bytes
@@ -273,5 +275,11 @@ in block #{block} (by #{json[:provider]})")
   # Make key from private key string in Hash160.
   def key(hash160)
     Bitcoin::Key.new(hash160)
+  end
+
+  # Convert script to hex string if needed.
+  def script_hex(script)
+    return script if script.is_a?(String) && script.match?(/\A[0-9a-f]+\z/i)
+    script.unpack1('H*')
   end
 end
