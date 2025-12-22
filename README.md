@@ -118,13 +118,13 @@ The library works through one (or a few) public APIs for fetching
 Bitcoin data and pushing transactions to the network. At the moment we
 work with the following APIs:
 
-* [Blockchain.com]: `Sibit::Blockchain`
-* [BTC.com]: `Sibit::Btc`
-* [Cryptoapis.io]: `Sibit::Cryptoapis`
-* [Bitcoinchain.com]: `Sibit::Bitcoinchain`
-* [Blockchair.com]: `Sibit::Blockchair`
-* [Cex.io]: `Sibit::Cex`
-* [Earn.com]: `Sibit::Earn`
+* [Blockchain.com] - `Sibit::Blockchain`
+* [BTC.com] - `Sibit::Btc`
+* [Cryptoapis.io] - `Sibit::Cryptoapis`
+* [Bitcoinchain.com] - `Sibit::Bitcoinchain`
+* [Blockchair.com] - `Sibit::Blockchair`
+* [Cex.io] - `Sibit::Cex`
+* [Earn.com] - `Sibit::Earn`
 
 The first one in this list is used by default. If you want to use a different
 one, you just specify it in the constructor of `Sibit` object:
@@ -190,6 +190,7 @@ If it's clean and you don't see any error messages, submit your pull request.
 [Bitcoinchain.com]: https://bitcoinchain.com/api
 [Bitcointalk]: https://bitcointalk.org/index.php?topic=5130324
 [Blockchain API]: https://www.blockchain.com/api/blockchain_api
+[Blockchain.com]: https://www.blockchain.com/explorer
 [Blockchair.com]: https://blockchair.com/api/docs
 [blog]: https://www.yegor256.com/2019/05/07/sibit-bitcoin-command-line-client.html
 [BTC.com]: https://btc.com/api-doc
