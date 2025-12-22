@@ -12,24 +12,23 @@
 [![Test Coverage](https://img.shields.io/codecov/c/github/yegor256/sibit.svg)](https://codecov.io/github/yegor256/sibit?branch=master)
 [![Hits-of-Code](https://hitsofcode.com/github/yegor256/sibit)](https://hitsofcode.com/view/github/yegor256/sibit)
 
-To understand how Bitcoin protocol works,
+To understand how the Bitcoin protocol works,
 I recommend you watching this [short video] and
 then reading this blog post of mine:
 [_Sibit Demonstrates How Bitcoin Works_][blog].
 
-This is a simple Bitcoin client, to use from the command line
-or from your Ruby app. You don't need to run any Bitcoin software,
-no need to install anything, and so on. All you need is just a command line
-and [Ruby] 2.3+. The purpose of this
-client is to simplify most typical operations with Bitcoin. If you need
-something more complex, I would recommend using
-[bitcoin-ruby] for Ruby and
-[Electrum] as a GUI client.
+This is a simple Bitcoin client for use from the command line
+  or from your Ruby app.
+You don't need to run any Bitcoin software or install anything.
+All you need is just a command line and [Ruby] 2.3+.
+The purpose of this client is to simplify most typical operations with Bitcoin.
+If you need something more complex, I would recommend using
+  [bitcoin-ruby] for Ruby and [Electrum] as a GUI client.
 
 You may want to discuss this tool at [Bitcointalk]
 and give the thread a few merits.
 
-This is a Ruby gem, install it first (if doesn't work, there are
+This is a Ruby gem, install it first (if it doesn't work, there are
 some hints at the bottom of this page):
 
 ```bash
@@ -68,7 +67,7 @@ e87f138c9ebf5986151667719825c28458a28cc66f69fed4f1032a93b399fdf8
 
 Here,
 `AMOUNT` is the amount of [satoshi] you are sending,
-`FEE` is the [miner fee] you are ready to spend to make
+`FEE` is the [miner fee] you are ready to spend to get
 this transaction delivered
 (you can say `S`, `M`, `L`, or `XL` if you want it
 to be calculated automatically),
@@ -110,7 +109,7 @@ change = sibit.create(pkey) # where the change will be sent to
 tx = sibit.pay(10_000_000, 'XL', { address => pkey }, target, change)
 ```
 
-Should work.
+It should work.
 
 ## APIs
 
@@ -169,7 +168,7 @@ gem install rake --no-document
 gem install sibit
 ```
 
-Should work. If it doesn't, submit an issue, I will try to help.
+It should work. If it doesn't, submit an issue and I will try to help.
 
 ## How to contribute
 
