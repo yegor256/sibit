@@ -12,7 +12,7 @@ install: |
 release:
   pre: false
   script: |-
-    bundle exec rake clean test rubocop copyright
+    bundle exec rake
     sed -i "s/0\.0\.0/${tag}/g" lib/sibit/version.rb
     git add lib/sibit/version.rb
     git commit -m "version set to ${tag}"
