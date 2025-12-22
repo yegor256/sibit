@@ -21,6 +21,6 @@ class TestBtc < Minitest::Test
     ).to_return(body: '{"lprice":123}')
     sibit = Sibit::Cex.new
     price = sibit.price
-    assert_equal(123.0, price)
+    assert_in_delta(123.0, price)
   end
 end

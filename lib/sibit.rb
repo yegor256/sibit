@@ -140,11 +140,11 @@ class Sibit
       extra_fee: [f, Bitcoin::MIN_TX_FEE].max,
       change_address: change
     )
-    left = unspent - tx.outputs.map(&:value).inject(&:+)
+    left = unspent - tx.outputs.sum(&:value)
     @log.info("A new Bitcoin transaction #{tx.hash} prepared:
-  #{tx.in.count} input#{tx.in.count > 1 ? 's' : ''}:
+  #{tx.in.count} input#{'s' if tx.in.count > 1}:
     #{tx.inputs.map { |i| " in: #{i.prev_out.unpack1('H*')}:#{i.prev_out_index}" }.join("\n    ")}
-  #{tx.out.count} output#{tx.out.count > 1 ? 's' : ''}:
+  #{tx.out.count} output#{'s' if tx.out.count > 1}:
     #{tx.outputs.map { |o| "out: #{o.script_hex} / #{num(o.value, p)}" }.join("\n    ")}
   Min tx fee: #{num(Bitcoin::MIN_TX_FEE, p)}
   Fee requested: #{num(f, p)} as \"#{fee}\"

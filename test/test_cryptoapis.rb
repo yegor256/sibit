@@ -27,8 +27,8 @@ class TestCryptoapis < Minitest::Test
     assert(json[:next])
     assert(json[:previous])
     assert_equal('h', json[:hash])
-    assert(json[:txns].is_a?(Array))
+    assert_kind_of(Array, json[:txns])
     assert_equal('thash', json[:txns][0][:hash])
-    assert(json[:txns][0][:outputs].is_a?(Array))
+    assert_kind_of(Array, json[:txns][0][:outputs])
   end
 end

@@ -21,7 +21,7 @@ class TestBtc < Minitest::Test
     ).to_return(body: '{"data":{"list":[]}}')
     sibit = Sibit::Btc.new
     balance = sibit.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')
-    assert(balance.is_a?(Integer))
+    assert_kind_of(Integer, balance)
     assert_equal(0, balance)
   end
 
@@ -32,7 +32,7 @@ class TestBtc < Minitest::Test
     ).to_return(body: '{"data":{}}')
     sibit = Sibit::Btc.new
     balance = sibit.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')
-    assert(balance.is_a?(Integer))
+    assert_kind_of(Integer, balance)
     assert_equal(0, balance)
   end
 
@@ -43,7 +43,7 @@ class TestBtc < Minitest::Test
     ).to_return(body: '{}')
     sibit = Sibit::Btc.new
     balance = sibit.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')
-    assert(balance.is_a?(Integer))
+    assert_kind_of(Integer, balance)
     assert_equal(0, balance)
   end
 
@@ -54,7 +54,7 @@ class TestBtc < Minitest::Test
     ).to_return(body: '{"data":null,"err_no":1,"err_msg":"Resource Not Found"}')
     sibit = Sibit::Btc.new
     balance = sibit.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')
-    assert(balance.is_a?(Integer))
+    assert_kind_of(Integer, balance)
     assert_equal(0, balance)
   end
 
@@ -65,7 +65,7 @@ class TestBtc < Minitest::Test
     ).to_return(body: '{"data":{"list":[{"value":123}]}}')
     sibit = Sibit::Btc.new
     balance = sibit.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')
-    assert(balance.is_a?(Integer))
+    assert_kind_of(Integer, balance)
     assert_equal(123, balance)
   end
 
@@ -93,8 +93,8 @@ class TestBtc < Minitest::Test
     assert(json[:next])
     assert(json[:previous])
     assert_equal('h', json[:hash])
-    assert(json[:txns].is_a?(Array))
+    assert_kind_of(Array, json[:txns])
     assert_equal('thash', json[:txns][0][:hash])
-    assert(json[:txns][0][:outputs].is_a?(Array))
+    assert_kind_of(Array, json[:txns][0][:outputs])
   end
 end

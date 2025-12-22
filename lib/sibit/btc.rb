@@ -52,7 +52,7 @@ class Sibit
         @log.info("The balance of #{address} is probably zero (not found)")
         return 0
       end
-      balance = txns.map { |tx| tx['value'] }.inject(&:+) || 0
+      balance = txns.sum { |tx| tx['value'] } || 0
       @log.info("The balance of #{address} is #{balance}, total txns: #{txns.count}")
       balance
     end

@@ -14,13 +14,13 @@ class TestBase58 < Minitest::Test
   def test_encodes_hex_to_base58
     hex = '00c14b1e5c95a4687da3f7c932bf39a3a89bdb3fa91a2b6c3d'
     encoded = Sibit::Bitcoin::Base58.encode(hex)
-    assert(encoded.is_a?(String), 'encoded value is not a string')
+    assert_kind_of(String, encoded, 'encoded value is not a string')
   end
 
   def test_decodes_base58_to_hex
     addr = '1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi'
     decoded = Sibit::Bitcoin::Base58.decode(addr)
-    assert(/^[0-9a-f]+$/i.match?(decoded), 'decoded value is not hex')
+    assert_match(/^[0-9a-f]+$/i, decoded, 'decoded value is not hex')
   end
 
   def test_computes_checksum

@@ -21,8 +21,9 @@ class TestTxBuilder < Minitest::Test
       i.signature_key(key)
     end
     builder.output(10_000, '1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi')
-    tx = builder.tx(input_value: 100_000, leave_fee: true, extra_fee: 1000, change_address: '1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi')
-    assert(/^[0-9a-f]{64}$/.match?(tx.hash), 'tx hash format is wrong')
+    tx = builder.tx(input_value: 100_000, leave_fee: true, extra_fee: 1000,
+                    change_address: '1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi')
+    assert_match(/^[0-9a-f]{64}$/, tx.hash, 'tx hash format is wrong')
   end
 
   def test_serializes_to_hex
@@ -35,9 +36,10 @@ class TestTxBuilder < Minitest::Test
       i.signature_key(key)
     end
     builder.output(10_000, '1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi')
-    tx = builder.tx(input_value: 100_000, leave_fee: true, extra_fee: 1000, change_address: '1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi')
+    tx = builder.tx(input_value: 100_000, leave_fee: true, extra_fee: 1000,
+                    change_address: '1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi')
     hex = tx.to_payload.bth
-    assert(/^[0-9a-f]+$/.match?(hex), 'payload is not valid hex')
+    assert_match(/^[0-9a-f]+$/, hex, 'payload is not valid hex')
   end
 
   def test_creates_change_output
@@ -50,7 +52,8 @@ class TestTxBuilder < Minitest::Test
       i.signature_key(key)
     end
     builder.output(10_000, '1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi')
-    tx = builder.tx(input_value: 100_000, leave_fee: true, extra_fee: 1000, change_address: '1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2')
+    tx = builder.tx(input_value: 100_000, leave_fee: true, extra_fee: 1000,
+                    change_address: '1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2')
     assert_equal(2, tx.outputs.length, 'tx should have two outputs')
   end
 end

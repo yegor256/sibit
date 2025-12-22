@@ -63,7 +63,7 @@ class Sibit
 
       def build(privkey)
         value = privkey.to_i(16)
-        raise 'private key is not on curve' unless value >= MIN_PRIV && value <= MAX_PRIV
+        raise 'private key is not on curve' unless value.between?(MIN_PRIV, MAX_PRIV)
         group = OpenSSL::PKey::EC::Group.new('secp256k1')
         bn = OpenSSL::BN.new(privkey, 16)
         pubkey = group.generator.mul(bn)

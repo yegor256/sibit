@@ -49,8 +49,8 @@ class TestBitcoinchain < Minitest::Test
     assert_equal('nn', json[:next])
     assert_equal('pp', json[:previous])
     assert_equal('hh', json[:hash])
-    assert(json[:txns].is_a?(Array))
+    assert_kind_of(Array, json[:txns])
     assert_equal('hash123', json[:txns][0][:hash])
-    assert(json[:txns][0][:outputs].is_a?(Array))
+    assert_kind_of(Array, json[:txns][0][:outputs])
   end
 end

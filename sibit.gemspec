@@ -29,10 +29,10 @@ Gem::Specification.new do |s|
   s.executables = s.files.grep(%r{^bin/}) { |f| File.basename(f) }
   s.rdoc_options = ['--charset=UTF-8']
   s.extra_rdoc_files = ['README.md', 'LICENSE.txt']
-  s.add_runtime_dependency 'backtrace', '~> 0.3'
-  s.add_runtime_dependency 'iri', '~> 0.5'
-  s.add_runtime_dependency 'json', '~> 2'
-  s.add_runtime_dependency 'openssl', '>= 2.0'
-  s.add_runtime_dependency 'retriable_proxy', '~> 1.0'
-  s.add_runtime_dependency 'slop', '~> 4.6'
+  s.add_dependency 'backtrace', '~> 0.3'
+  s.add_dependency 'iri', '~> 0.5'
+  s.add_dependency 'json', '~> 2'
+  s.add_dependency 'openssl', '>= 2.0'
+  s.add_dependency 'retriable_proxy', '~> 1.0'
+  s.add_dependency 'slop', '~> 4.6'
 end

@@ -19,13 +19,13 @@ class TestLive < Minitest::Test
       hash = '000000003031a0e73735690c5a1ff2a4be82553b2a12b776fbd3a215dc8f778d'
       json = api.block(hash)
       assert_equal(hash, json[:hash])
-      assert(json[:txns].is_a?(Array))
+      assert_kind_of(Array, json[:txns])
       assert_equal(1, json[:txns].length)
       assert_equal(
         '20251a76e64e920e58291a30d4b212939aae976baca40e70818ceaa596fb9d37',
         json[:txns][0][:hash]
       )
-      assert(json[:txns][0][:outputs].is_a?(Array))
+      assert_kind_of(Array, json[:txns][0][:outputs])
       assert_equal(1, json[:txns][0][:outputs].length)
       out = json[:txns][0][:outputs][0]
       assert_equal('1GkQmKAmHtNfnD3LHhTkewJxKHVSta4m2a', out[:address])
@@ -39,7 +39,7 @@ class TestLive < Minitest::Test
     for_each do |api|
       hash = '1GkQmKAmHtNfnD3LHhTkewJxKHVSta4m2a'
       satoshi = api.balance(hash)
-      assert(satoshi.is_a?(Integer), "Wrong type of balance: #{satoshi.class.name}")
+      assert_kind_of(Integer, satoshi, "Wrong type of balance: #{satoshi.class.name}")
       assert_equal(5_000_028_421, satoshi)
     end
   end
@@ -62,7 +62,7 @@ class TestLive < Minitest::Test
   def test_price
     for_each do |api|
       price = api.price
-      assert(price.is_a?(Float))
+      assert_kind_of(Float, price)
     end
   end
 

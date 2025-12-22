@@ -35,7 +35,7 @@ class Sibit
       start = Time.now
       uri = URI(address.to_s)
       res = @http.client(uri).get(
-        "#{uri.path.empty? ? '/' : uri.path}#{uri.query ? "?#{uri.query}" : ''}",
+        "#{uri.path.empty? ? '/' : uri.path}#{"?#{uri.query}" if uri.query}",
         {
           'Accept' => 'application/json',
           'User-Agent' => user_agent,

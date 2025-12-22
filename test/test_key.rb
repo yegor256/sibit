@@ -14,7 +14,7 @@ require_relative '../lib/sibit/bitcoin/key'
 class TestKey < Minitest::Test
   def test_generates_random_key
     key = Sibit::Bitcoin::Key.generate
-    assert(/^[0-9a-f]{64}$/.match?(key.priv), 'private key format is wrong')
+    assert_match(/^[0-9a-f]{64}$/, key.priv, 'private key format is wrong')
   end
 
   def test_creates_key_from_private
@@ -38,6 +38,6 @@ class TestKey < Minitest::Test
 
   def test_returns_compressed_public_key
     key = Sibit::Bitcoin::Key.generate
-    assert(/^0[23][0-9a-f]{64}$/.match?(key.pub), 'public key format is wrong')
+    assert_match(/^0[23][0-9a-f]{64}$/, key.pub, 'public key format is wrong')
   end
 end

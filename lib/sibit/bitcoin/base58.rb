@@ -36,7 +36,7 @@ class Sibit
       def self.decode(str)
         leading = str.match(/^1*/)[0].length
         num = 0
-        str.each_char { |c| num = num * 58 + ALPHABET.index(c) }
+        str.each_char { |c| num = (num * 58) + ALPHABET.index(c) }
         hex = num.zero? ? '' : num.to_s(16)
         hex = "0#{hex}" if hex.length.odd?
         ('00' * leading) + hex

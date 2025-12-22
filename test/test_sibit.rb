@@ -36,15 +36,15 @@ class TestSibit < Minitest::Test
     ).to_return(body: '{"USD" : {"15m" : 5160.04}}')
     sibit = Sibit.new
     price = sibit.price
-    assert(!price.nil?)
-    assert_equal(5160.04, price, price)
+    refute_nil(price)
+    assert_in_delta(5160.04, price, 0.001, price)
   end
 
   def test_generate_key
     sibit = Sibit.new(api: Sibit::Fake.new)
     pkey = sibit.generate
-    assert(!pkey.nil?)
-    assert(/^[0-9a-f]{64}$/.match?(pkey))
+    refute_nil(pkey)
+    assert_match(/^[0-9a-f]{64}$/, pkey)
   end
 
   def test_generate_key_and_prints
@@ -53,9 +53,9 @@ class TestSibit < Minitest::Test
     strio = StringIO.new
     sibit = Sibit.new(log: Logger.new(strio), api: Sibit::Fake.new)
     key = sibit.generate
-    assert(strio.string.include?('private key generated'))
-    assert(strio.string.include?(key[0..4]))
-    assert(!strio.string.include?(key))
+    assert_includes(strio.string, 'private key generated')
+    assert_includes(strio.string, key[0..4])
+    refute_includes(strio.string, key)
   end
 
   def test_create_address
@@ -64,8 +64,8 @@ class TestSibit < Minitest::Test
     puts "key: #{pkey}"
     address = sibit.create(pkey)
     puts "address: #{address}"
-    assert(!address.nil?)
-    assert(/^1[0-9a-zA-Z]+$/.match?(address))
+    refute_nil(address)
+    assert_match(/^1[0-9a-zA-Z]+$/, address)
     assert_equal(address, sibit.create(pkey))
   end
 
@@ -76,7 +76,7 @@ class TestSibit < Minitest::Test
     ).to_return(body: '{"final_balance": 100}')
     sibit = Sibit.new
     balance = sibit.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')
-    assert(balance.is_a?(Integer))
+    assert_kind_of(Integer, balance)
     assert_equal(100, balance)
   end
 
@@ -123,8 +123,8 @@ class TestSibit < Minitest::Test
       },
       target, change
     )
-    assert(!tx.nil?)
-    assert(tx.length > 30, tx)
+    refute_nil(tx)
+    assert_operator(tx.length, :>, 30, tx)
   end
 
   def test_fail_if_not_enough_funds
