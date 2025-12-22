@@ -9,6 +9,10 @@ AllCops:
   DisplayCopNames: true
   TargetRubyVersion: 2.5
   SuggestExtensions: false
+plugins:
+  - rubocop-rake
+  - rubocop-minitest
+  - rubocop-performance
 Gemspec/RequireMFA:
   Enabled: false
 Style/ClassAndModuleChildren:
@@ -20,6 +24,8 @@ Layout/EndOfLine:
 Metrics/CyclomaticComplexity:
   Max: 20
 Metrics/MethodLength:
+  Enabled: false
+Minitest/EmptyLineBeforeAssertionMethods:
   Enabled: false
 Layout/MultilineMethodCallIndentation:
   Enabled: false
@@ -39,7 +45,3 @@ Layout/EmptyLineAfterGuardClause:
   Enabled: false
 Lint/OrAssignmentToConstant:
   Enabled: false
-require:
-  - rubocop-rake
-  - rubocop-minitest
-  - rubocop-performance
