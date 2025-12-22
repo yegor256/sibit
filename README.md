@@ -1,4 +1,4 @@
-<img alt="logo" src="/logo.svg" width="64px"/>
+# Send Bitcoin via Command Line, in Ruby
 
 [![EO principles respected here](https://www.elegantobjects.org/badge.svg)](https://www.elegantobjects.org)
 [![DevOps By Rultor.com](https://www.rultor.com/b/yegor256/sibit)](https://www.rultor.com/p/yegor256/sibit)
@@ -12,10 +12,10 @@
 [![Test Coverage](https://img.shields.io/codecov/c/github/yegor256/sibit.svg)](https://codecov.io/github/yegor256/sibit?branch=master)
 [![Hits-of-Code](https://hitsofcode.com/github/yegor256/sibit)](https://hitsofcode.com/view/github/yegor256/sibit)
 
-To understand how Bitcoin protocol works, I recommend you watching
-this [short video](https://www.youtube.com/watch?v=IV9pRBq5A4g) and
+To understand how Bitcoin protocol works,
+I recommend you watching this [short video] and
 then reading this blog post of mine:
-[_Sibit Demonstrates How Bitcoin Works_](https://www.yegor256.com/2019/05/07/sibit-bitcoin-command-line-client.html).
+[_Sibit Demonstrates How Bitcoin Works_](blog).
 
 This is a simple Bitcoin client, to use from the command line
 or from your Ruby app. You don't need to run any Bitcoin software,
@@ -33,36 +33,36 @@ This is a Ruby gem, install it first (if doesn't work, there are
 some hints at the bottom of this page):
 
 ```bash
-$ gem install sibit
+gem install sibit
 ```
 
 Then, you generate a [private key](https://en.bitcoin.it/wiki/Private_key):
 
 ```bash
-$ sibit generate
+sibit generate
 E9873D79C6D87FC233AA332626A3A3FE
 ```
 
 Next, you create a new [address](https://en.bitcoin.it/wiki/Address),
 using your private key:
 
-```
-$ sibit create E9873D79C6D87FC233AA332626A3A3FE
+```bash
+sibit create E9873D79C6D87FC233AA332626A3A3FE
 1CC3X2gu58d6wXUWMffpuzN9JAfTUWu4Kj
 ```
 
 To check the balance at the address (the result is in
 [satoshi](https://en.bitcoin.it/wiki/Satoshi_%28unit%29)):
 
-```
-$ sibit balance 1CC3X2gu58d6wXUWMffpuzN9JAfTUWu4Kj
+```bash
+sibit balance 1CC3X2gu58d6wXUWMffpuzN9JAfTUWu4Kj
 80988977
 ```
 
 To send a payment from a few addresses to a new address:
 
-```
-$ sibit pay AMOUNT FEE A1:P1,A2:P2,... TARGET CHANGE
+```bash
+sibit pay AMOUNT FEE A1:P1,A2:P2,... TARGET CHANGE
 e87f138c9ebf5986151667719825c28458a28cc66f69fed4f1032a93b399fdf8
 ```
 
@@ -116,13 +116,13 @@ The library works through one (or a few) public APIs for fetching
 Bitcoin data and pushing transactions to the network. At the moment we
 work with the following APIs:
 
-  * [Blockchain.com](https://www.blockchain.com/api/blockchain_api): `Sibit::Blockchain`
-  * [BTC.com](https://btc.com/api-doc): `Sibit::Btc`
-  * [Cryptoapis.io](https://docs.cryptoapis.io/rest-apis/blockchain-as-a-service-apis/btc/index): `Sibit::Cryptoapis`
-  * [Bitcoinchain.com](https://bitcoinchain.com/api): `Sibit::Bitcoinchain`
-  * [Blockchair.com](https://blockchair.com/api/docs): `Sibit::Blockchair`
-  * [Cex.io](https://cex.io/rest-api): `Sibit::Cex`
-  * [Earn.com](https://bitcoinfees.earn.com/api): `Sibit::Earn`
+* [Blockchain.com](https://www.blockchain.com/api/blockchain_api): `Sibit::Blockchain`
+* [BTC.com](https://btc.com/api-doc): `Sibit::Btc`
+* [Cryptoapis.io](https://docs.cryptoapis.io/rest-apis/blockchain-as-a-service-apis/btc/index): `Sibit::Cryptoapis`
+* [Bitcoinchain.com](https://bitcoinchain.com/api): `Sibit::Bitcoinchain`
+* [Blockchair.com](https://blockchair.com/api/docs): `Sibit::Blockchair`
+* [Cex.io](https://cex.io/rest-api): `Sibit::Cex`
+* [Earn.com](https://bitcoinfees.earn.com/api): `Sibit::Earn`
 
 The first one in this list is used by default. If you want to use a different
 one, you just specify it in the constructor of `Sibit` object:
@@ -159,12 +159,12 @@ or implement it yourself and submit a pull request.
 
 To install on a fresh Ubuntu 18:
 
-```
-$ sudo apt-get update
-$ sudo apt-get install -y ruby ruby-dev autoconf automake build-essential
-$ sudo gem update --system
-$ gem install rake --no-document
-$ gem install sibit
+```bash
+sudo apt-get update
+sudo apt-get install -y ruby ruby-dev autoconf automake build-essential
+sudo gem update --system
+gem install rake --no-document
+gem install sibit
 ```
 
 Should work. If it doesn't, submit an issue, I will try to help.
@@ -176,11 +176,14 @@ Make sure your build is green before you contribute
 your pull request. You will need to have [Ruby](https://www.ruby-lang.org/en/) 2.3+ and
 [Bundler](https://bundler.io/) installed. Then:
 
-```
-$ bundle update
-$ bundle exec rake
+```bash
+bundle update
+bundle exec rake
 ```
 
 If it's clean and you don't see any error messages, submit your pull request.
 
 If it doesn't build on MacOS, check [this](https://github.com/lian/bitcoin-ruby/pull/308) out.
+
+[short video]: https://www.youtube.com/watch?v=IV9pRBq5A4g
+[blog]: https://www.yegor256.com/2019/05/07/sibit-bitcoin-command-line-client.html
