@@ -3,7 +3,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2019-2025 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
-require 'minitest/autorun'
+require_relative 'test__helper'
 require_relative '../lib/sibit/bitcoin/base58'
 
 # Sibit::Bitcoin::Base58 test.
