@@ -4,8 +4,8 @@
 # SPDX-License-Identifier: MIT
 
 require 'backtrace'
+require 'loog'
 require_relative 'error'
-require_relative 'log'
 
 # API best of.
 #
@@ -16,7 +16,7 @@ class Sibit
   # Best of API.
   class BestOf
     # Constructor.
-    def initialize(list, log: Sibit::Log.new, verbose: false)
+    def initialize(list, log: Loog::NULL, verbose: false)
       @list = list
       @log = log
       @verbose = verbose

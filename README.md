@@ -15,18 +15,18 @@
 To understand how Bitcoin protocol works,
 I recommend you watching this [short video] and
 then reading this blog post of mine:
-[_Sibit Demonstrates How Bitcoin Works_](blog).
+[_Sibit Demonstrates How Bitcoin Works_][blog].
 
 This is a simple Bitcoin client, to use from the command line
 or from your Ruby app. You don't need to run any Bitcoin software,
 no need to install anything, and so on. All you need is just a command line
-and [Ruby](https://www.ruby-lang.org/en/) 2.3+. The purpose of this
+and [Ruby] 2.3+. The purpose of this
 client is to simplify most typical operations with Bitcoin. If you need
 something more complex, I would recommend using
-[bitcoin-ruby](https://github.com/lian/bitcoin-ruby) for Ruby and
-[Electrum](https://electrum.org/) as a GUI client.
+[bitcoin-ruby] for Ruby and
+[Electrum] as a GUI client.
 
-You may want to discuss this tool at [Bitcointalk](https://bitcointalk.org/index.php?topic=5130324)
+You may want to discuss this tool at [Bitcointalk]
 and give the thread a few merits.
 
 This is a Ruby gem, install it first (if doesn't work, there are
@@ -36,14 +36,14 @@ some hints at the bottom of this page):
 gem install sibit
 ```
 
-Then, you generate a [private key](https://en.bitcoin.it/wiki/Private_key):
+Then, you generate a [private key]:
 
 ```bash
 sibit generate
 E9873D79C6D87FC233AA332626A3A3FE
 ```
 
-Next, you create a new [address](https://en.bitcoin.it/wiki/Address),
+Next, you create a new [address],
 using your private key:
 
 ```bash
@@ -52,7 +52,7 @@ sibit create E9873D79C6D87FC233AA332626A3A3FE
 ```
 
 To check the balance at the address (the result is in
-[satoshi](https://en.bitcoin.it/wiki/Satoshi_%28unit%29)):
+[satoshi]):
 
 ```bash
 sibit balance 1CC3X2gu58d6wXUWMffpuzN9JAfTUWu4Kj
@@ -67,15 +67,14 @@ e87f138c9ebf5986151667719825c28458a28cc66f69fed4f1032a93b399fdf8
 ```
 
 Here,
-`AMOUNT` is the amount of [satoshi](https://en.bitcoin.it/wiki/Satoshi_%28unit%29) you are sending,
-`FEE` is the [miner fee](https://en.bitcoin.it/wiki/Miner_fees) you are ready to spend to make this transaction delivered
+`AMOUNT` is the amount of [satoshi] you are sending,
+`FEE` is the [miner fee] you are ready to spend to make this transaction delivered
 (you can say `S`, `M`, `L`, or `XL` if you want it to be calculated automatically),
 `A1:P1,A2:P2,...` is a comma-separated list of addresses `A` and private keys `P` you are sending your coins from,
 `TARGET` is the address you are sending to,
 `CHANGE` is the address where the change will be sent to.
 The transaction hash will be returned.
-Not all [UTXOs](https://en.wikipedia.org/wiki/Unspent_transaction_output)
-will be used, but only the necessary amount of them.
+Not all [UTXOs] will be used, but only the necessary amount of them.
 
 By default, the fee will be paid on top of the payment amount you are sending.
 Say, you are sending 0.5 BTC and the fee is 0.0001 BTC. Totally, you will
@@ -171,10 +170,10 @@ Should work. If it doesn't, submit an issue, I will try to help.
 
 ## How to contribute
 
-Read [these guidelines](https://www.yegor256.com/2014/04/15/github-guidelines.html).
+Read [these guidelines].
 Make sure your build is green before you contribute
-your pull request. You will need to have [Ruby](https://www.ruby-lang.org/en/) 2.3+ and
-[Bundler](https://bundler.io/) installed. Then:
+your pull request. You will need to have [Ruby] 2.3+ and
+[Bundler] installed. Then:
 
 ```bash
 bundle update
@@ -183,7 +182,17 @@ bundle exec rake
 
 If it's clean and you don't see any error messages, submit your pull request.
 
-If it doesn't build on MacOS, check [this](https://github.com/lian/bitcoin-ruby/pull/308) out.
-
 [short video]: https://www.youtube.com/watch?v=IV9pRBq5A4g
 [blog]: https://www.yegor256.com/2019/05/07/sibit-bitcoin-command-line-client.html
+[Bitcointalk]: https://bitcointalk.org/index.php?topic=5130324
+[private key]: https://en.bitcoin.it/wiki/Private_key
+[Ruby]: https://www.ruby-lang.org/en/
+[bitcoin-ruby]: https://github.com/lian/bitcoin-ruby
+[Electrum]: https://electrum.org/
+[address]: https://en.bitcoin.it/wiki/Address
+[satoshi]: https://en.bitcoin.it/wiki/Satoshi_%28unit%29
+[miner fee]: https://en.bitcoin.it/wiki/Miner_fees
+[UTXOs]: https://en.wikipedia.org/wiki/Unspent_transaction_output
+[these guidelines]: https://www.yegor256.com/2014/04/15/github-guidelines.html
+[Bundler]: https://bundler.io/
+[macos-fix]: https://github.com/lian/bitcoin-ruby/pull/308

@@ -9,8 +9,8 @@ require 'json'
 require 'uri'
 require_relative 'error'
 require_relative 'http'
+require 'loog'
 require_relative 'json'
-require_relative 'log'
 require_relative 'version'
 
 # Blockchair.com API.
@@ -22,7 +22,7 @@ class Sibit
   # Btc.com API.
   class Blockchair
     # Constructor.
-    def initialize(key: nil, log: Sibit::Log.new, http: Sibit::Http.new, dry: false)
+    def initialize(key: nil, log: Loog::NULL, http: Sibit::Http.new, dry: false)
       @key = key
       @http = http
       @log = log

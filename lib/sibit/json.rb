@@ -8,8 +8,8 @@ require 'uri'
 require 'cgi'
 require_relative 'version'
 require_relative 'error'
+require 'loog'
 require_relative 'http'
-require_relative 'log'
 
 # Json SDK.
 #
@@ -23,7 +23,7 @@ class Sibit
   # JSON processing.
   class Json
     # Constructor.
-    def initialize(log: Sibit::Log.new, http: Sibit::Http.new)
+    def initialize(log: Loog::NULL, http: Sibit::Http.new)
       @http = http
       @log = log
     end

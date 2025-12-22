@@ -11,19 +11,20 @@ require 'openssl'
 OpenSSL::SSL::VERIFY_PEER ||= OpenSSL::SSL::VERIFY_NONE
 puts OpenSSL::X509::DEFAULT_CERT_FILE
 
-require 'slop'
 require 'backtrace'
+require 'loog'
 require 'retriable_proxy'
+require 'slop'
 require_relative '../lib/sibit'
-require_relative '../lib/sibit/version'
+require_relative '../lib/sibit/bitcoinchain'
 require_relative '../lib/sibit/blockchain'
 require_relative '../lib/sibit/blockchair'
 require_relative '../lib/sibit/btc'
-require_relative '../lib/sibit/bitcoinchain'
 require_relative '../lib/sibit/cex'
 require_relative '../lib/sibit/earn'
 require_relative '../lib/sibit/fake'
 require_relative '../lib/sibit/firstof'
+require_relative '../lib/sibit/version'
 
 begin
   begin
@@ -65,7 +66,7 @@ Options are:"
     raise e.message
   end
   raise 'Try --help' if opts.arguments.empty?
-  log = Sibit::Log.new(opts[:verbose] ? $stdout : nil)
+  log = opts[:verbose] ? Loog::VERBOSE : Loog::NULL
   http = opts[:proxy] ? Sibit::HttpProxy.new(opts[:proxy]) : Sibit::Http.new
   apis = opts[:api].map(&:downcase).map do |a|
     api = nil

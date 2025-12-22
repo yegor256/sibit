@@ -8,8 +8,8 @@ require 'json'
 require 'uri'
 require_relative 'error'
 require_relative 'http'
+require 'loog'
 require_relative 'json'
-require_relative 'log'
 require_relative 'version'
 
 # Btc.com API.
@@ -23,7 +23,7 @@ class Sibit
   # Btc.com API.
   class Btc
     # Constructor.
-    def initialize(log: Sibit::Log.new, http: Sibit::Http.new, dry: false)
+    def initialize(log: Loog::NULL, http: Sibit::Http.new, dry: false)
       @http = http
       @log = log
       @dry = dry

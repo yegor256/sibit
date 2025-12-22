@@ -5,8 +5,8 @@
 
 require 'uri'
 require 'json'
+require 'loog'
 require_relative 'error'
-require_relative 'log'
 require_relative 'http'
 require_relative 'json'
 
@@ -19,7 +19,7 @@ class Sibit
   # Btc.com API.
   class Cex
     # Constructor.
-    def initialize(log: Sibit::Log.new, http: Sibit::Http.new, dry: false)
+    def initialize(log: Loog::NULL, http: Sibit::Http.new, dry: false)
       @http = http
       @log = log
       @dry = dry

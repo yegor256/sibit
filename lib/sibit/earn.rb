@@ -5,6 +5,7 @@
 
 require 'iri'
 require 'json'
+require 'loog'
 require 'uri'
 require_relative 'error'
 require_relative 'http'
@@ -20,7 +21,7 @@ class Sibit
   # Blockchain.info API.
   class Earn
     # Constructor.
-    def initialize(log: Sibit::Log.new, http: Sibit::Http.new, dry: false)
+    def initialize(log: Loog::NULL, http: Sibit::Http.new, dry: false)
       @http = http
       @log = log
       @dry = dry

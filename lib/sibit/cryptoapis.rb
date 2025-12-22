@@ -8,8 +8,8 @@ require 'json'
 require 'uri'
 require_relative 'error'
 require_relative 'http'
+require 'loog'
 require_relative 'json'
-require_relative 'log'
 require_relative 'version'
 
 # Cryptoapis.io API.
@@ -21,7 +21,7 @@ class Sibit
   # Btc.com API.
   class Cryptoapis
     # Constructor.
-    def initialize(key, log: Sibit::Log.new, http: Sibit::Http.new, dry: false)
+    def initialize(key, log: Loog::NULL, http: Sibit::Http.new, dry: false)
       @key = key
       @http = http
       @log = log

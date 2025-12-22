@@ -3,8 +3,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2019-2025 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
+require 'loog'
 require_relative 'sibit/version'
-require_relative 'sibit/log'
 require_relative 'sibit/blockchain'
 require_relative 'sibit/bitcoin/base58'
 require_relative 'sibit/bitcoin/key'
@@ -33,9 +33,9 @@ class Sibit
   #
   # The +api+ argument can be an object or an array of objects. If an array
   # is provided, we will make an attempt to try them one by one, until
-  # one of them succeedes.
-  def initialize(log: $stdout, api: Sibit::Blockchain.new(log: Sibit::Log.new(log)))
-    @log = Sibit::Log.new(log)
+  # one of them succeeds.
+  def initialize(log: Loog::NULL, api: Sibit::Blockchain.new(log: log))
+    @log = log
     @api = api
   end
 
@@ -45,14 +45,14 @@ class Sibit
     @api.price(currency)
   end
 
-  # Generates new Bitcon private key and returns in Hash160 format.
+  # Generates new Bitcoin private key and returns in Hash160 format.
   def generate
     key = Bitcoin::Key.generate.priv
     @log.info("Bitcoin private key generated: #{key[0..8]}...")
     key
   end
 
-  # Creates Bitcon address using the private key in Hash160 format.
+  # Creates Bitcoin address using the private key in Hash160 format.
   def create(pvt)
     Bitcoin::Key.new(pvt).addr
   end
