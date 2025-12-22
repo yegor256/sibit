@@ -35,4 +35,39 @@ class TestBase58 < Minitest::Test
     decoded = Sibit::Bitcoin::Base58.decode(encoded)
     assert_equal(original, decoded.downcase, 'roundtrip failed')
   end
+
+  def test_preserves_leading_zeros_on_encode
+    hex = '0000ff'
+    encoded = Sibit::Bitcoin::Base58.encode(hex)
+    assert(encoded.start_with?('11'), 'leading zeros not preserved as 1s')
+  end
+
+  def test_preserves_leading_ones_on_decode
+    addr = '111JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi'
+    decoded = Sibit::Bitcoin::Base58.decode(addr)
+    assert(decoded.start_with?('0000'), 'leading 1s not decoded as 00')
+  end
+
+  def test_decodes_single_digit
+    decoded = Sibit::Bitcoin::Base58.decode('2')
+    assert_equal('01', decoded, 'single digit decode failed')
+  end
+
+  def test_encodes_small_number
+    encoded = Sibit::Bitcoin::Base58.encode('3a')
+    assert_kind_of(String, encoded, 'small number encode failed')
+  end
+
+  def test_checksum_is_deterministic
+    hex = 'deadbeef'
+    first = Sibit::Bitcoin::Base58.check(hex)
+    second = Sibit::Bitcoin::Base58.check(hex)
+    assert_equal(first, second, 'checksum is not deterministic')
+  end
+
+  def test_different_inputs_produce_different_checksums
+    first = Sibit::Bitcoin::Base58.check('deadbeef')
+    second = Sibit::Bitcoin::Base58.check('cafebabe')
+    refute_equal(first, second, 'different inputs produce same checksum')
+  end
 end

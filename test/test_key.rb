@@ -40,4 +40,44 @@ class TestKey < Minitest::Test
     key = Sibit::Bitcoin::Key.generate
     assert_match(/^0[23][0-9a-f]{64}$/, key.pub, 'public key format is wrong')
   end
+
+  def test_rejects_invalid_private_key_zero
+    assert_raises(RuntimeError) { Sibit::Bitcoin::Key.new('00' * 32) }
+  end
+
+  def test_rejects_private_key_above_curve_order
+    above = 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
+    assert_raises(RuntimeError) { Sibit::Bitcoin::Key.new(above) }
+  end
+
+  def test_verify_returns_false_for_invalid_signature
+    key = Sibit::Bitcoin::Key.generate
+    data = SecureRandom.random_bytes(32)
+    invalid = 'not a valid signature'
+    refute(key.verify(data, invalid), 'invalid signature should not verify')
+  end
+
+  def test_verify_returns_false_for_wrong_data
+    key = Sibit::Bitcoin::Key.generate
+    data = SecureRandom.random_bytes(32)
+    sig = key.sign(data)
+    wrong = SecureRandom.random_bytes(32)
+    refute(key.verify(wrong, sig), 'signature verified against wrong data')
+  end
+
+  def test_generates_unique_keys
+    first = Sibit::Bitcoin::Key.generate
+    second = Sibit::Bitcoin::Key.generate
+    refute_equal(first.priv, second.priv, 'generated keys are not unique')
+  end
+
+  def test_address_starts_with_one
+    key = Sibit::Bitcoin::Key.generate
+    assert(key.addr.start_with?('1'), 'mainnet address should start with 1')
+  end
+
+  def test_public_key_length_is_sixty_six
+    key = Sibit::Bitcoin::Key.generate
+    assert_equal(66, key.pub.length, 'compressed pubkey should be 66 hex chars')
+  end
 end
