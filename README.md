@@ -185,25 +185,24 @@ bundle exec rake
 
 If it's clean and you don't see any error messages, submit your pull request.
 
-[short video]: https://www.youtube.com/watch?v=IV9pRBq5A4g
-[blog]: https://www.yegor256.com/2019/05/07/sibit-bitcoin-command-line-client.html
+[address]: https://en.bitcoin.it/wiki/Address
+[bitcoin-ruby]: https://github.com/lian/bitcoin-ruby
+[Bitcoinchain.com]: https://bitcoinchain.com/api
 [Bitcointalk]: https://bitcointalk.org/index.php?topic=5130324
+[Blockchain API]: https://www.blockchain.com/api/blockchain_api
+[Blockchair.com]: https://blockchair.com/api/docs
+[blog]: https://www.yegor256.com/2019/05/07/sibit-bitcoin-command-line-client.html
+[BTC.com]: https://btc.com/api-doc
+[Bundler]: https://bundler.io/
+[Cex.io]: https://cex.io/rest-api
+[Cryptoapis.io]: https://docs.cryptoapis.io/rest-apis/blockchain-as-a-service-apis/btc/index
+[Earn.com]: https://bitcoinfees.earn.com/api
+[Electrum]: https://electrum.org/
+[miner fee]: https://en.bitcoin.it/wiki/Miner_fees
 [private key]: https://en.bitcoin.it/wiki/Private_key
 [Ruby]: https://www.ruby-lang.org/en/
-[bitcoin-ruby]: https://github.com/lian/bitcoin-ruby
-[Electrum]: https://electrum.org/
-[address]: https://en.bitcoin.it/wiki/Address
 [satoshi]: https://en.bitcoin.it/wiki/Satoshi_%28unit%29
-[miner fee]: https://en.bitcoin.it/wiki/Miner_fees
-[UTXOs]: https://en.wikipedia.org/wiki/Unspent_transaction_output
+[short video]: https://www.youtube.com/watch?v=IV9pRBq5A4g
 [these guidelines]: https://www.yegor256.com/2014/04/15/github-guidelines.html
-[Bundler]: https://bundler.io/
-[Blockchain API]: https://www.blockchain.com/api/blockchain_api
 [this relay]: https://www.blockchain.com/btc/pushtx
-[Blockchain.com]: https://www.blockchain.com/api/blockchain_api
-[BTC.com]: https://btc.com/api-doc
-[Cryptoapis.io]: https://docs.cryptoapis.io/rest-apis/blockchain-as-a-service-apis/btc/index
-[Bitcoinchain.com]: https://bitcoinchain.com/api
-[Blockchair.com]: https://blockchair.com/api/docs
-[Cex.io]: https://cex.io/rest-api
-[Earn.com]: https://bitcoinfees.earn.com/api
+[UTXOs]: https://en.wikipedia.org/wiki/Unspent_transaction_output
