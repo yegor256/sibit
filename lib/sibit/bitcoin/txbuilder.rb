@@ -75,8 +75,8 @@ class Sibit
 
     # Wrapper for built transaction with convenience methods.
     class BuiltTx
-      def initialize(tx, inputs, outputs)
-        @tx = tx
+      def initialize(txn, inputs, outputs)
+        @tx = txn
         @inputs_data = inputs
         @outputs_data = outputs
       end
