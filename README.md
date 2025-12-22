@@ -68,9 +68,12 @@ e87f138c9ebf5986151667719825c28458a28cc66f69fed4f1032a93b399fdf8
 
 Here,
 `AMOUNT` is the amount of [satoshi] you are sending,
-`FEE` is the [miner fee] you are ready to spend to make this transaction delivered
-(you can say `S`, `M`, `L`, or `XL` if you want it to be calculated automatically),
-`A1:P1,A2:P2,...` is a comma-separated list of addresses `A` and private keys `P` you are sending your coins from,
+`FEE` is the [miner fee] you are ready to spend to make
+this transaction delivered
+(you can say `S`, `M`, `L`, or `XL` if you want it
+to be calculated automatically),
+`A1:P1,A2:P2,...` is a comma-separated list
+of addresses `A` and private keys `P` you are sending your coins from,
 `TARGET` is the address you are sending to,
 `CHANGE` is the address where the change will be sent to.
 The transaction hash will be returned.
@@ -88,9 +91,9 @@ what's going to be sent to the network. If everything looks correct, remove
 the `--dry` and run again, the transaction will be pushed to the network.
 
 All operations are performed through the
-[Blockchain API](https://www.blockchain.com/api/blockchain_api).
+[Blockchain API].
 Transactions are pushed to the Bitcoin network via
-[this relay](https://www.blockchain.com/btc/pushtx).
+[this relay].
 
 ## Ruby SDK
 
@@ -115,13 +118,13 @@ The library works through one (or a few) public APIs for fetching
 Bitcoin data and pushing transactions to the network. At the moment we
 work with the following APIs:
 
-* [Blockchain.com](https://www.blockchain.com/api/blockchain_api): `Sibit::Blockchain`
-* [BTC.com](https://btc.com/api-doc): `Sibit::Btc`
-* [Cryptoapis.io](https://docs.cryptoapis.io/rest-apis/blockchain-as-a-service-apis/btc/index): `Sibit::Cryptoapis`
-* [Bitcoinchain.com](https://bitcoinchain.com/api): `Sibit::Bitcoinchain`
-* [Blockchair.com](https://blockchair.com/api/docs): `Sibit::Blockchair`
-* [Cex.io](https://cex.io/rest-api): `Sibit::Cex`
-* [Earn.com](https://bitcoinfees.earn.com/api): `Sibit::Earn`
+* [Blockchain.com]: `Sibit::Blockchain`
+* [BTC.com]: `Sibit::Btc`
+* [Cryptoapis.io]: `Sibit::Cryptoapis`
+* [Bitcoinchain.com]: `Sibit::Bitcoinchain`
+* [Blockchair.com]: `Sibit::Blockchair`
+* [Cex.io]: `Sibit::Cex`
+* [Earn.com]: `Sibit::Earn`
 
 The first one in this list is used by default. If you want to use a different
 one, you just specify it in the constructor of `Sibit` object:
@@ -195,4 +198,12 @@ If it's clean and you don't see any error messages, submit your pull request.
 [UTXOs]: https://en.wikipedia.org/wiki/Unspent_transaction_output
 [these guidelines]: https://www.yegor256.com/2014/04/15/github-guidelines.html
 [Bundler]: https://bundler.io/
-[macos-fix]: https://github.com/lian/bitcoin-ruby/pull/308
+[Blockchain API]: https://www.blockchain.com/api/blockchain_api
+[this relay]: https://www.blockchain.com/btc/pushtx
+[Blockchain.com]: https://www.blockchain.com/api/blockchain_api
+[BTC.com]: https://btc.com/api-doc
+[Cryptoapis.io]: https://docs.cryptoapis.io/rest-apis/blockchain-as-a-service-apis/btc/index
+[Bitcoinchain.com]: https://bitcoinchain.com/api
+[Blockchair.com]: https://blockchair.com/api/docs
+[Cex.io]: https://cex.io/rest-api
+[Earn.com]: https://bitcoinfees.earn.com/api
