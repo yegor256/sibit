@@ -39,22 +39,22 @@ Then, you generate a [private key]:
 
 ```bash
 $ sibit generate
-E9873D79C6D87FC233AA332626A3A3FE
+1461cc61c3b09d01d5c02b901577c9d052264e77043bddd3d222ab8a6f7e0db0
 ```
 
 Next, you create a new [address],
 using your private key:
 
 ```bash
-$ sibit create E9873D79C6D87FC233AA332626A3A3FE
-1CC3X2gu58d6wXUWMffpuzN9JAfTUWu4Kj
+$ sibit create 1461cc61c3b09d01d5c02b901577c9d052264e77043bddd3d222ab8a6f7e0db0
+1PfsYNygsuVL8fvBarJNQnHytkg4rGih1U
 ```
 
 To check the balance at the address (the result is in
 [satoshi]):
 
 ```bash
-$ sibit balance 1CC3X2gu58d6wXUWMffpuzN9JAfTUWu4Kj
+$ sibit balance 1PfsYNygsuVL8fvBarJNQnHytkg4rGih1U
 80988977
 ```
 
