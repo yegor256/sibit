@@ -21,7 +21,6 @@ require_relative '../lib/sibit/blockchain'
 require_relative '../lib/sibit/blockchair'
 require_relative '../lib/sibit/btc'
 require_relative '../lib/sibit/cex'
-require_relative '../lib/sibit/earn'
 require_relative '../lib/sibit/fake'
 require_relative '../lib/sibit/firstof'
 require_relative '../lib/sibit/version'
@@ -53,8 +52,8 @@ Options are:"
       o.bool '--verbose', 'Print all possible debug messages'
       o.array(
         '--api',
-        'Ordered List of APIs to use, e.g. "earn,blockchain,btc,bitcoinchain"',
-        default: %w[earn blockchain btc bitcoinchain blockchair cex]
+        'Ordered List of APIs to use, e.g. "eblockchain,btc,bitcoinchain"',
+        default: %w[blockchain btc bitcoinchain blockchair cex]
       )
       o.array(
         '--skip-utxo',
@@ -83,8 +82,6 @@ Options are:"
       api = Sibit::Cex.new(http: http, log: log, dry: opts[:dry])
     when 'fake'
       api = Sibit::Fake.new
-    when 'earn'
-      api = Sibit::Earn.new(http: http, log: log, dry: opts[:dry])
     else
       raise Sibit::Error, "Unknown API \"#{a}\""
     end

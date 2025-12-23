@@ -7,7 +7,6 @@ require_relative 'test__helper'
 require 'webmock/minitest'
 require 'json'
 require_relative '../lib/sibit'
-require_relative '../lib/sibit/earn'
 require_relative '../lib/sibit/fake'
 require_relative '../lib/sibit/blockchain'
 require_relative '../lib/sibit/firstof'
@@ -18,18 +17,6 @@ require_relative '../lib/sibit/bestof'
 # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
 # License:: MIT
 class TestSibit < Minitest::Test
-  def test_loads_fees
-    stub_request(
-      :get, 'https://bitcoinfees.earn.com/api/v1/fees/recommended'
-    ).to_return(body: '{"fastestFee":300,"halfHourFee":200,"hourFee":180}')
-    sibit = Sibit.new(api: Sibit::Earn.new)
-    fees = sibit.fees
-    assert_equal(60, fees[:S])
-    assert_equal(180, fees[:M])
-    assert_equal(200, fees[:L])
-    assert_equal(300, fees[:XL])
-  end
-
   def test_fetch_current_price
     stub_request(
       :get, 'https://blockchain.info/ticker'
@@ -91,8 +78,8 @@ class TestSibit < Minitest::Test
 
   def test_send_payment
     stub_request(
-      :get, 'https://bitcoinfees.earn.com/api/v1/fees/recommended'
-    ).to_return(body: '{"fastestFee":300,"halfHourFee":200,"hourFee":180}')
+      :get, 'https://api.blockchain.info/mempool/fees'
+    ).to_return(body: '{"regular":300,"priority":200,"limits":{"max":88}}')
     stub_request(
       :get, 'https://blockchain.info/ticker'
     ).to_return(body: '{"USD" : {"15m" : 5160.04}}')
@@ -112,7 +99,7 @@ class TestSibit < Minitest::Test
       'https://blockchain.info/unspent?active=1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi&limit=1000'
     ).to_return(body: JSON.pretty_generate(json))
     stub_request(:post, 'https://blockchain.info/pushtx').to_return(status: 200)
-    sibit = Sibit.new(api: Sibit::FirstOf.new([Sibit::Earn.new, Sibit::Blockchain.new]))
+    sibit = Sibit.new(api: Sibit::FirstOf.new([Sibit::Blockchain.new]))
     target = sibit.create(sibit.generate)
     change = sibit.create(sibit.generate)
     tx = sibit.pay(
@@ -128,9 +115,6 @@ class TestSibit < Minitest::Test
   end
 
   def test_fail_if_not_enough_funds
-    stub_request(
-      :get, 'https://bitcoinfees.earn.com/api/v1/fees/recommended'
-    ).to_return(body: '{"fastestFee":300,"halfHourFee":200,"hourFee":180}')
     stub_request(
       :get, 'https://blockchain.info/ticker'
     ).to_return(body: '{"USD" : {"15m" : 5160.04}}')
