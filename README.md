@@ -38,7 +38,7 @@ gem install sibit
 Then, you generate a [private key]:
 
 ```bash
-sibit generate
+$ sibit generate
 E9873D79C6D87FC233AA332626A3A3FE
 ```
 
@@ -46,7 +46,7 @@ Next, you create a new [address],
 using your private key:
 
 ```bash
-sibit create E9873D79C6D87FC233AA332626A3A3FE
+$ sibit create E9873D79C6D87FC233AA332626A3A3FE
 1CC3X2gu58d6wXUWMffpuzN9JAfTUWu4Kj
 ```
 
@@ -54,14 +54,14 @@ To check the balance at the address (the result is in
 [satoshi]):
 
 ```bash
-sibit balance 1CC3X2gu58d6wXUWMffpuzN9JAfTUWu4Kj
+$ sibit balance 1CC3X2gu58d6wXUWMffpuzN9JAfTUWu4Kj
 80988977
 ```
 
 To send a payment from a few addresses to a new address:
 
 ```bash
-sibit pay AMOUNT FEE A1:P1,A2:P2,... TARGET CHANGE
+$ sibit pay AMOUNT FEE A1:P1,A2:P2,... TARGET CHANGE
 e87f138c9ebf5986151667719825c28458a28cc66f69fed4f1032a93b399fdf8
 ```
 
@@ -167,14 +167,15 @@ gem install rake --no-document
 gem install sibit
 ```
 
-It should work. If it doesn't, submit an issue and I will try to help.
+It should work.
+If it doesn't, submit an issue and I will try to help.
 
 ## How to contribute
 
 Read [these guidelines].
 Make sure your build is green before you contribute
-your pull request. You will need to have [Ruby] 2.3+ and
-[Bundler] installed. Then:
+your pull request. You will need to have [Ruby] 2.3+ and [Bundler] installed.
+Then:
 
 ```bash
 bundle update
