@@ -9,7 +9,7 @@ gemspec
 # gem 'debase', '0.2.4.1', require: false
 
 gem 'aruba', '~>2.2', require: false
-gem 'cucumber', '~>9.1', require: false
+gem 'cucumber', '~>10.0', require: false
 gem 'logger', '~>1.7', require: false
 gem 'minitest', '~>6.0', require: false
 gem 'minitest-reporters', '~>1.7', require: false
