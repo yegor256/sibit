@@ -18,7 +18,7 @@ require_relative 'sibit/version'
 # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
 # License:: MIT
 class Sibit
-  # Minimium fee we must pay for transaction processing:
+  # Minimum fee we must pay for transaction processing:
   MIN_SATOSHI_PER_BYTE = 0.1
 
   # Constructor.
