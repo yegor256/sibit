@@ -88,6 +88,18 @@ It is recommended to run it with `--dry --verbose` options first,
 If everything looks correct, remove the `--dry` and run again,
   the transaction is pushed to the network.
 
+To use an HTTPS proxy for all requests:
+
+```bash
+$ sibit --proxy=host:port balance 1PfsYNygsuVL8fvBarJNQnHytkg4rGih1U
+```
+
+The proxy address may include authentication credentials:
+
+```bash
+$ sibit --proxy=user:password@host:port balance 1PfsYNygsuVL8fvBarJNQnHytkg4rGih1U
+```
+
 All operations are performed through the [Blockchain API].
 Transactions are pushed to the Bitcoin network via [this relay].
 
