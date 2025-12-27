@@ -36,21 +36,21 @@ class Sibit::Btc
     uri = Iri.new('https://chain.api.btc.com/v3/address').append(address).append('unspent')
     json = Sibit::Json.new(http: @http, log: @log).get(uri)
     if json['err_no'] == 1
-      @log.info("The balance of #{address} is zero (not found)")
+      @log.debug("The balance of #{address} is zero (not found)")
       return 0
     end
     data = json['data']
     if data.nil?
-      @log.info("The balance of #{address} is probably zero (not found)")
+      @log.debug("The balance of #{address} is probably zero (not found)")
       return 0
     end
     txns = data['list']
     if txns.nil?
-      @log.info("The balance of #{address} is probably zero (not found)")
+      @log.debug("The balance of #{address} is probably zero (not found)")
       return 0
     end
     balance = txns.sum { |tx| tx['value'] } || 0
-    @log.info("The balance of #{address} is #{balance}, total txns: #{txns.count}")
+    @log.debug("The balance of #{address} is #{balance}, total txns: #{txns.count}")
     balance
   end
 
@@ -63,8 +63,8 @@ class Sibit::Btc
     raise Sibit::Error, "The block #{hash} not found" if data.nil?
     nxt = data['next_block_hash']
     nxt = nil if nxt == '0000000000000000000000000000000000000000000000000000000000000000'
-    @log.info("In BTC.com the block #{hash} is the latest, there is no next block") if nxt.nil?
-    @log.info("The next block of #{hash} is #{nxt}") unless nxt.nil?
+    @log.debug("In BTC.com the block #{hash} is the latest, there is no next block") if nxt.nil?
+    @log.debug("The next block of #{hash} is #{nxt}") unless nxt.nil?
     nxt
   end
 
@@ -77,7 +77,7 @@ class Sibit::Btc
     raise Sibit::Error, "The block #{hash} not found" if data.nil?
     h = data['height']
     raise Sibit::Error, "The block #{hash} found but the height is absent" if h.nil?
-    @log.info("The height of #{hash} is #{h}")
+    @log.debug("The height of #{hash} is #{h}")
     h
   end
 
@@ -93,7 +93,7 @@ class Sibit::Btc
     data = json['data']
     raise Sibit::Error, 'The latest block not found' if data.nil?
     hash = data['hash']
-    @log.info("The hash of the latest block is #{hash}")
+    @log.debug("The hash of the latest block is #{hash}")
     hash
   end
 

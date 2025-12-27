@@ -44,7 +44,7 @@ class Sibit::Json
     unless accept.include?(res.code.to_i)
       raise Sibit::Error, "Failed to retrieve #{uri} (#{res.code}): #{res.body}"
     end
-    @log.info("GET #{uri}: #{res.code}/#{length(res.body.length)} in #{age(start)}")
+    @log.debug("GET #{uri}: #{res.code}/#{length(res.body.length)} in #{age(start)}")
     JSON.parse(res.body)
   rescue JSON::ParserError => e
     raise Sibit::Error, "Can't parse JSON: #{e.message}"
@@ -67,7 +67,7 @@ class Sibit::Json
     unless res.code == '200'
       raise Sibit::Error, "Failed to post tx to #{uri}: #{res.code}\n#{res.body}"
     end
-    @log.info("POST #{uri}: #{res.code} in #{age(start)}")
+    @log.debug("POST #{uri}: #{res.code} in #{age(start)}")
   end
 
   private

@@ -88,7 +88,7 @@ class Sibit::FirstOf
     done = false
     result = nil
     @list.each do |api|
-      @log.info("Calling #{api.class.name}##{method}()...")
+      @log.debug("Calling #{api.class.name}##{method}()...")
       begin
         result = yield api
         done = true
@@ -97,11 +97,11 @@ class Sibit::FirstOf
         # Just ignore it
       rescue Sibit::Error => e
         errors << e
-        @log.info("The API #{api.class.name} failed at #{method}(): #{e.message}") if @verbose
+        @log.debug("The API #{api.class.name} failed at #{method}(): #{e.message}") if @verbose
       end
     end
     unless done
-      errors.each { |e| @log.info(Backtrace.new(e).to_s) }
+      errors.each { |e| @log.debug(Backtrace.new(e).to_s) }
       raise Sibit::Error, "No APIs out of #{@list.length} managed to succeed at #{method}(): \
 #{@list.map { |a| a.class.name }.join(', ')}"
     end

@@ -92,10 +92,10 @@ class Sibit::BestOf
       # Just ignore it
     rescue Sibit::Error => e
       errors << e
-      @log.info("The API #{api.class.name} failed at #{method}(): #{e.message}") if @verbose
+      @log.debug("The API #{api.class.name} failed at #{method}(): #{e.message}") if @verbose
     end
     if results.empty?
-      errors.each { |e| @log.info(Backtrace.new(e).to_s) }
+      errors.each { |e| @log.debug(Backtrace.new(e).to_s) }
       raise Sibit::Error, "No APIs out of #{@list.length} managed to succeed at #{method}(): \
 #{@list.map { |a| a.class.name }.join(', ')}"
     end

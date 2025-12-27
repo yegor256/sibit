@@ -34,7 +34,7 @@ class Sibit::Blockchain
     )[currency]
     raise Error, "Unrecognized currency #{currency}" if h.nil?
     price = h['15m']
-    @log.info("The price of BTC is #{price} USD")
+    @log.debug("The price of BTC is #{price} USD")
     price
   end
 
@@ -46,9 +46,9 @@ class Sibit::Blockchain
     # )
     # nxt = json['next_block'][0]
     # if nxt.nil?
-    #   @log.info("There is no block after #{hash}")
+    #   @log.debug("There is no block after #{hash}")
     # else
-    #   @log.info("The next block of #{hash} is #{nxt}")
+    #   @log.debug("The next block of #{hash} is #{nxt}")
     # end
     # nxt
   end
@@ -59,7 +59,7 @@ class Sibit::Blockchain
       Iri.new('https://blockchain.info/rawblock').append(hash)
     )
     h = json['height']
-    @log.info("The height of #{hash} is #{h}")
+    @log.debug("The height of #{hash} is #{h}")
     h
   end
 
@@ -70,7 +70,7 @@ class Sibit::Blockchain
       accept: [200, 500]
     )
     b = json['final_balance']
-    @log.info("The balance of #{address} is #{b} satoshi (#{json['n_tx']} txns)")
+    @log.debug("The balance of #{address} is #{b} satoshi (#{json['n_tx']} txns)")
     b
   end
 
@@ -79,7 +79,7 @@ class Sibit::Blockchain
     json = Sibit::Json.new(http: @http, log: @log).get(
       Iri.new('https://api.blockchain.info/mempool/fees')
     )
-    @log.info("Current recommended Bitcoin fees: \
+    @log.debug("Current recommended Bitcoin fees: \
     #{json['regular']}/#{json['priority']}/#{json['limits']['max']} sat/byte")
     {
       S: json['regular'] / 3,
@@ -118,7 +118,7 @@ class Sibit::Blockchain
     hash = Sibit::Json.new(http: @http, log: @log).get(
       Iri.new('https://blockchain.info/latestblock')
     )['hash']
-    @log.info("The latest block hash is #{hash}")
+    @log.debug("The latest block hash is #{hash}")
     hash
   end
 

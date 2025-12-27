@@ -23,7 +23,7 @@ class Sibit::Dry
   decoor(:api)
 
   def push(_hex)
-    @log.info('Transaction not pushed, dry mode is ON')
+    @log.debug('Transaction not pushed, dry mode is ON')
     nil
   end
 end

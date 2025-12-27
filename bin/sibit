@@ -23,6 +23,8 @@ require_relative '../lib/sibit/fake'
 require_relative '../lib/sibit/firstof'
 require_relative '../lib/sibit/version'
 
+log = Loog::REGULAR
+
 opts =
   begin
     Slop.parse(ARGV, strict: true, help: true) do |o|
@@ -44,7 +46,7 @@ Options are:"
       )
       o.bool '--dry', 'Don\'t send a real payment, run in a read-only mode'
       o.bool '--help', 'Read this: https://github.com/yegor256/sibit' do
-        puts o
+        log.info(o)
         exit
       end
       o.bool '--verbose', 'Print all possible debug messages'
@@ -66,7 +68,7 @@ Options are:"
 raise 'Try --help' if opts.arguments.empty?
 
 begin
-  log = opts[:verbose] ? Loog::VERBOSE : Loog::NULL
+  log = Loog::VERBOSE if opts[:verbose]
   http = opts[:proxy] ? Sibit::HttpProxy.new(opts[:proxy]) : Sibit::Http.new
   apis = opts[:api].map(&:downcase).map do |a|
     case a
@@ -92,7 +94,7 @@ begin
   sibit = Sibit.new(log: log, api: api)
   case opts.arguments[0]
   when 'price'
-    puts sibit.price
+    log.info(sibit.price)
   when 'fees'
     fees = sibit.fees
     text = %i[S M L XL].map do |m|
@@ -100,19 +102,19 @@ begin
       usd = sat * sibit.price / 100_000_000
       "#{m}: #{sat}sat / $#{format('%<usd>.02f', usd: usd)}"
     end.join("\n")
-    puts text
+    log.info(text)
   when 'latest'
-    puts sibit.latest
+    log.info(sibit.latest)
   when 'generate'
-    puts sibit.generate
+    log.info(sibit.generate)
   when 'create'
     pvt = opts.arguments[1]
     raise 'Private key argument is required' if pvt.nil?
-    puts sibit.create(pvt)
+    log.info(sibit.create(pvt))
   when 'balance'
     address = opts.arguments[1]
     raise 'Address argument is required' if address.nil?
-    puts sibit.balance(address)
+    log.info(sibit.balance(address))
   when 'pay'
     amount = opts.arguments[1]
     raise 'Amount argument is required' if amount.nil?
@@ -126,20 +128,22 @@ begin
     raise 'Target argument is required' if target.nil?
     change = opts.arguments[5]
     raise 'Change argument is required' if change.nil?
-    puts sibit.pay(
-      amount, fee,
-      sources.split(','),
-      target, change,
-      skip_utxo: opts['skip-utxo']
+    log.info(
+      sibit.pay(
+        amount, fee,
+        sources.split(','),
+        target, change,
+        skip_utxo: opts['skip-utxo']
+      )
     )
   else
     raise "Command #{opts.arguments[0]} is not supported"
   end
 rescue StandardError => e
   if opts[:verbose]
-    puts Backtrace.new(e)
+    log.error(Backtrace.new(e))
   else
-    puts "ERROR: #{e.message}"
+    log.error(e.message)
   end
   exit(255)
 end

@@ -36,8 +36,8 @@ class Sibit::Cryptoapis
       Iri.new('https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks').append(hash),
       headers: headers
     )['payload']['hash']
-    @log.info("The block #{hash} is the latest, there is no next block") if nxt.nil?
-    @log.info("The next block of #{hash} is #{nxt}") unless nxt.nil?
+    @log.debug("The block #{hash} is the latest, there is no next block") if nxt.nil?
+    @log.debug("The next block of #{hash} is #{nxt}") unless nxt.nil?
     nxt
   end
 
@@ -48,7 +48,7 @@ class Sibit::Cryptoapis
       headers: headers
     )['payload']
     h = json['height']
-    @log.info("The height of #{hash} is #{h}")
+    @log.debug("The height of #{hash} is #{h}")
     h
   end
 
@@ -59,7 +59,7 @@ class Sibit::Cryptoapis
       headers: headers
     )['payload']
     b = (json['balance'].to_f * 100_000_000).to_i
-    @log.info("The balance of #{address} is #{b} satoshi")
+    @log.debug("The balance of #{address} is #{b} satoshi")
     b
   end
 
@@ -74,7 +74,7 @@ class Sibit::Cryptoapis
       Iri.new('https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/latest'),
       headers: headers
     )['payload']['hash']
-    @log.info("The latest block hash is #{hash}")
+    @log.debug("The latest block hash is #{hash}")
     hash
   end
 

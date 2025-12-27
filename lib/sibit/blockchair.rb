@@ -48,12 +48,12 @@ class Sibit::Blockchair
       Iri.new('https://api.blockchair.com/bitcoin/dashboards/address').append(address).fragment(the_key)
     )['data'][address]
     if json.nil?
-      @log.info("Address #{address} not found")
+      @log.debug("Address #{address} not found")
       return 0
     end
     a = json['address']
     b = a['balance']
-    @log.info("The balance of #{address} is #{b} satoshi")
+    @log.debug("The balance of #{address} is #{b} satoshi")
     b
   end
 
@@ -78,7 +78,7 @@ class Sibit::Blockchair
       Iri.new('https://api.blockchair.com/bitcoin/push/transaction').fragment(the_key),
       "data=#{hex}"
     )
-    @log.info("Transaction (#{hex.length} in hex) has been pushed to Blockchair")
+    @log.debug("Transaction (#{hex.length} in hex) has been pushed to Blockchair")
   end
 
   # This method should fetch a Blockchain block and return as a hash.

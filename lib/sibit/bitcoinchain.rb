@@ -42,8 +42,8 @@ class Sibit::Bitcoinchain
     raise Sibit::Error, "Block #{hash} not found" if block.nil?
     nxt = block['next_block']
     nxt = nil if nxt == '0000000000000000000000000000000000000000000000000000000000000000'
-    @log.info("The block #{hash} is the latest, there is no next block") if nxt.nil?
-    @log.info("The next block of #{hash} is #{nxt}") unless nxt.nil?
+    @log.debug("The block #{hash} is the latest, there is no next block") if nxt.nil?
+    @log.debug("The next block of #{hash} is #{nxt}") unless nxt.nil?
     nxt
   end
 
@@ -55,12 +55,12 @@ class Sibit::Bitcoinchain
     )[0]
     b = json['balance']
     if b.nil?
-      @log.info("The balance of #{address} is not visible")
+      @log.debug("The balance of #{address} is not visible")
       return 0
     end
     b *= 100_000_000
     b = b.to_i
-    @log.info("The balance of #{address} is #{b} satoshi (#{json['transactions']} txns)")
+    @log.debug("The balance of #{address} is #{b} satoshi (#{json['transactions']} txns)")
     b
   end
 
@@ -74,7 +74,7 @@ class Sibit::Bitcoinchain
     hash = Sibit::Json.new(http: @http, log: @log).get(
       Iri.new('https://api-r.bitcoinchain.com/v1/status')
     )['hash']
-    @log.info("The latest block hash is #{hash}")
+    @log.debug("The latest block hash is #{hash}")
     hash
   end
 

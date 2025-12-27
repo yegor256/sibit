@@ -29,7 +29,7 @@ class Sibit::Cex
       Iri.new('https://cex.io/api/last_price/BTC').append(currency)
     )
     p = json['lprice'].to_f
-    @log.info("The price of BTC is #{p} #{currency}")
+    @log.debug("The price of BTC is #{p} #{currency}")
     p
   end
 

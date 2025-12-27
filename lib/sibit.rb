@@ -49,7 +49,7 @@ class Sibit
   # Generates new Bitcoin private key and returns in Hash160 format.
   def generate
     key = Key.generate.priv
-    @log.info("Bitcoin private key generated: #{key[0..8]}...")
+    @log.debug("Bitcoin private key generated: #{key[0..8]}...")
     key
   end
 
@@ -106,11 +106,11 @@ class Sibit
     unspent = 0
     size = 100
     utxos = @api.utxos(sources.keys)
-    @log.info("#{utxos.count} UTXOs found, these will be used \
+    @log.debug("#{utxos.count} UTXOs found, these will be used \
 (value/confirmations at tx_hash):")
     utxos.each do |utxo|
       if skip_utxo.include?(utxo[:hash])
-        @log.info("UTXO skipped: #{utxo[:hash]}")
+        @log.debug("UTXO skipped: #{utxo[:hash]}")
         next
       end
       unspent += utxo[:value]
@@ -124,7 +124,7 @@ class Sibit
         i.signature_key(key(k))
       end
       size += 180
-      @log.info(
+      @log.debug(
         "  #{num(utxo[:value], p)}/#{utxo[:confirmations]} at #{utxo[:hash]}"
       )
       break if unspent > satoshi
@@ -147,7 +147,7 @@ class Sibit
       change_address: change
     )
     left = unspent - tx.outputs.sum(&:value)
-    @log.info("A new Bitcoin transaction #{tx.hash} prepared:
+    @log.debug("A new Bitcoin transaction #{tx.hash} prepared:
   #{tx.in.count} input#{'s' if tx.in.count > 1}:
     #{tx.inputs.map { |i| " in: #{i.prev_out.unpack1('H*')}:#{i.prev_out_index}" }.join("\n    ")}
   #{tx.out.count} output#{'s' if tx.out.count > 1}:
@@ -189,10 +189,10 @@ class Sibit
       json = @api.block(block)
       if json[:orphan]
         steps = 4
-        @log.info("Orphan block found at #{block}, moving #{steps} steps back...")
+        @log.debug("Orphan block found at #{block}, moving #{steps} steps back...")
         steps.times do
           block = json[:previous]
-          @log.info("Moved back to #{block}")
+          @log.debug("Moved back to #{block}")
           json = @api.block(block)
         end
         next
@@ -206,34 +206,34 @@ class Sibit
           hash = "#{t[:hash]}:#{i}"
           satoshi = o[:value]
           if yield(address, hash, satoshi)
-            @log.info("Bitcoin tx found at #{hash} for #{satoshi} sent to #{address}")
+            @log.debug("Bitcoin tx found at #{hash} for #{satoshi} sent to #{address}")
           end
         end
         checked += 1
       end
       count += 1
-      @log.info("We checked #{checked} txns and #{checked_outputs} outputs \
+      @log.debug("We checked #{checked} txns and #{checked_outputs} outputs \
 in block #{block} (by #{json[:provider]})")
       block = json[:next]
       begin
         if block.nil?
-          @log.info("The next_block is empty in #{json[:hash]}, this may be the end...")
+          @log.debug("The next_block is empty in #{json[:hash]}, this may be the end...")
           block = @api.next_of(json[:hash])
         end
       rescue Sibit::Error => e
-        @log.info("Failed to get the next_of(#{json[:hash]}), quitting: #{e.message}")
+        @log.debug("Failed to get the next_of(#{json[:hash]}), quitting: #{e.message}")
         break
       end
       if block.nil?
-        @log.info("The block #{json[:hash]} is definitely the end of Blockchain, we stop.")
+        @log.debug("The block #{json[:hash]} is definitely the end of Blockchain, we stop.")
         break
       end
       if count >= max
-        @log.info("Too many blocks (#{count}) in one go, let's get back to it next time")
+        @log.debug("Too many blocks (#{count}) in one go, let's get back to it next time")
         break
       end
     end
-    @log.info("Scanned from #{start} to #{json[:hash]} (#{count} blocks)")
+    @log.debug("Scanned from #{start} to #{json[:hash]} (#{count} blocks)")
     json[:hash]
   end
 
