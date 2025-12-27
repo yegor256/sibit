@@ -61,33 +61,34 @@ $ sibit balance 1PfsYNygsuVL8fvBarJNQnHytkg4rGih1U
 To send a payment from a few addresses to a new address:
 
 ```bash
-$ sibit pay AMOUNT FEE A1:P1,A2:P2,... TARGET CHANGE
+$ sibit pay AMOUNT FEE P1,P2,... TARGET CHANGE
 e87f138c9ebf5986151667719825c28458a28cc66f69fed4f1032a93b399fdf8
 ```
 
 Here,
-`AMOUNT` is the amount of [satoshi] you are sending,
-`FEE` is the [miner fee] you are ready to spend to get
-this transaction delivered
-(you can say `S`, `M`, `L`, or `XL` if you want it
-to be calculated automatically),
-`A1:P1,A2:P2,...` is a comma-separated list
-of addresses `A` and private keys `P` you are sending your coins from,
-`TARGET` is the address you are sending to,
-`CHANGE` is the address where the change will be sent to.
-The transaction hash will be returned.
-Not all [UTXOs] will be used, but only the necessary amount of them.
+  `AMOUNT` is the amount of [satoshi] you are sending,
+  `FEE` is the [miner fee] you are ready to spend to get
+  this transaction delivered (you can say `S`, `M`, `L`, or `XL` if you want it
+  to be calculated automatically),
+  `P1,P2,...` is a comma-separated list
+  of private keys `P` you are sending your coins from,
+  `TARGET` is the address you are sending to,
+  `CHANGE` is the address where the change goes.
+The transaction hash is returned.
+Not all [UTXOs] may be used, but only the necessary amount of them.
 
-By default, the fee will be paid on top of the payment amount you are sending.
-Say, you are sending 0.5 BTC and the fee is 0.0001 BTC. Totally, you will
-spend 0.5001. However, you can make Sibit deduct the fee from the payment
-amount. In this case you should provide a negative amount of the fee
-or one of `-S`, `-M`, `-L`, `-XL`. You can also say `+S`, if you want the
-opposite, which is the default.
+By default, the fee is paid on top of the payment amount you are sending.
+Say, you are sending 0.5 BTC and the fee is 0.0001 BTC.
+Totally, you spend 0.5001.
+However, you can make Sibit deduct the fee from the payment amount.
+In this case you should provide a negative amount
+  of the fee or one of `-S`, `-M`, `-L`, `-XL`.
+You can also say `+S`, if you want the opposite, which is the default.
 
-It is recommended to run it with `--dry --verbose` options first, to see
-what's going to be sent to the network. If everything looks correct, remove
-the `--dry` and run again, the transaction will be pushed to the network.
+It is recommended to run it with `--dry --verbose` options first,
+  to see what's going to be sent to the network.
+If everything looks correct, remove the `--dry` and run again,
+  the transaction is pushed to the network.
 
 All operations are performed through the
 [Blockchain API].
@@ -105,7 +106,7 @@ pkey = sibit.generate
 address = sibit.create(pkey)
 balance = sibit.balance(address)
 target = sibit.create(pkey) # where to send coins to
-change = sibit.create(pkey) # where the change will be sent to
+change = sibit.create(pkey) # where the change goes
 tx = sibit.pay(10_000_000, 'XL', { address => pkey }, target, change)
 ```
 
@@ -133,10 +134,11 @@ require 'sibit/btc'
 sibit = Sibit.new(api: Sibit::Btc.new)
 ```
 
-You may also use a combination of APIs. This may be very useful since
-some APIs are not reliable and others don't have all the features required.
-You can provide an array of objects and they
-will be used one by one, until a successful response is obtained:
+You may also use a combination of APIs.
+This may be very useful since some APIs are not reliable
+  and others don't have all the features required.
+You can provide an array of objects and they are used one by one,
+  until a successful response is obtained:
 
 ```ruby
 require 'sibit'
@@ -168,13 +170,13 @@ gem install sibit
 ```
 
 It should work.
-If it doesn't, submit an issue and I will try to help.
+If it doesn't, submit an issue and I can try to help.
 
 ## How to contribute
 
 Read [these guidelines].
-Make sure your build is green before you contribute
-your pull request. You will need to have [Ruby] 2.3+ and [Bundler] installed.
+Make sure your build is green before you contribute your pull request.
+You need to have [Ruby] 2.3+ and [Bundler] installed.
 Then:
 
 ```bash
