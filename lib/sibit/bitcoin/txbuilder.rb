@@ -23,7 +23,7 @@ class Sibit
     end
 
     def input
-      inp = TxInputBuilder.new
+      inp = Input.new
       yield inp
       @inputs << inp
     end
@@ -48,84 +48,84 @@ class Sibit
         change = input_value - total_out - extra_fee
         txn.add_output(change, change_address) if change.positive?
       end
-      BuiltTx.new(txn, @inputs, @outputs)
-    end
-  end
-
-  # Input builder for collecting input parameters.
-  #
-  # Author:: Yegor Bugayenko (yegor256@gmail.com)
-  # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
-  # License:: MIT
-  class TxInputBuilder
-    attr_reader :prev_out_hash, :prev_out_idx, :script, :key
-
-    def prev_out(hash)
-      @prev_out_hash = hash
+      Built.new(txn, @inputs, @outputs)
     end
 
-    def prev_out_index(idx)
-      @prev_out_idx = idx
+    # Input builder for collecting input parameters.
+    #
+    # Author:: Yegor Bugayenko (yegor256@gmail.com)
+    # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
+    # License:: MIT
+    class Input
+      attr_reader :prev_out_hash, :prev_out_idx, :script, :key
+
+      def prev_out(hash)
+        @prev_out_hash = hash
+      end
+
+      def prev_out_index(idx)
+        @prev_out_idx = idx
+      end
+
+      def prev_out_script=(scr)
+        @script = scr
+      end
+
+      def signature_key(key)
+        @key = key
+      end
     end
 
-    def prev_out_script=(scr)
-      @script = scr
-    end
+    # Wrapper for built transaction with convenience methods.
+    #
+    # Author:: Yegor Bugayenko (yegor256@gmail.com)
+    # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
+    # License:: MIT
+    class Built
+      def initialize(txn, inputs, outputs)
+        @tx = txn
+        @inputs = inputs
+        @outputs = outputs
+      end
 
-    def signature_key(key)
-      @key = key
-    end
-  end
+      def hash
+        @tx.hash
+      end
 
-  # Wrapper for built transaction with convenience methods.
-  #
-  # Author:: Yegor Bugayenko (yegor256@gmail.com)
-  # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
-  # License:: MIT
-  class BuiltTx
-    def initialize(txn, inputs, outputs)
-      @tx = txn
-      @inputs = inputs
-      @outputs = outputs
-    end
+      def in
+        @tx.in
+      end
 
-    def hash
-      @tx.hash
-    end
+      def out
+        @tx.out
+      end
 
-    def in
-      @tx.in
-    end
+      def inputs
+        @tx.inputs
+      end
 
-    def out
-      @tx.out
-    end
+      def outputs
+        @tx.outputs
+      end
 
-    def inputs
-      @tx.inputs
-    end
+      def to_payload
+        Payload.new(@tx.payload)
+      end
 
-    def outputs
-      @tx.outputs
-    end
+      # Wrapper for payload with hex conversion.
+      #
+      # Author:: Yegor Bugayenko (yegor256@gmail.com)
+      # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
+      # License:: MIT
+      class Payload
+        def initialize(bytes)
+          @bytes = bytes
+        end
 
-    def to_payload
-      TxPayload.new(@tx.payload)
-    end
-  end
-
-  # Wrapper for payload with hex conversion.
-  #
-  # Author:: Yegor Bugayenko (yegor256@gmail.com)
-  # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
-  # License:: MIT
-  class TxPayload
-    def initialize(bytes)
-      @bytes = bytes
-    end
-
-    def bth
-      @bytes.unpack1('H*')
+        def bth
+          @bytes.unpack1('H*')
+        end
+      end
     end
   end
 end

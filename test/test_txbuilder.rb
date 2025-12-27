@@ -155,7 +155,7 @@ class TestTxBuilder < Minitest::Test
   end
 
   def test_input_builder_stores_all_fields
-    inp = Sibit::TxInputBuilder.new
+    inp = Sibit::TxBuilder::Input.new
     key = Sibit::Key.new('fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2')
     inp.prev_out('fc8fb1a526aef220b54a66bbb3e0549bf34db4f25e1aebc3feb87e86d341e65d')
     inp.prev_out_index(5)
