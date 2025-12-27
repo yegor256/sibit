@@ -12,10 +12,9 @@
 [![Test Coverage](https://img.shields.io/codecov/c/github/yegor256/sibit.svg)](https://codecov.io/github/yegor256/sibit?branch=master)
 [![Hits-of-Code](https://hitsofcode.com/github/yegor256/sibit)](https://hitsofcode.com/view/github/yegor256/sibit)
 
-To understand how the Bitcoin protocol works,
-I recommend you watching this [short video] and
-then reading this blog post of mine:
-[_Sibit Demonstrates How Bitcoin Works_][blog].
+To understand how the Bitcoin protocol works, I recommend you watching
+  this [short video] and then reading this blog post of mine:
+  [_Sibit Demonstrates How Bitcoin Works_][blog].
 
 This is a simple Bitcoin client for use from the command line
   or from your Ruby app.
@@ -26,10 +25,10 @@ If you need something more complex, I would recommend using
   [bitcoin-ruby] for Ruby and [Electrum] as a GUI client.
 
 You may want to discuss this tool at [Bitcointalk]
-and give the thread a few merits.
+  and give the thread a few merits.
 
 This is a Ruby gem, install it first (if it doesn't work, there are
-some hints at the bottom of this page):
+  some hints at the bottom of this page):
 
 ```bash
 gem install sibit
@@ -90,10 +89,8 @@ It is recommended to run it with `--dry --verbose` options first,
 If everything looks correct, remove the `--dry` and run again,
   the transaction is pushed to the network.
 
-All operations are performed through the
-[Blockchain API].
-Transactions are pushed to the Bitcoin network via
-[this relay].
+All operations are performed through the [Blockchain API].
+Transactions are pushed to the Bitcoin network via [this relay].
 
 ## Ruby SDK
 
@@ -115,8 +112,8 @@ It should work.
 ## APIs
 
 The library works through one (or a few) public APIs for fetching
-Bitcoin data and pushing transactions to the network. At the moment we
-work with the following APIs:
+  Bitcoin data and pushing transactions to the network.
+At the moment we work with the following APIs:
 
 * [Blockchain.com] - `Sibit::Blockchain`
 * [BTC.com] - `Sibit::Btc`
@@ -125,8 +122,9 @@ work with the following APIs:
 * [Blockchair.com] - `Sibit::Blockchair`
 * [Cex.io] - `Sibit::Cex`
 
-The first one in this list is used by default. If you want to use a different
-one, you just specify it in the constructor of `Sibit` object:
+The first one in this list is used by default.
+If you want to use a different one,
+  you just specify it in the constructor of `Sibit` object:
 
 ```ruby
 require 'sibit'
