@@ -118,6 +118,10 @@ class Sibit
         @log.debug("UTXO skipped: #{utxo[:hash]}")
         next
       end
+      unless utxo[:confirmations]&.positive?
+        @log.debug("UTXO with no confirmations: #{utxo[:hash]}")
+        next
+      end
       unspent += utxo[:value]
       builder.input do |i|
         i.prev_out(utxo[:hash])

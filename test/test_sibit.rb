@@ -90,6 +90,7 @@ class TestSibit < Minitest::Test
           tx_hash_big_endian: '5de641d3867eb8fec3eb1a5ef2b44df39b54e0b3bb664ab520f2ae26a5b18ffc',
           tx_output_n: 0,
           script: '76a914c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc88ac',
+          confirmations: 1,
           value: 100_000
         }
       ]
@@ -125,6 +126,7 @@ class TestSibit < Minitest::Test
           tx_hash_big_endian: '5de641d3867eb8fec3eb1a5ef2b44df39b54e0b3bb664ab520f2ae26a5b18ffc',
           tx_output_n: 0,
           script: '76a914c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc88ac',
+          confirmations: 1,
           value: 100_000
         }
       ]

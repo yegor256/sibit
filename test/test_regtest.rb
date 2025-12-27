@@ -3,12 +3,13 @@
 # SPDX-FileCopyrightText: Copyright (c) 2019-2025 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
-require_relative 'test__helper'
 require 'json'
+require 'loog'
 require 'net/http'
 require 'uri'
 require 'webmock/minitest'
 require_relative '../lib/sibit'
+require_relative 'test__helper'
 
 # Regtest integration tests using Docker.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
@@ -33,7 +34,8 @@ class TestRegtest < Minitest::Test
         '-rpcpassword=test',
         '-fallbackfee=0.0001'
       ].join(' '),
-      timeout: 600
+      timeout: 600,
+      log: Loog::NULL
     ) do |_id|
       host = '127.0.0.1'
       wait_for_rpc(host, port)
