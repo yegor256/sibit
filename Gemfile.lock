@@ -72,7 +72,7 @@ GEM
       logger (~> 1.0)
     memoist3 (1.0.0)
     mini_mime (1.1.5)
-    minitest (6.0.0)
+    minitest (6.0.1)
       prism (~> 1.5)
     minitest-reporters (1.7.1)
       ansi
