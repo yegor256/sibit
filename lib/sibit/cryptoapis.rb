@@ -18,7 +18,7 @@ require_relative 'version'
 # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
 # License:: MIT
 class Sibit
-  # Btc.com API.
+  # Cryptoapis.io API.
   class Cryptoapis
     # Constructor.
     def initialize(key, log: Loog::NULL, http: Sibit::Http.new, dry: false)

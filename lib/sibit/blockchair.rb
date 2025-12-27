@@ -19,7 +19,7 @@ require_relative 'version'
 # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
 # License:: MIT
 class Sibit
-  # Btc.com API.
+  # Blockchair.com API.
   class Blockchair
     # Constructor.
     def initialize(key: nil, log: Loog::NULL, http: Sibit::Http.new, dry: false)

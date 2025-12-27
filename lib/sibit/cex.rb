@@ -3,6 +3,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2019-2025 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
+require 'iri'
 require 'uri'
 require 'json'
 require 'loog'
@@ -16,7 +17,7 @@ require_relative 'json'
 # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
 # License:: MIT
 class Sibit
-  # Btc.com API.
+  # Cex.io API.
   class Cex
     # Constructor.
     def initialize(log: Loog::NULL, http: Sibit::Http.new, dry: false)
