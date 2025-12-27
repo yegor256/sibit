@@ -24,18 +24,18 @@ require_relative '../lib/sibit/fake'
 require_relative '../lib/sibit/firstof'
 require_relative '../lib/sibit/version'
 
-begin
+opts =
   begin
-    opts = Slop.parse(ARGV, strict: true, help: true) do |o|
+    Slop.parse(ARGV, strict: true, help: true) do |o|
       o.banner = "Usage (#{Sibit::VERSION}): sibit [options] command [args]
 Commands are:
-    price:    Get current price of BTC in USD
-    fees:     Get currently recommended transaction fees
-    latest:   Get hash of the latest block
-    generate: Generate a new private key
-    create:   Create a public Bitcoin address from the key
-    balance:  Check the balance of the Bitcoin address
-    pay:      Send a new Bitcoin transaction
+  price:    Get current price of BTC in USD
+  fees:     Get currently recommended transaction fees
+  latest:   Get hash of the latest block
+  generate: Generate a new private key
+  create:   Create a public Bitcoin address from the key
+  balance:  Check the balance of the Bitcoin address
+  pay:      Send a new Bitcoin transaction
 Options are:"
       o.string '--proxy', 'HTTPS proxy for all requests, e.g. "localhost:3128"'
       o.integer(
@@ -63,6 +63,8 @@ Options are:"
   rescue Slop::Error => e
     raise e.message
   end
+
+begin
   raise 'Try --help' if opts.arguments.empty?
   log = opts[:verbose] ? Loog::VERBOSE : Loog::NULL
   http = opts[:proxy] ? Sibit::HttpProxy.new(opts[:proxy]) : Sibit::Http.new
