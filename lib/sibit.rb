@@ -119,7 +119,9 @@ class Sibit
         i.prev_out_index(utxo[:index])
         i.prev_out_script = script_hex(utxo[:script])
         address = Bitcoin::Script.new(script_hex(utxo[:script])).address
-        i.signature_key(key(sources[address]))
+        k = sources[address]
+        raise Error, "UTXO arrived to #{address} is incorrect" unless k
+        i.signature_key(key(k))
       end
       size += 180
       @log.info(

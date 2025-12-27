@@ -122,7 +122,7 @@ class TestSibit < Minitest::Test
       :get,
       'https://blockchain.info/unspent?active=1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi&limit=1000'
     ).to_return(body: JSON.pretty_generate(json))
-    sibit = Sibit.new(api: Sibit::BestOf.new([Sibit::Fake.new, Sibit::Fake.new]))
+    sibit = Sibit.new(api: Sibit::Blockchain.new)
     target = sibit.create(sibit.generate)
     change = sibit.create(sibit.generate)
     assert_raises Sibit::Error do

@@ -6,6 +6,7 @@
 require_relative 'test__helper'
 require 'webmock/minitest'
 require 'json'
+require_relative '../lib/sibit'
 require_relative '../lib/sibit/fake'
 
 # Sibit::Fake test.
@@ -18,7 +19,7 @@ class TestFake < Minitest::Test
     assert_equal(4_000, sibit.price)
     assert_equal(12, sibit.fees[:S])
     assert_equal(100_000_000, sibit.balance(''))
-    assert_empty(sibit.utxos(nil))
+    refute_empty(sibit.utxos(nil), 'utxos is empty')
     assert_equal('00000000000000000008df8a6e1b61d1136803ac9791b8725235c9f780b4ed71', sibit.latest)
   end
 

@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2019-2025 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 Feature: Command Line Processing
-  As a newsletter author I want to be able to send a newsletter
+  As a holder of BTC I want to be able to use sibit
 
   Scenario: Help can be printed
     When I run bin/sibit with "--help"

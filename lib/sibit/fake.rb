@@ -32,7 +32,15 @@ class Sibit::Fake
   end
 
   def utxos(_sources)
-    []
+    [
+      {
+        hash: '5de641d3867eb8fec3eb1a5ef2b44df39b54e0b3bb664ab520f2ae26a5b18ffc',
+        index: 0,
+        value: 100_000_000,
+        confirmations: 6,
+        script: '76a914c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc88ac'
+      }
+    ]
   end
 
   def push(_hex); end
