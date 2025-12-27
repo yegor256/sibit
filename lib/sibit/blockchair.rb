@@ -20,11 +20,10 @@ require_relative 'version'
 # License:: MIT
 class Sibit::Blockchair
   # Constructor.
-  def initialize(key: nil, log: Loog::NULL, http: Sibit::Http.new, dry: false)
+  def initialize(key: nil, log: Loog::NULL, http: Sibit::Http.new)
     @key = key
     @http = http
     @log = log
-    @dry = dry
   end
 
   # Current price of BTC in USD (float returned).
@@ -75,10 +74,6 @@ class Sibit::Blockchair
 
   # Push this transaction (in hex format) to the network.
   def push(hex)
-    if @dry
-      @log.info('Not pushed to blockchair.com, in dry mode')
-      return
-    end
     Sibit::Json.new(http: @http, log: @log).post(
       Iri.new('https://api.blockchair.com/bitcoin/push/transaction').fragment(the_key),
       "data=#{hex}"

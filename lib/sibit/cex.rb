@@ -18,10 +18,9 @@ require_relative 'json'
 # License:: MIT
 class Sibit::Cex
   # Constructor.
-  def initialize(log: Loog::NULL, http: Sibit::Http.new, dry: false)
+  def initialize(log: Loog::NULL, http: Sibit::Http.new)
     @http = http
     @log = log
-    @dry = dry
   end
 
   # Current price of BTC in USD (float returned).

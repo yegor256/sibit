@@ -22,10 +22,9 @@ require_relative 'version'
 # License:: MIT
 class Sibit::Blockchain
   # Constructor.
-  def initialize(log: Loog::NULL, http: Sibit::Http.new, dry: false)
+  def initialize(log: Loog::NULL, http: Sibit::Http.new)
     @http = http
     @log = log
-    @dry = dry
   end
 
   # Current price of BTC in USD (float returned).
@@ -108,10 +107,6 @@ class Sibit::Blockchain
 
   # Push this transaction (in hex format) to the network.
   def push(hex)
-    if @dry
-      @log.info('Not pushed to blockchain.info, in dry mode')
-      return
-    end
     Sibit::Json.new(http: @http, log: @log).post(
       Iri.new('https://blockchain.info/pushtx'),
       hex

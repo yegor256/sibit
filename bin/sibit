@@ -18,6 +18,7 @@ require_relative '../lib/sibit/blockchain'
 require_relative '../lib/sibit/blockchair'
 require_relative '../lib/sibit/btc'
 require_relative '../lib/sibit/cex'
+require_relative '../lib/sibit/dry'
 require_relative '../lib/sibit/fake'
 require_relative '../lib/sibit/firstof'
 require_relative '../lib/sibit/version'
@@ -70,20 +71,21 @@ begin
     api = nil
     case a
     when 'blockchain'
-      api = Sibit::Blockchain.new(http: http, log: log, dry: opts[:dry])
+      api = Sibit::Blockchain.new(http: http, log: log)
     when 'btc'
-      api = Sibit::Btc.new(http: http, log: log, dry: opts[:dry])
+      api = Sibit::Btc.new(http: http, log: log)
     when 'bitcoinchain'
-      api = Sibit::Bitcoinchain.new(http: http, log: log, dry: opts[:dry])
+      api = Sibit::Bitcoinchain.new(http: http, log: log)
     when 'blockchair'
-      api = Sibit::Blockchair.new(http: http, log: log, dry: opts[:dry])
+      api = Sibit::Blockchair.new(http: http, log: log)
     when 'cex'
-      api = Sibit::Cex.new(http: http, log: log, dry: opts[:dry])
+      api = Sibit::Cex.new(http: http, log: log)
     when 'fake'
       api = Sibit::Fake.new
     else
       raise Sibit::Error, "Unknown API \"#{a}\""
     end
+    api = Sibit::Dry.new(api, log: log) if opts[:dry]
     api = RetriableProxy.for_object(api, on: Sibit::Error) if opts[:attempts] > 1
     api
   end

@@ -19,10 +19,9 @@ require_relative 'version'
 # License:: MIT
 class Sibit::Bitcoinchain
   # Constructor.
-  def initialize(log: Loog::NULL, http: Sibit::Http.new, dry: false)
+  def initialize(log: Loog::NULL, http: Sibit::Http.new)
     @http = http
     @log = log
-    @dry = dry
   end
 
   # Current price of BTC in USD (float returned).
@@ -86,10 +85,6 @@ class Sibit::Bitcoinchain
 
   # Push this transaction (in hex format) to the network.
   def push(_hex)
-    if @dry
-      @log.info('Not pushed to bitcoinchain.com, in dry mode')
-      return
-    end
     raise Sibit::NotSupportedError, 'Not implemented yet'
   end
 
