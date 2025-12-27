@@ -130,6 +130,10 @@ class Sibit::Btc
 
   # Push this transaction (in hex format) to the network.
   def push(_hex)
+    if @dry
+      @log.info('Not pushed to btc.com, in dry mode')
+      return
+    end
     raise Sibit::NotSupportedError, 'Btc.com doesn\'t provide payment gateway'
   end
 

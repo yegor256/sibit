@@ -75,6 +75,10 @@ class Sibit::Blockchair
 
   # Push this transaction (in hex format) to the network.
   def push(hex)
+    if @dry
+      @log.info('Not pushed to blockchair.com, in dry mode')
+      return
+    end
     Sibit::Json.new(http: @http, log: @log).post(
       Iri.new('https://api.blockchair.com/bitcoin/push/transaction').fragment(the_key),
       "data=#{hex}"

@@ -86,6 +86,10 @@ class Sibit::Bitcoinchain
 
   # Push this transaction (in hex format) to the network.
   def push(_hex)
+    if @dry
+      @log.info('Not pushed to bitcoinchain.com, in dry mode')
+      return
+    end
     raise Sibit::NotSupportedError, 'Not implemented yet'
   end
 

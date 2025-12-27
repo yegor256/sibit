@@ -86,6 +86,10 @@ class Sibit::Cryptoapis
 
   # Push this transaction (in hex format) to the network.
   def push(hex)
+    if @dry
+      @log.info('Not pushed to cryptoapis.io, in dry mode')
+      return
+    end
     Sibit::Json.new(http: @http, log: @log).post(
       Iri.new('https://api.cryptoapis.io/v1/bc/btc/testnet/txs/send'),
       JSON.pretty_generate(hex: hex),
