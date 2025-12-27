@@ -278,7 +278,7 @@ in block #{block} (by #{json[:provider]})")
     sat = fees[fee.to_sym]
     raise Error, "Can't understand the fee: #{fee.inspect}" if sat.nil?
     f = mul * sat * size
-    @log.debug("Fee calculated as #{mul} * #{sat} * #{size} = #{f}s")
+    @log.debug("Fee calculated as #{mul} * #{sat}s * #{size} = #{f}s")
     f
   end
 
