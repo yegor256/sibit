@@ -6,53 +6,51 @@
 require 'digest'
 require_relative 'base58'
 
-class Sibit
-  module Bitcoin
-    # Bitcoin Script parser.
-    #
-    # Parses standard P2PKH scripts to extract addresses.
-    #
-    # Author:: Yegor Bugayenko (yegor256@gmail.com)
-    # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
-    # License:: MIT
-    class Script
-      OP_DUP = 0x76
-      OP_HASH160 = 0xa9
-      OP_EQUALVERIFY = 0x88
-      OP_CHECKSIG = 0xac
+module Sibit::Bitcoin
+  # Bitcoin Script parser.
+  #
+  # Parses standard P2PKH scripts to extract addresses.
+  #
+  # Author:: Yegor Bugayenko (yegor256@gmail.com)
+  # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
+  # License:: MIT
+  class Script
+    OP_DUP = 0x76
+    OP_HASH160 = 0xa9
+    OP_EQUALVERIFY = 0x88
+    OP_CHECKSIG = 0xac
 
-      def initialize(hex)
-        @bytes = [hex].pack('H*').bytes
-      end
+    def initialize(hex)
+      @bytes = [hex].pack('H*').bytes
+    end
 
-      def address
-        return p2pkh_address if p2pkh?
-        nil
-      end
+    def address
+      return p2pkh_address if p2pkh?
+      nil
+    end
 
-      def p2pkh?
-        @bytes.length == 25 &&
-          @bytes[0] == OP_DUP &&
-          @bytes[1] == OP_HASH160 &&
-          @bytes[2] == 20 &&
-          @bytes[23] == OP_EQUALVERIFY &&
-          @bytes[24] == OP_CHECKSIG
-      end
+    def p2pkh?
+      @bytes.length == 25 &&
+        @bytes[0] == OP_DUP &&
+        @bytes[1] == OP_HASH160 &&
+        @bytes[2] == 20 &&
+        @bytes[23] == OP_EQUALVERIFY &&
+        @bytes[24] == OP_CHECKSIG
+    end
 
-      def hash160
-        return nil unless p2pkh?
-        @bytes[3, 20].pack('C*').unpack1('H*')
-      end
+    def hash160
+      return nil unless p2pkh?
+      @bytes[3, 20].pack('C*').unpack1('H*')
+    end
 
-      private
+    private
 
-      def p2pkh_address
-        h = hash160
-        return nil unless h
-        versioned = "00#{h}"
-        checksum = Base58.check(versioned)
-        Base58.encode(versioned + checksum)
-      end
+    def p2pkh_address
+      h = hash160
+      return nil unless h
+      versioned = "00#{h}"
+      checksum = Base58.check(versioned)
+      Base58.encode(versioned + checksum)
     end
   end
 end
