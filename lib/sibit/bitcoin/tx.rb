@@ -30,11 +30,11 @@ class Sibit
     end
 
     def add_input(hash:, index:, script:, key:)
-      @inputs << TxInput.new(hash, index, script, key)
+      @inputs << Input.new(hash, index, script, key)
     end
 
     def add_output(value, address)
-      @outputs << TxOutput.new(value, address)
+      @outputs << Output.new(value, address)
     end
 
     def hash
@@ -56,6 +56,62 @@ class Sibit
 
     def out
       @outputs
+    end
+
+    # Transaction input.
+    #
+    # Author:: Yegor Bugayenko (yegor256@gmail.com)
+    # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
+    # License:: MIT
+    class Input
+      attr_reader :hash, :index, :prev_script, :key
+      attr_accessor :script_sig
+
+      def initialize(hash, index, script, key)
+        @hash = hash
+        @index = index
+        @prev_script = script
+        @key = key
+        @script_sig = ''
+      end
+
+      def prev_out
+        [@hash].pack('H*')
+      end
+
+      def prev_out_index
+        @index
+      end
+    end
+
+    # Transaction output.
+    #
+    # Author:: Yegor Bugayenko (yegor256@gmail.com)
+    # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
+    # License:: MIT
+    class Output
+      attr_reader :value
+
+      def initialize(value, address)
+        @value = value
+        @address = address
+      end
+
+      def script
+        hash160 = address_to_hash160(@address)
+        [0x76, 0xa9, 0x14].pack('C*') + [hash160].pack('H*') + [0x88, 0xac].pack('C*')
+      end
+
+      def script_hex
+        script.unpack1('H*')
+      end
+
+      private
+
+      def address_to_hash160(addr)
+        decoded = Base58.new(addr).decode
+        decoded[2..41]
+      end
     end
 
     private
@@ -160,62 +216,6 @@ class Sibit
       return [0xfd, num].pack('Cv') if num <= 0xffff
       return [0xfe, num].pack('CV') if num <= 0xffffffff
       [0xff, num].pack('CQ<')
-    end
-  end
-
-  # Transaction input.
-  #
-  # Author:: Yegor Bugayenko (yegor256@gmail.com)
-  # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
-  # License:: MIT
-  class TxInput
-    attr_reader :hash, :index, :prev_script, :key
-    attr_accessor :script_sig
-
-    def initialize(hash, index, script, key)
-      @hash = hash
-      @index = index
-      @prev_script = script
-      @key = key
-      @script_sig = ''
-    end
-
-    def prev_out
-      [@hash].pack('H*')
-    end
-
-    def prev_out_index
-      @index
-    end
-  end
-
-  # Transaction output.
-  #
-  # Author:: Yegor Bugayenko (yegor256@gmail.com)
-  # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
-  # License:: MIT
-  class TxOutput
-    attr_reader :value
-
-    def initialize(value, address)
-      @value = value
-      @address = address
-    end
-
-    def script
-      hash160 = address_to_hash160(@address)
-      [0x76, 0xa9, 0x14].pack('C*') + [hash160].pack('H*') + [0x88, 0xac].pack('C*')
-    end
-
-    def script_hex
-      script.unpack1('H*')
-    end
-
-    private
-
-    def address_to_hash160(addr)
-      decoded = Base58.new(addr).decode
-      decoded[2..41]
     end
   end
 end
