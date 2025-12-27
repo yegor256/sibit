@@ -63,15 +63,18 @@ $ sibit pay AMOUNT FEE P1,P2,... TARGET CHANGE
 e87f138c9ebf5986151667719825c28458a28cc66f69fed4f1032a93b399fdf8
 ```
 
-Here,
-  `AMOUNT` is the amount of [satoshi] you are sending,
-  `FEE` is the [miner fee] you are ready to spend to get
+Here:
+
+* `AMOUNT` is the amount of [satoshi] you are sending (integer),
+  or `0.42BTC` if in bitcoins (with a suffix),
+* `FEE` is the [miner fee] you are ready to spend to get
   this transaction delivered (you can say `S`, `M`, `L`, or `XL` if you want it
   to be calculated automatically),
-  `P1,P2,...` is a comma-separated list
+* `P1,P2,...` is a comma-separated list
   of private keys `P` you are sending your coins from,
-  `TARGET` is the address you are sending to,
-  `CHANGE` is the address where the change goes.
+* `TARGET` is the address you are sending to,
+* `CHANGE` is the address where the change goes.
+
 The transaction hash is returned.
 Not all [UTXOs] may be used, but only the necessary amount of them.
 
