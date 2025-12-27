@@ -48,14 +48,14 @@ class Sibit
 
   # Generates new Bitcoin private key and returns in Hash160 format.
   def generate
-    key = Bitcoin::Key.generate.priv
+    key = Key.generate.priv
     @log.info("Bitcoin private key generated: #{key[0..8]}...")
     key
   end
 
   # Creates Bitcoin address using the private key in Hash160 format.
   def create(pvt)
-    Bitcoin::Key.new(pvt).addr
+    Key.new(pvt).addr
   end
 
   # Gets the balance of the address, in satoshi.
@@ -100,9 +100,9 @@ class Sibit
   # +change+: the address where the change has to be sent to
   def pay(amount, fee, sources, target, change, skip_utxo: [])
     p = price('USD')
-    sources = sources.map { |k| [Bitcoin::Key.new(k).addr, k] }.to_h
+    sources = sources.map { |k| [Key.new(k).addr, k] }.to_h
     satoshi = satoshi(amount)
-    builder = Bitcoin::TxBuilder.new
+    builder = TxBuilder.new
     unspent = 0
     size = 100
     utxos = @api.utxos(sources.keys)
@@ -118,7 +118,7 @@ class Sibit
         i.prev_out(utxo[:hash])
         i.prev_out_index(utxo[:index])
         i.prev_out_script = script_hex(utxo[:script])
-        address = Bitcoin::Script.new(script_hex(utxo[:script])).address
+        address = Script.new(script_hex(utxo[:script])).address
         k = sources[address]
         raise Error, "UTXO arrived to #{address} is incorrect" unless k
         i.signature_key(key(k))
@@ -140,7 +140,7 @@ class Sibit
     tx = builder.tx(
       input_value: unspent,
       leave_fee: true,
-      extra_fee: [f, Bitcoin::MIN_TX_FEE].max,
+      extra_fee: [f, MIN_TX_FEE].max,
       change_address: change
     )
     left = unspent - tx.outputs.sum(&:value)
@@ -149,7 +149,7 @@ class Sibit
     #{tx.inputs.map { |i| " in: #{i.prev_out.unpack1('H*')}:#{i.prev_out_index}" }.join("\n    ")}
   #{tx.out.count} output#{'s' if tx.out.count > 1}:
     #{tx.outputs.map { |o| "out: #{o.script_hex} / #{num(o.value, p)}" }.join("\n    ")}
-  Min tx fee: #{num(Bitcoin::MIN_TX_FEE, p)}
+  Min tx fee: #{num(MIN_TX_FEE, p)}
   Fee requested: #{num(f, p)} as \"#{fee}\"
   Fee actually paid: #{num(left, p)}
   Tx size: #{size} bytes
@@ -274,7 +274,7 @@ in block #{block} (by #{json[:provider]})")
 
   # Make key from private key string in Hash160.
   def key(hash160)
-    Bitcoin::Key.new(hash160)
+    Key.new(hash160)
   end
 
   # Convert script to hex string if needed.

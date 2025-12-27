@@ -23,4 +23,3 @@ Feature: Command Line Processing
     When I run bin/sibit with "pay --dry --verbose --api=fake --proxy=localhost:3128 999999 XL- 46feba063e9b59a8ae0dba68abd39a3cb8f52089e776576d6eb1bb5bfec123d1 1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f 1Fsyq5YGe8zbSjLS8YsDnZWM8U6AYMR6ZD"
     Then Exit code is not zero
     Then Stdout contains "UTXO arrived to 1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi is incorrect"
-

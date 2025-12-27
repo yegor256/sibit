@@ -6,7 +6,8 @@
 require 'digest'
 require_relative 'base58'
 
-module Sibit::Bitcoin
+# Sibit main class.
+class Sibit
   # Bitcoin Script parser.
   #
   # Parses standard P2PKH scripts to extract addresses.
@@ -49,8 +50,8 @@ module Sibit::Bitcoin
       h = hash160
       return nil unless h
       versioned = "00#{h}"
-      checksum = Base58.check(versioned)
-      Base58.encode(versioned + checksum)
+      checksum = Base58.new(versioned).check
+      Base58.new(versioned + checksum).encode
     end
   end
 end

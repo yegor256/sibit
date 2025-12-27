@@ -8,7 +8,10 @@ require_relative 'base58'
 require_relative 'key'
 require_relative 'script'
 
-module Sibit::Bitcoin
+# Sibit main class.
+class Sibit
+  MIN_TX_FEE = 10_000
+
   # Bitcoin Transaction structure.
   #
   # Author:: Yegor Bugayenko (yegor256@gmail.com)
@@ -27,11 +30,11 @@ module Sibit::Bitcoin
     end
 
     def add_input(hash:, index:, script:, key:)
-      @inputs << Input.new(hash, index, script, key)
+      @inputs << TxInput.new(hash, index, script, key)
     end
 
     def add_output(value, address)
-      @outputs << Output.new(value, address)
+      @outputs << TxOutput.new(value, address)
     end
 
     def hash
@@ -161,7 +164,11 @@ module Sibit::Bitcoin
   end
 
   # Transaction input.
-  class Input
+  #
+  # Author:: Yegor Bugayenko (yegor256@gmail.com)
+  # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
+  # License:: MIT
+  class TxInput
     attr_reader :hash, :index, :prev_script, :key
     attr_accessor :script_sig
 
@@ -183,7 +190,11 @@ module Sibit::Bitcoin
   end
 
   # Transaction output.
-  class Output
+  #
+  # Author:: Yegor Bugayenko (yegor256@gmail.com)
+  # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
+  # License:: MIT
+  class TxOutput
     attr_reader :value
 
     def initialize(value, address)
@@ -203,7 +214,7 @@ module Sibit::Bitcoin
     private
 
     def address_to_hash160(addr)
-      decoded = Base58.decode(addr)
+      decoded = Base58.new(addr).decode
       decoded[2..41]
     end
   end

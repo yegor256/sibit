@@ -7,7 +7,8 @@ require 'digest'
 require 'openssl'
 require_relative 'base58'
 
-module Sibit::Bitcoin
+# Sibit main class.
+class Sibit
   # Bitcoin ECDSA key using secp256k1 curve.
   #
   # Supports OpenSSL 3.0+ by constructing keys via DER encoding instead
@@ -44,8 +45,8 @@ module Sibit::Bitcoin
     def addr
       hash = hash160(pub)
       versioned = "00#{hash}"
-      checksum = Base58.check(versioned)
-      Base58.encode(versioned + checksum)
+      checksum = Base58.new(versioned).check
+      Base58.new(versioned + checksum).encode
     end
 
     def sign(data)
