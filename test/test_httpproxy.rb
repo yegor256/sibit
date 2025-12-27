@@ -45,4 +45,32 @@ class TestHttpProxy < Minitest::Test
     client = proxy.client(uri)
     assert_equal(8080, client.proxy_port, 'proxy port is wrong')
   end
+
+  def test_configures_proxy_user
+    proxy = Sibit::HttpProxy.new('jeff:swordfish@proxy.example.com:8080')
+    uri = URI.parse('https://example.com/path')
+    client = proxy.client(uri)
+    assert_equal('jeff', client.proxy_user, 'proxy user is wrong')
+  end
+
+  def test_configures_proxy_password
+    proxy = Sibit::HttpProxy.new('jeff:swordfish@proxy.example.com:8080')
+    uri = URI.parse('https://example.com/path')
+    client = proxy.client(uri)
+    assert_equal('swordfish', client.proxy_pass, 'proxy password is wrong')
+  end
+
+  def test_parses_address_with_auth
+    proxy = Sibit::HttpProxy.new('jeff:swordfish@proxy.example.com:8080')
+    uri = URI.parse('https://example.com/path')
+    client = proxy.client(uri)
+    assert_equal('proxy.example.com', client.proxy_address, 'proxy address with auth is wrong')
+  end
+
+  def test_parses_port_with_auth
+    proxy = Sibit::HttpProxy.new('jeff:swordfish@proxy.example.com:8080')
+    uri = URI.parse('https://example.com/path')
+    client = proxy.client(uri)
+    assert_equal(8080, client.proxy_port, 'proxy port with auth is wrong')
+  end
 end
