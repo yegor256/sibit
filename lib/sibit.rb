@@ -11,6 +11,7 @@ require_relative 'sibit/bitcoin/tx'
 require_relative 'sibit/bitcoin/txbuilder'
 require_relative 'sibit/blockchain'
 require_relative 'sibit/version'
+
 # Sibit main class.
 #
 # Author:: Yegor Bugayenko (yegor256@gmail.com)

@@ -3,14 +3,14 @@
 # SPDX-FileCopyrightText: Copyright (c) 2019-2025 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
-require_relative 'test__helper'
-require 'webmock/minitest'
 require 'json'
+require 'webmock/minitest'
 require_relative '../lib/sibit'
-require_relative '../lib/sibit/fake'
-require_relative '../lib/sibit/blockchain'
-require_relative '../lib/sibit/firstof'
 require_relative '../lib/sibit/bestof'
+require_relative '../lib/sibit/blockchain'
+require_relative '../lib/sibit/fake'
+require_relative '../lib/sibit/firstof'
+require_relative 'test__helper'
 
 # Sibit.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
