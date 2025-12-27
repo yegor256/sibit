@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: MIT
 
 require 'cgi'
+require 'elapsed'
 require 'json'
 require 'loog'
 require 'uri'
@@ -30,51 +31,54 @@ class Sibit::Json
   # This method will also log the process and will validate the
   # response for correctness.
   def get(address, headers: {}, accept: [200])
-    start = Time.now
-    uri = URI(address.to_s)
-    res = @http.client(uri).get(
-      "#{uri.path.empty? ? '/' : uri.path}#{"?#{uri.query}" if uri.query}",
-      {
-        'Accept' => 'application/json',
-        'User-Agent' => user_agent,
-        'Accept-Charset' => 'UTF-8',
-        'Accept-Encoding' => ''
-      }.merge(headers)
-    )
-    unless accept.include?(res.code.to_i)
-      raise Sibit::Error, "Failed to retrieve #{uri} (#{res.code}): #{res.body}"
+    ret = nil
+    elapsed(@log) do
+      uri = URI(address.to_s)
+      res = @http.client(uri).get(
+        "#{uri.path.empty? ? '/' : uri.path}#{"?#{uri.query}" if uri.query}",
+        {
+          'Accept' => 'application/json',
+          'User-Agent' => user_agent,
+          'Accept-Charset' => 'UTF-8',
+          'Accept-Encoding' => ''
+        }.merge(headers)
+      )
+      unless accept.include?(res.code.to_i)
+        raise Sibit::Error, "Failed to retrieve #{uri} (#{res.code}): #{res.body}"
+      end
+      ret =
+        begin
+          JSON.parse(res.body)
+        rescue JSON::ParserError => e
+          raise Sibit::Error, "Can't parse JSON: #{e.message}"
+        end
+      throw :"GET #{uri}: #{res.code}/#{length(res.body.length)}"
     end
-    @log.debug("GET #{uri}: #{res.code}/#{length(res.body.length)} in #{age(start)}")
-    JSON.parse(res.body)
-  rescue JSON::ParserError => e
-    raise Sibit::Error, "Can't parse JSON: #{e.message}"
+    ret
   end
 
   def post(address, body, headers: {})
-    start = Time.now
     uri = URI(address.to_s)
-    res = @http.client(uri).post(
-      "#{uri.path}?#{uri.query}",
-      "tx=#{CGI.escape(body)}",
-      {
-        'Accept' => 'text/plain',
-        'User-Agent' => user_agent,
-        'Accept-Charset' => 'UTF-8',
-        'Accept-Encoding' => '',
-        'Content-Type' => 'application/x-www-form-urlencoded'
-      }.merge(headers)
-    )
-    unless res.code == '200'
-      raise Sibit::Error, "Failed to post tx to #{uri}: #{res.code}\n#{res.body}"
+    elapsed(@log) do
+      res = @http.client(uri).post(
+        "#{uri.path}?#{uri.query}",
+        "tx=#{CGI.escape(body)}",
+        {
+          'Accept' => 'text/plain',
+          'User-Agent' => user_agent,
+          'Accept-Charset' => 'UTF-8',
+          'Accept-Encoding' => '',
+          'Content-Type' => 'application/x-www-form-urlencoded'
+        }.merge(headers)
+      )
+      unless res.code == '200'
+        raise Sibit::Error, "Failed to post tx to #{uri}: #{res.code}\n#{res.body}"
+      end
+      throw :"POST #{uri}: #{res.code}"
     end
-    @log.debug("POST #{uri}: #{res.code} in #{age(start)}")
   end
 
   private
-
-  def age(start)
-    "#{((Time.now - start) * 1000).round}ms"
-  end
 
   def length(bytes)
     if bytes > 1024 * 1024

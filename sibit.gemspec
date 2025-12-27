@@ -31,10 +31,11 @@ Gem::Specification.new do |s|
   s.extra_rdoc_files = ['README.md', 'LICENSE.txt']
   s.add_dependency 'backtrace', '~> 0.3'
   s.add_dependency 'decoor', '~> 0.1'
+  s.add_dependency 'elapsed', '~> 0.2'
   s.add_dependency 'iri', '~> 0.5'
-  s.add_dependency 'json', '~> 2'
+  s.add_dependency 'json', '~> 2.18'
   s.add_dependency 'loog', '~> 0.6'
-  s.add_dependency 'openssl', '>= 2.0'
+  s.add_dependency 'openssl', '~> 3.0'
   s.add_dependency 'retriable_proxy', '~> 1.0'
   s.add_dependency 'slop', '~> 4.6'
 end
