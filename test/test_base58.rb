@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: MIT
 
 require_relative 'test__helper'
-require_relative '../lib/sibit/bitcoin/base58'
+require_relative '../lib/sibit/base58'
 
 # Sibit::Base58 test.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)

@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: MIT
 
 require_relative 'test__helper'
-require_relative '../lib/sibit/bitcoin/script'
+require_relative '../lib/sibit/script'
 
 # Sibit::Script test.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)

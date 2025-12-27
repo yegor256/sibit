@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: MIT
 
 require_relative 'test__helper'
-require_relative '../lib/sibit/bitcoin/txbuilder'
+require_relative '../lib/sibit/txbuilder'
 
 # Sibit::TxBuilder test.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)

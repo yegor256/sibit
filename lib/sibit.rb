@@ -4,11 +4,11 @@
 # SPDX-License-Identifier: MIT
 
 require 'loog'
-require_relative 'sibit/bitcoin/base58'
-require_relative 'sibit/bitcoin/key'
-require_relative 'sibit/bitcoin/script'
-require_relative 'sibit/bitcoin/tx'
-require_relative 'sibit/bitcoin/txbuilder'
+require_relative 'sibit/base58'
+require_relative 'sibit/key'
+require_relative 'sibit/script'
+require_relative 'sibit/tx'
+require_relative 'sibit/txbuilder'
 require_relative 'sibit/blockchain'
 require_relative 'sibit/version'
 

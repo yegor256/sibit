@@ -5,7 +5,7 @@
 
 require_relative 'test__helper'
 require 'securerandom'
-require_relative '../lib/sibit/bitcoin/key'
+require_relative '../lib/sibit/key'
 
 # Sibit::Key test.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)

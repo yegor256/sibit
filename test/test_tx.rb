@@ -4,8 +4,8 @@
 # SPDX-License-Identifier: MIT
 
 require_relative 'test__helper'
-require_relative '../lib/sibit/bitcoin/tx'
-require_relative '../lib/sibit/bitcoin/key'
+require_relative '../lib/sibit/tx'
+require_relative '../lib/sibit/key'
 
 # Sibit::Tx test.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
