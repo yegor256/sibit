@@ -6,10 +6,10 @@
 require 'cgi'
 require 'iri'
 require 'json'
+require 'loog'
 require 'uri'
 require_relative 'error'
 require_relative 'http'
-require 'loog'
 require_relative 'json'
 require_relative 'version'
 

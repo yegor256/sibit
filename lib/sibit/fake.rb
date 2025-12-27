@@ -37,9 +37,7 @@ class Sibit
       []
     end
 
-    def push(hex)
-      # Nothing to do here
-    end
+    def push(_hex); end
 
     def latest
       '00000000000000000008df8a6e1b61d1136803ac9791b8725235c9f780b4ed71'

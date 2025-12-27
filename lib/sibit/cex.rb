@@ -4,9 +4,9 @@
 # SPDX-License-Identifier: MIT
 
 require 'iri'
-require 'uri'
 require 'json'
 require 'loog'
+require 'uri'
 require_relative 'error'
 require_relative 'http'
 require_relative 'json'
@@ -71,6 +71,7 @@ class Sibit
       raise Sibit::NotSupportedError, 'Cex.io doesn\'t implement push()'
     end
 
+    # This method should fetch a Blockchain block and return as a hash.
     def block(_hash)
       raise Sibit::NotSupportedError, 'Cex.io doesn\'t implement block()'
     end

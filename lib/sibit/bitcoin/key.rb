@@ -3,8 +3,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2019-2025 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
-require 'openssl'
 require 'digest'
+require 'openssl'
 require_relative 'base58'
 
 class Sibit

@@ -3,13 +3,13 @@
 # SPDX-FileCopyrightText: Copyright (c) 2019-2025 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
-require 'json'
-require 'uri'
 require 'cgi'
-require_relative 'version'
-require_relative 'error'
+require 'json'
 require 'loog'
+require 'uri'
+require_relative 'error'
 require_relative 'http'
+require_relative 'version'
 
 # Json SDK.
 #

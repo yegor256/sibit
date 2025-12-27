@@ -3,8 +3,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2019-2025 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
-require_relative 'tx'
 require_relative 'key'
+require_relative 'tx'
 
 class Sibit
   module Bitcoin
