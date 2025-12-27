@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: MIT
 
 require 'digest'
+require_relative 'error'
 
 # Sibit main class.
 class Sibit
@@ -36,7 +37,11 @@ class Sibit
     def decode
       leading = @data.match(/^1*/)[0].length
       num = 0
-      @data.each_char { |c| num = (num * 58) + ALPHABET.index(c) }
+      @data.each_char do |c|
+        idx = ALPHABET.index(c)
+        raise Sibit::Error, "Invalid Base58 character '#{c}' in address '#{@data}'" if idx.nil?
+        num = (num * 58) + idx
+      end
       hex = num.zero? ? '' : num.to_s(16)
       hex = "0#{hex}" if hex.length.odd?
       ('00' * leading) + hex

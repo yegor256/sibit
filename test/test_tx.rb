@@ -145,4 +145,18 @@ class TestTx < Minitest::Test
     script = tx.outputs[0].script_hex
     assert(script.end_with?('88ac'), 'script does not end with OP_EQUALVERIFY OP_CHECKSIG')
   end
+
+  def test_output_generates_segwit_script
+    tx = Sibit::Tx.new
+    tx.add_output(10_000, 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4')
+    script = tx.outputs[0].script_hex
+    assert(script.start_with?('0014'), 'segwit script must start with OP_0 PUSH20')
+  end
+
+  def test_output_segwit_script_has_correct_length
+    tx = Sibit::Tx.new
+    tx.add_output(10_000, 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4')
+    script = tx.outputs[0].script_hex
+    assert_equal(44, script.length, 'P2WPKH script must be 22 bytes (44 hex chars)')
+  end
 end

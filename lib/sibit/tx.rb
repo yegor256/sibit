@@ -5,6 +5,7 @@
 
 require 'digest'
 require_relative 'base58'
+require_relative 'bech32'
 require_relative 'key'
 require_relative 'script'
 
@@ -98,8 +99,8 @@ class Sibit
       end
 
       def script
-        hash160 = address_to_hash160(@address)
-        [0x76, 0xa9, 0x14].pack('C*') + [hash160].pack('H*') + [0x88, 0xac].pack('C*')
+        return segwit_script if @address.downcase.start_with?('bc1')
+        p2pkh_script
       end
 
       def script_hex
@@ -108,9 +109,17 @@ class Sibit
 
       private
 
-      def address_to_hash160(addr)
-        decoded = Base58.new(addr).decode
-        decoded[2..41]
+      def p2pkh_script
+        decoded = Base58.new(@address).decode
+        hash = decoded[2..41]
+        [0x76, 0xa9, 0x14].pack('C*') + [hash].pack('H*') + [0x88, 0xac].pack('C*')
+      end
+
+      def segwit_script
+        bech = Bech32.new(@address)
+        witness = bech.witness
+        len = witness.length / 2
+        [0x00, len].pack('C*') + [witness].pack('H*')
       end
     end
 
