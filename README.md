@@ -82,8 +82,8 @@ Say, you are sending 0.5 BTC and the fee is 0.0001 BTC.
 Totally, you spend 0.5001.
 However, you can make Sibit deduct the fee from the payment amount.
 In this case you should provide a negative amount
-  of the fee or one of `-S`, `-M`, `-L`, `-XL`.
-You can also say `+S`, if you want the opposite, which is the default.
+  of the fee or one of `S-`, `M-`, `L-`, `XL-`.
+You can also say `S+`, if you want the opposite, which is the default.
 
 It is recommended to run it with `--dry --verbose` options first,
   to see what's going to be sent to the network.

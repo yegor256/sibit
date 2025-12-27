@@ -263,9 +263,9 @@ in block #{block} (by #{json[:provider]})")
     return fee.to_i if fee.is_a?(Integer)
     raise Error, 'Fee should either be a String or Integer' unless fee.is_a?(String)
     mul = 1
-    if fee.start_with?('+', '-')
-      mul = -1 if fee.start_with?('-')
-      fee = fee[1..-1]
+    if fee.end_with?('+', '-')
+      mul = -1 if fee.end_with?('-')
+      fee = fee[0..-2]
     end
     sat = fees[fee.to_sym]
     raise Error, "Can't understand the fee: #{fee.inspect}" if sat.nil?

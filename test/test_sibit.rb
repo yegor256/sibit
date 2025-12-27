@@ -103,7 +103,7 @@ class TestSibit < Minitest::Test
     target = sibit.create(sibit.generate)
     change = sibit.create(sibit.generate)
     tx = sibit.pay(
-      '0.0001BTC', 'S',
+      '0.0001BTC', 'S+',
       ['fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2'],
       target, change
     )
