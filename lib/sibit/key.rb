@@ -21,6 +21,8 @@ class Sibit
     MIN_PRIV = 0x01
     MAX_PRIV = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364140
 
+    attr_reader :network
+
     def self.generate
       key = OpenSSL::PKey::EC.generate('secp256k1')
       pvt = key.private_key.to_s(16).rjust(64, '0').downcase
@@ -38,10 +40,6 @@ class Sibit
       @privkey
     end
 
-    def network
-      @network
-    end
-
     def pub
       point = @key.public_key
       point.to_octet_string(@compressed ? :compressed : :uncompressed).unpack1('H*')
@@ -56,11 +54,11 @@ class Sibit
     end
 
     def sign(data)
-      @key.sign('SHA256', data)
+      @key.dsa_sign_asn1(data)
     end
 
     def verify(data, sig)
-      @key.verify('SHA256', sig, data)
+      @key.dsa_verify_asn1(data, sig)
     rescue OpenSSL::PKey::PKeyError
       false
     end
