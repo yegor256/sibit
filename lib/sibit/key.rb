@@ -28,13 +28,18 @@ class Sibit
     end
 
     def initialize(privkey)
-      @privkey = privkey
+      @network = :mainnet
       @compressed = true
-      @key = build(privkey)
+      @privkey = decode(privkey)
+      @key = build(@privkey)
     end
 
     def priv
       @privkey
+    end
+
+    def network
+      @network
     end
 
     def pub
@@ -44,7 +49,8 @@ class Sibit
 
     def addr
       hash = hash160(pub)
-      versioned = "00#{hash}"
+      prefix = @network == :mainnet ? '00' : '6f'
+      versioned = "#{prefix}#{hash}"
       checksum = Base58.new(versioned).check
       Base58.new(versioned + checksum).encode
     end
@@ -81,6 +87,16 @@ class Sibit
     def hash160(hex)
       bytes = [hex].pack('H*')
       Digest::RMD160.hexdigest(Digest::SHA256.digest(bytes))
+    end
+
+    def decode(key)
+      return key if key.length == 64 && key.match?(/\A[0-9a-f]+\z/i)
+      raw = Base58.new(key).decode
+      version = raw[0, 2]
+      @network = version == '80' ? :mainnet : :testnet
+      body = raw[2..-9]
+      @compressed = body.length == 66 && body.end_with?('01')
+      @compressed ? body[0, 64] : body
     end
   end
 end

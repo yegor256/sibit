@@ -25,8 +25,8 @@ class Sibit
       @bytes = [hex].pack('H*').bytes
     end
 
-    def address
-      return p2pkh_address if p2pkh?
+    def address(network = :mainnet)
+      return p2pkh_address(network) if p2pkh?
       nil
     end
 
@@ -46,10 +46,11 @@ class Sibit
 
     private
 
-    def p2pkh_address
+    def p2pkh_address(network)
       h = hash160
       return nil unless h
-      versioned = "00#{h}"
+      prefix = network == :mainnet ? '00' : '6f'
+      versioned = "#{prefix}#{h}"
       checksum = Base58.new(versioned).check
       Base58.new(versioned + checksum).encode
     end

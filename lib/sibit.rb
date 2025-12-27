@@ -103,7 +103,9 @@ class Sibit
   # +change+: the address where the change has to be sent to
   def pay(amount, fee, sources, target, change, skip_utxo: [])
     p = price('USD')
-    sources = sources.to_h { |k| [Key.new(k).addr, k] }
+    keys = sources.map { |k| Key.new(k) }
+    network = keys.first&.network || :mainnet
+    sources = keys.to_h { |k| [k.addr, k.priv] }
     satoshi = satoshi(amount)
     builder = TxBuilder.new
     unspent = 0
@@ -121,7 +123,7 @@ class Sibit
         i.prev_out(utxo[:hash])
         i.prev_out_index(utxo[:index])
         i.prev_out_script = script_hex(utxo[:script])
-        address = Script.new(script_hex(utxo[:script])).address
+        address = Script.new(script_hex(utxo[:script])).address(network)
         k = sources[address]
         raise Error, "UTXO arrived to #{address} is incorrect" unless k
         i.signature_key(key(k))
