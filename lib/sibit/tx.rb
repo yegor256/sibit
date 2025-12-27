@@ -11,8 +11,6 @@ require_relative 'script'
 
 # Sibit main class.
 class Sibit
-  MIN_TX_FEE = 10_000
-
   # Bitcoin Transaction structure.
   #
   # Author:: Yegor Bugayenko (yegor256@gmail.com)

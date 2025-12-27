@@ -18,6 +18,9 @@ require_relative 'sibit/version'
 # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
 # License:: MIT
 class Sibit
+  # Minimium fee we must pay for transaction processing:
+  MIN_SATOSHI_PER_BYTE = 0.1
+
   # Constructor.
   #
   # You may provide the log you want to see the messages in. If you don't
@@ -143,7 +146,7 @@ class Sibit
     tx = builder.tx(
       input_value: unspent,
       leave_fee: true,
-      extra_fee: [f, MIN_TX_FEE].max,
+      extra_fee: [f, (size * MIN_SATOSHI_PER_BYTE).to_i].max,
       change_address: change
     )
     left = unspent - tx.outputs.sum(&:value)
@@ -152,7 +155,7 @@ class Sibit
     #{tx.inputs.map { |i| " in: #{i.prev_out.unpack1('H*')}:#{i.prev_out_index}" }.join("\n    ")}
   #{tx.out.count} output#{'s' if tx.out.count > 1}:
     #{tx.outputs.map { |o| "out: #{o.script_hex} / #{num(o.value, p)}" }.join("\n    ")}
-  Min tx fee: #{num(MIN_TX_FEE, p)}
+  Min fee: #{num(MIN_SATOSHI_PER_BYTE, p)} s/byte
   Fee requested: #{num(f, p)} as \"#{fee}\"
   Fee actually paid: #{num(left, p)}
   Tx size: #{size} bytes
