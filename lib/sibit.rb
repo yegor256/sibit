@@ -100,7 +100,7 @@ class Sibit
   # +change+: the address where the change has to be sent to
   def pay(amount, fee, sources, target, change, skip_utxo: [])
     p = price('USD')
-    sources = sources.map { |k| [Key.new(k).addr, k] }.to_h
+    sources = sources.to_h { |k| [Key.new(k).addr, k] }
     satoshi = satoshi(amount)
     builder = TxBuilder.new
     unspent = 0

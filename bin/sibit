@@ -63,33 +63,33 @@ Options are:"
     raise e.message
   end
 
+raise 'Try --help' if opts.arguments.empty?
+
 begin
-  raise 'Try --help' if opts.arguments.empty?
   log = opts[:verbose] ? Loog::VERBOSE : Loog::NULL
   http = opts[:proxy] ? Sibit::HttpProxy.new(opts[:proxy]) : Sibit::Http.new
   apis = opts[:api].map(&:downcase).map do |a|
-    api = nil
     case a
     when 'blockchain'
-      api = Sibit::Blockchain.new(http: http, log: log)
+      Sibit::Blockchain.new(http: http, log: log)
     when 'btc'
-      api = Sibit::Btc.new(http: http, log: log)
+      Sibit::Btc.new(http: http, log: log)
     when 'bitcoinchain'
-      api = Sibit::Bitcoinchain.new(http: http, log: log)
+      Sibit::Bitcoinchain.new(http: http, log: log)
     when 'blockchair'
-      api = Sibit::Blockchair.new(http: http, log: log)
+      Sibit::Blockchair.new(http: http, log: log)
     when 'cex'
-      api = Sibit::Cex.new(http: http, log: log)
+      Sibit::Cex.new(http: http, log: log)
     when 'fake'
-      api = Sibit::Fake.new
+      Sibit::Fake.new
     else
       raise Sibit::Error, "Unknown API \"#{a}\""
     end
-    api = Sibit::Dry.new(api, log: log) if opts[:dry]
-    api = RetriableProxy.for_object(api, on: Sibit::Error) if opts[:attempts] > 1
-    api
   end
-  sibit = Sibit.new(log: log, api: Sibit::FirstOf.new(apis, log: log, verbose: true))
+  api = Sibit::FirstOf.new(apis, log: log, verbose: true)
+  api = Sibit::Dry.new(api, log: log) if opts[:dry]
+  api = RetriableProxy.for_object(api, on: Sibit::Error) if opts[:attempts] > 1
+  sibit = Sibit.new(log: log, api: api)
   case opts.arguments[0]
   when 'price'
     puts sibit.price
