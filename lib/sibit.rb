@@ -4,13 +4,13 @@
 # SPDX-License-Identifier: MIT
 
 require 'loog'
-require_relative 'sibit/version'
-require_relative 'sibit/blockchain'
 require_relative 'sibit/bitcoin/base58'
 require_relative 'sibit/bitcoin/key'
 require_relative 'sibit/bitcoin/script'
 require_relative 'sibit/bitcoin/tx'
 require_relative 'sibit/bitcoin/txbuilder'
+require_relative 'sibit/blockchain'
+require_relative 'sibit/version'
 # Sibit main class.
 #
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
@@ -178,17 +178,14 @@ class Sibit
     raise Error, "The max number must be above zero: #{max}" if max < 1
     block = start
     count = 0
-    wrong = []
     json = {}
     loop do
       json = @api.block(block)
       if json[:orphan]
         steps = 4
         @log.info("Orphan block found at #{block}, moving #{steps} steps back...")
-        wrong << block
         steps.times do
           block = json[:previous]
-          wrong << block
           @log.info("Moved back to #{block}")
           json = @api.block(block)
         end
@@ -225,7 +222,7 @@ in block #{block} (by #{json[:provider]})")
         @log.info("The block #{json[:hash]} is definitely the end of Blockchain, we stop.")
         break
       end
-      if count > max
+      if count >= max
         @log.info("Too many blocks (#{count}) in one go, let's get back to it next time")
         break
       end
