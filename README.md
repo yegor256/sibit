@@ -7,7 +7,6 @@
 [![rake](https://github.com/yegor256/sibit/actions/workflows/rake.yml/badge.svg)](https://github.com/yegor256/sibit/actions/workflows/rake.yml)
 [![PDD status](https://www.0pdd.com/svg?name=yegor256/sibit)](https://www.0pdd.com/p?name=yegor256/sibit)
 [![Gem Version](https://badge.fury.io/rb/sibit.svg)](https://badge.fury.io/rb/sibit)
-[![Maintainability](https://api.codeclimate.com/v1/badges/74c909f06d4afa0d8001/maintainability)](https://codeclimate.com/github/yegor256/sibit/maintainability)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/yegor256/takes/sibit/master/LICENSE.txt)
 [![Test Coverage](https://img.shields.io/codecov/c/github/yegor256/sibit.svg)](https://codecov.io/github/yegor256/sibit?branch=master)
 [![Hits-of-Code](https://hitsofcode.com/github/yegor256/sibit)](https://hitsofcode.com/view/github/yegor256/sibit)
