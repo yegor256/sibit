@@ -155,7 +155,7 @@ class Sibit
     #{tx.inputs.map { |i| " in: #{i.prev_out.unpack1('H*')}:#{i.prev_out_index}" }.join("\n    ")}
   #{tx.out.count} output#{'s' if tx.out.count > 1}:
     #{tx.outputs.map { |o| "out: #{o.script_hex} / #{num(o.value, p)}" }.join("\n    ")}
-  Min fee: #{num(MIN_SATOSHI_PER_BYTE, p)} s/byte
+  Min fee: #{num(MIN_SATOSHI_PER_BYTE, p)} /byte
   Fee requested: #{num(f, p)} as \"#{fee}\"
   Fee actually paid: #{num(left, p)}
   Tx size: #{size} bytes
@@ -276,7 +276,7 @@ in block #{block} (by #{json[:provider]})")
     sat = fees[fee.to_sym]
     raise Error, "Can't understand the fee: #{fee.inspect}" if sat.nil?
     f = mul * sat * size
-    @log.debug("Fee calculated as #{mul} * #{sat} * #{size} = #{f}")
+    @log.debug("Fee calculated as #{mul} * #{sat} * #{size} = #{f}s")
     f
   end
 
