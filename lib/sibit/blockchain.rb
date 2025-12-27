@@ -79,8 +79,12 @@ class Sibit::Blockchain
     json = Sibit::Json.new(http: @http, log: @log).get(
       Iri.new('https://api.blockchain.info/mempool/fees')
     )
-    @log.debug("Current recommended Bitcoin fees: \
-    #{json['regular']}/#{json['priority']}/#{json['limits']['max']} sat/byte")
+    @log.debug(
+      [
+        'Currently recommended Bitcoin fees: ',
+        "#{json['regular']}/#{json['priority']}/#{json['limits']['max']} sat/byte"
+      ].join
+    )
     {
       S: json['regular'] / 3,
       M: json['regular'],
