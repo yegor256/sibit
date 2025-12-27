@@ -126,7 +126,7 @@ Options are:"
     raise 'Change argument is required' if change.nil?
     puts sibit.pay(
       amount, fee,
-      sources.split(',').map { |p| p.split(':') }.to_h,
+      sources.split(','),
       target, change,
       skip_utxo: opts['skip-utxo']
     )

@@ -94,12 +94,12 @@ class Sibit
   #
   # +amount+: the amount either in satoshis or ending with 'BTC', like '0.7BTC'
   # +fee+: the miners fee in satoshis (as integer) or S/M/X/XL as a string
-  # +sources+: the hashmap of bitcoin addresses where the coins are now, with
-  # their addresses as keys and private keys as values
+  # +sources+: the list of private bitcoin keys where the coins are now
   # +target+: the target address to send to
   # +change+: the address where the change has to be sent to
   def pay(amount, fee, sources, target, change, skip_utxo: [])
     p = price('USD')
+    sources = sources.map { |k| [Bitcoin::Key.new(k).addr, k] }.to_h
     satoshi = satoshi(amount)
     builder = Bitcoin::TxBuilder.new
     unspent = 0
