@@ -132,11 +132,14 @@ class Sibit
     if unspent < satoshi
       raise Error, "Not enough funds to send #{num(satoshi, p)}, only #{num(unspent, p)} left"
     end
-    builder.output(satoshi, target)
     f = mfee(fee, size)
-    satoshi += f if f.negative?
+    if f.negative?
+      satoshi += f
+      f = -f
+    end
     raise Error, "The fee #{f.abs} covers the entire amount" if satoshi.zero?
     raise Error, "The fee #{f.abs} is bigger than the amount #{satoshi}" if satoshi.negative?
+    builder.output(satoshi, target)
     tx = builder.tx(
       input_value: unspent,
       leave_fee: true,
@@ -256,7 +259,7 @@ in block #{block} (by #{json[:provider]})")
 
   # Calculates a fee in satoshi for the transaction of the specified size.
   # The +fee+ argument could be a number in satoshi, in which case it will
-  # be returned as is, or a string like "XL" or "S", in which case the
+  # be returned as is, or a string like "XL" or "S-", in which case the
   # fee will be calculated using the +size+ argument (which is the size
   # of the transaction in bytes).
   def mfee(fee, size)
@@ -269,7 +272,9 @@ in block #{block} (by #{json[:provider]})")
     end
     sat = fees[fee.to_sym]
     raise Error, "Can't understand the fee: #{fee.inspect}" if sat.nil?
-    mul * sat * size
+    f = mul * sat * size
+    @log.debug("Fee calculated as #{mul} * #{sat} * #{size} = #{f}")
+    f
   end
 
   # Make key from private key string in Hash160.
