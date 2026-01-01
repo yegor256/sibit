@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# SPDX-FileCopyrightText: Copyright (c) 2019-2025 Yegor Bugayenko
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
 require_relative 'key'
@@ -14,7 +14,7 @@ class Sibit
   # building and signing Bitcoin transactions.
   #
   # Author:: Yegor Bugayenko (yegor256@gmail.com)
-  # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
+  # Copyright:: Copyright (c) 2019-2026 Yegor Bugayenko
   # License:: MIT
   class TxBuilder
     def initialize
@@ -54,7 +54,7 @@ class Sibit
     # Input builder for collecting input parameters.
     #
     # Author:: Yegor Bugayenko (yegor256@gmail.com)
-    # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
+    # Copyright:: Copyright (c) 2019-2026 Yegor Bugayenko
     # License:: MIT
     class Input
       attr_reader :prev_out_hash, :prev_out_idx, :script, :key
@@ -79,7 +79,7 @@ class Sibit
     # Wrapper for built transaction with convenience methods.
     #
     # Author:: Yegor Bugayenko (yegor256@gmail.com)
-    # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
+    # Copyright:: Copyright (c) 2019-2026 Yegor Bugayenko
     # License:: MIT
     class Built
       def initialize(txn, inputs, outputs)
@@ -115,7 +115,7 @@ class Sibit
       # Wrapper for payload with hex conversion.
       #
       # Author:: Yegor Bugayenko (yegor256@gmail.com)
-      # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
+      # Copyright:: Copyright (c) 2019-2026 Yegor Bugayenko
       # License:: MIT
       class Payload
         def initialize(bytes)

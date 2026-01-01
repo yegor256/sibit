@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# SPDX-FileCopyrightText: Copyright (c) 2019-2025 Yegor Bugayenko
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
 require 'json'
@@ -14,7 +14,7 @@ require_relative 'test__helper'
 
 # Sibit.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
-# Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
+# Copyright:: Copyright (c) 2019-2026 Yegor Bugayenko
 # License:: MIT
 class TestSibit < Minitest::Test
   def test_fetch_current_price

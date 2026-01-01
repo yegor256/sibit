@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# SPDX-FileCopyrightText: Copyright (c) 2019-2025 Yegor Bugayenko
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
 require 'json'
@@ -13,7 +13,7 @@ require_relative 'test__helper'
 
 # Regtest integration tests using Docker.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
-# Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
+# Copyright:: Copyright (c) 2019-2026 Yegor Bugayenko
 # License:: MIT
 class TestRegtest < Minitest::Test
   def test_sends_payment_in_regtest
@@ -108,7 +108,7 @@ class TestRegtest < Minitest::Test
   # Regtest API adapter.
   #
   # Author:: Yegor Bugayenko (yegor256@gmail.com)
-  # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
+  # Copyright:: Copyright (c) 2019-2026 Yegor Bugayenko
   # License:: MIT
   class RegtestApi
     def initialize(host, port, wallet)

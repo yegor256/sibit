@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# SPDX-FileCopyrightText: Copyright (c) 2019-2025 Yegor Bugayenko
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
 require 'iri'
@@ -18,7 +18,7 @@ require_relative 'version'
 # https://www.blockchain.com/api/blockchain_api
 #
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
-# Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
+# Copyright:: Copyright (c) 2019-2026 Yegor Bugayenko
 # License:: MIT
 class Sibit::Blockchain
   # Constructor.

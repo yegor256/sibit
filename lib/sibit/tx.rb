@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# SPDX-FileCopyrightText: Copyright (c) 2019-2025 Yegor Bugayenko
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
 require 'digest'
@@ -14,7 +14,7 @@ class Sibit
   # Bitcoin Transaction structure.
   #
   # Author:: Yegor Bugayenko (yegor256@gmail.com)
-  # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
+  # Copyright:: Copyright (c) 2019-2026 Yegor Bugayenko
   # License:: MIT
   class Tx
     SIGHASH_ALL = 0x01
@@ -60,7 +60,7 @@ class Sibit
     # Transaction input.
     #
     # Author:: Yegor Bugayenko (yegor256@gmail.com)
-    # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
+    # Copyright:: Copyright (c) 2019-2026 Yegor Bugayenko
     # License:: MIT
     class Input
       attr_reader :hash, :index, :prev_script, :key
@@ -86,7 +86,7 @@ class Sibit
     # Transaction output.
     #
     # Author:: Yegor Bugayenko (yegor256@gmail.com)
-    # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
+    # Copyright:: Copyright (c) 2019-2026 Yegor Bugayenko
     # License:: MIT
     class Output
       attr_reader :value

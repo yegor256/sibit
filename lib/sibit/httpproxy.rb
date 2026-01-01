@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# SPDX-FileCopyrightText: Copyright (c) 2019-2025 Yegor Bugayenko
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
 require 'net/http'
@@ -12,7 +12,7 @@ class Sibit
   # Accepts proxy address in format: host:port or user:password@host:port
   #
   # Author:: Yegor Bugayenko (yegor256@gmail.com)
-  # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
+  # Copyright:: Copyright (c) 2019-2026 Yegor Bugayenko
   # License:: MIT
   class HttpProxy
     def initialize(addr)

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# SPDX-FileCopyrightText: Copyright (c) 2019-2025 Yegor Bugayenko
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
 require_relative 'error'
@@ -12,7 +12,7 @@ class Sibit
   # Decodes Bech32/Bech32m addresses (bc1...) to witness programs.
   #
   # Author:: Yegor Bugayenko (yegor256@gmail.com)
-  # Copyright:: Copyright (c) 2019-2025 Yegor Bugayenko
+  # Copyright:: Copyright (c) 2019-2026 Yegor Bugayenko
   # License:: MIT
   class Bech32
     CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l'
