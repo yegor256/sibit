@@ -39,7 +39,8 @@ class Sibit
           hash: inp.prev_out_hash,
           index: inp.prev_out_idx,
           script: inp.script,
-          key: inp.key
+          key: inp.key,
+          value: inp.amount
         )
       end
       total_out = @outputs.sum { |o| o[:value] }
@@ -57,7 +58,7 @@ class Sibit
     # Copyright:: Copyright (c) 2019-2026 Yegor Bugayenko
     # License:: MIT
     class Input
-      attr_reader :prev_out_hash, :prev_out_idx, :script, :key
+      attr_reader :prev_out_hash, :prev_out_idx, :script, :key, :amount
 
       def prev_out(hash)
         @prev_out_hash = hash
@@ -69,6 +70,10 @@ class Sibit
 
       def prev_out_script=(scr)
         @script = scr
+      end
+
+      def prev_out_value(val)
+        @amount = val
       end
 
       def signature_key(key)

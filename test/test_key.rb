@@ -23,10 +23,10 @@ class TestKey < Minitest::Test
     assert_equal(pvt, key.priv, 'private key does not match')
   end
 
-  def test_derives_correct_address
+  def test_derives_correct_segwit_address
     pvt = 'fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2'
     key = Sibit::Key.new(pvt)
-    assert_equal('1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi', key.addr, 'address does not match')
+    assert_equal('bc1qcj9pwdant20em83mvf9fzrc7ytm7szau5ysh9x', key.addr, 'segwit address mismatch')
   end
 
   def test_signs_and_verifies
@@ -71,13 +71,25 @@ class TestKey < Minitest::Test
     refute_equal(first.priv, second.priv, 'generated keys are not unique')
   end
 
-  def test_address_starts_with_one
+  def test_segwit_address_starts_with_bc1q
     key = Sibit::Key.generate
-    assert(key.addr.start_with?('1'), 'mainnet address should start with 1')
+    assert(key.addr.start_with?('bc1q'), 'mainnet P2WPKH address must start with bc1q')
   end
 
   def test_public_key_length_is_sixty_six
     key = Sibit::Key.generate
     assert_equal(66, key.pub.length, 'compressed pubkey should be 66 hex chars')
+  end
+
+  def test_regtest_address_starts_with_bcrt1q
+    key = Sibit::Key.generate(network: :regtest)
+    assert(key.addr.start_with?('bcrt1q'), 'regtest P2WPKH address must start with bcrt1q')
+  end
+
+  def test_network_override_from_wif
+    pvt = 'fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2'
+    key = Sibit::Key.new(pvt, network: :regtest)
+    assert_equal(:regtest, key.network, 'network override not applied')
+    assert(key.addr.start_with?('bcrt1q'), 'regtest address must start with bcrt1q')
   end
 end

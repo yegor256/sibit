@@ -7,9 +7,9 @@ require_relative 'error'
 
 # Sibit main class.
 class Sibit
-  # Bech32 decoding for SegWit addresses.
+  # Bech32 encoding and decoding for SegWit addresses.
   #
-  # Decodes Bech32/Bech32m addresses (bc1...) to witness programs.
+  # Encodes witness programs to Bech32 addresses (bc1...) and decodes them back.
   #
   # Author:: Yegor Bugayenko (yegor256@gmail.com)
   # Copyright:: Copyright (c) 2019-2026 Yegor Bugayenko
@@ -17,6 +17,50 @@ class Sibit
   class Bech32
     CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l'
     GENERATOR = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3].freeze
+
+    def self.encode(hrp, ver, prog)
+      bytes = [prog].pack('H*').bytes
+      data = [ver] + bits(bytes, 8, 5, true)
+      chk = checksum(hrp, data)
+      "#{hrp}1#{(data + chk).map { |d| CHARSET[d] }.join}"
+    end
+
+    def self.checksum(hrp, data)
+      values = expanded(hrp) + data + [0, 0, 0, 0, 0, 0]
+      poly = pm(values) ^ 1
+      (0..5).map { |i| (poly >> (5 * (5 - i))) & 31 }
+    end
+
+    def self.expanded(hrp)
+      hrp.chars.map { |c| c.ord >> 5 } + [0] + hrp.chars.map { |c| c.ord & 31 }
+    end
+
+    def self.pm(values)
+      chk = 1
+      values.each do |v|
+        top = chk >> 25
+        chk = ((chk & 0x1ffffff) << 5) ^ v
+        5.times { |i| chk ^= GENERATOR[i] if (top >> i).allbits?(1) }
+      end
+      chk
+    end
+
+    def self.bits(data, frombits, tobits, pad)
+      acc = 0
+      num = 0
+      result = []
+      maxv = (1 << tobits) - 1
+      data.each do |v|
+        acc = (acc << frombits) | v
+        num += frombits
+        while num >= tobits
+          num -= tobits
+          result << ((acc >> num) & maxv)
+        end
+      end
+      result << ((acc << (tobits - num)) & maxv) if pad && num.positive?
+      result
+    end
 
     def initialize(addr)
       @addr = addr.downcase

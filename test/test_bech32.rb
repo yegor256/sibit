@@ -44,4 +44,16 @@ class TestBech32 < Minitest::Test
     bech = Sibit::Bech32.new('bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3tb')
     assert_raises(Sibit::Error) { bech.witness }
   end
+
+  def test_encodes_witness_to_mainnet_address
+    prog = '751e76e8199196d454941c45d1b3a323f1433bd6'
+    addr = Sibit::Bech32.encode('bc', 0, prog)
+    assert_equal('bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4', addr, 'encoded address mismatch')
+  end
+
+  def test_encodes_witness_to_testnet_address
+    prog = '751e76e8199196d454941c45d1b3a323f1433bd6'
+    addr = Sibit::Bech32.encode('tb', 0, prog)
+    assert(addr.start_with?('tb1q'), 'testnet address must start with tb1q')
+  end
 end

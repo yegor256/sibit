@@ -76,4 +76,28 @@ class TestScript < Minitest::Test
     parsed = Sibit::Script.new('')
     refute_predicate(parsed, :p2pkh?, 'empty script should not be P2PKH')
   end
+
+  def test_parses_p2wpkh_script
+    script = '0014c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc'
+    parsed = Sibit::Script.new(script)
+    assert_predicate(parsed, :p2wpkh?, 'script is not recognized as P2WPKH')
+  end
+
+  def test_extracts_hash160_from_p2wpkh
+    script = '0014c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc'
+    parsed = Sibit::Script.new(script)
+    assert_equal('c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc', parsed.hash160, 'hash160 mismatch')
+  end
+
+  def test_extracts_segwit_address_from_p2wpkh
+    script = '0014c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc'
+    parsed = Sibit::Script.new(script)
+    assert(parsed.address.start_with?('bc1q'), 'P2WPKH address must start with bc1q')
+  end
+
+  def test_rejects_wrong_witness_version
+    script = '0114c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc'
+    parsed = Sibit::Script.new(script)
+    refute_predicate(parsed, :p2wpkh?, 'wrong witness version should not be P2WPKH')
+  end
 end

@@ -30,7 +30,7 @@ Minitest/EmptyLineBeforeAssertionMethods:
 Layout/MultilineMethodCallIndentation:
   Enabled: false
 Metrics/ParameterLists:
-  Max: 6
+  Max: 7
 Metrics/ClassLength:
   Max: 250
 Metrics/AbcSize:

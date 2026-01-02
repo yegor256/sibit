@@ -6,6 +6,7 @@
 require 'digest'
 require 'openssl'
 require_relative 'base58'
+require_relative 'bech32'
 
 # Sibit main class.
 class Sibit
@@ -23,13 +24,14 @@ class Sibit
 
     attr_reader :network
 
-    def self.generate
+    def self.generate(network: :mainnet)
       key = OpenSSL::PKey::EC.generate('secp256k1')
       pvt = key.private_key.to_s(16).rjust(64, '0').downcase
-      new(pvt)
+      new(pvt, network: network)
     end
 
-    def initialize(privkey)
+    def initialize(privkey, network: nil)
+      @override = network
       @network = :mainnet
       @compressed = true
       @privkey = decode(privkey)
@@ -46,11 +48,8 @@ class Sibit
     end
 
     def addr
-      hash = hash160(pub)
-      prefix = @network == :mainnet ? '00' : '6f'
-      versioned = "#{prefix}#{hash}"
-      checksum = Base58.new(versioned).check
-      Base58.new(versioned + checksum).encode
+      hrp = { mainnet: 'bc', testnet: 'tb', regtest: 'bcrt' }[@network]
+      Bech32.encode(hrp, 0, hash160(pub))
     end
 
     def sign(data)
@@ -88,10 +87,14 @@ class Sibit
     end
 
     def decode(key)
-      return key if key.length == 64 && key.match?(/\A[0-9a-f]+\z/i)
+      if key.length == 64 && key.match?(/\A[0-9a-f]+\z/i)
+        @network = @override || :mainnet
+        return key
+      end
       raw = Base58.new(key).decode
       version = raw[0, 2]
-      @network = version == '80' ? :mainnet : :testnet
+      detected = version == '80' ? :mainnet : :testnet
+      @network = @override || detected
       body = raw[2..-9]
       @compressed = body.length == 66 && body.end_with?('01')
       @compressed ? body[0, 64] : body

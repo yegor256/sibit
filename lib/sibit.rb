@@ -102,9 +102,10 @@ class Sibit
   # +sources+: the list of private bitcoin keys where the coins are now
   # +target+: the target address to send to
   # +change+: the address where the change has to be sent to
-  def pay(amount, fee, sources, target, change, skip_utxo: [])
+  # +network+: optional network override (:mainnet, :testnet, :regtest)
+  def pay(amount, fee, sources, target, change, skip_utxo: [], network: nil)
     p = price('USD')
-    keys = sources.map { |k| Key.new(k) }
+    keys = sources.map { |k| Key.new(k, network: network) }
     network = keys.first&.network || :mainnet
     sources = keys.to_h { |k| [k.addr, k.priv] }
     satoshi = satoshi(amount)
@@ -128,6 +129,7 @@ class Sibit
         i.prev_out(utxo[:hash])
         i.prev_out_index(utxo[:index])
         i.prev_out_script = script_hex(utxo[:script])
+        i.prev_out_value(utxo[:value])
         address = Script.new(script_hex(utxo[:script])).address(network)
         k = sources[address]
         raise Error, "UTXO arrived to #{address} is incorrect" unless k

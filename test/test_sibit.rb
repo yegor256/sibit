@@ -45,14 +45,12 @@ class TestSibit < Minitest::Test
     refute_includes(strio.string, key)
   end
 
-  def test_create_address
+  def test_creates_segwit_address
     sibit = Sibit.new(api: Sibit::Fake.new)
     pkey = sibit.generate
-    puts "key: #{pkey}"
     address = sibit.create(pkey)
-    puts "address: #{address}"
     refute_nil(address)
-    assert_match(/^1[0-9a-zA-Z]+$/, address)
+    assert_match(/^bc1q[0-9a-z]+$/, address, 'P2WPKH address must match bech32')
     assert_equal(address, sibit.create(pkey))
   end
 
@@ -89,7 +87,7 @@ class TestSibit < Minitest::Test
           tx_hash: 'fc8fb1a526aef220b54a66bbb3e0549bf34db4f25e1aebc3feb87e86d341e65d',
           tx_hash_big_endian: '5de641d3867eb8fec3eb1a5ef2b44df39b54e0b3bb664ab520f2ae26a5b18ffc',
           tx_output_n: 0,
-          script: '76a914c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc88ac',
+          script: '0014c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc',
           confirmations: 1,
           value: 100_000
         }
@@ -97,7 +95,7 @@ class TestSibit < Minitest::Test
     }
     stub_request(
       :get,
-      'https://blockchain.info/unspent?active=1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi&limit=1000'
+      'https://blockchain.info/unspent?active=bc1qcj9pwdant20em83mvf9fzrc7ytm7szau5ysh9x&limit=1000'
     ).to_return(body: JSON.pretty_generate(json))
     stub_request(:post, 'https://blockchain.info/pushtx').to_return(status: 200)
     sibit = Sibit.new(api: Sibit::FirstOf.new([Sibit::Blockchain.new]))
@@ -125,7 +123,7 @@ class TestSibit < Minitest::Test
           tx_hash: 'fc8fb1a526aef220b54a66bbb3e0549bf34db4f25e1aebc3feb87e86d341e65d',
           tx_hash_big_endian: '5de641d3867eb8fec3eb1a5ef2b44df39b54e0b3bb664ab520f2ae26a5b18ffc',
           tx_output_n: 0,
-          script: '76a914c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc88ac',
+          script: '0014c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc',
           confirmations: 1,
           value: 100_000
         }
@@ -133,7 +131,7 @@ class TestSibit < Minitest::Test
     }
     stub_request(
       :get,
-      'https://blockchain.info/unspent?active=1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi&limit=1000'
+      'https://blockchain.info/unspent?active=bc1qcj9pwdant20em83mvf9fzrc7ytm7szau5ysh9x&limit=1000'
     ).to_return(body: JSON.pretty_generate(json))
     stub_request(:post, 'https://blockchain.info/pushtx').to_return(status: 200)
     sibit = Sibit.new(api: Sibit::FirstOf.new([Sibit::Blockchain.new]))
@@ -156,7 +154,7 @@ class TestSibit < Minitest::Test
     }
     stub_request(
       :get,
-      'https://blockchain.info/unspent?active=1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi&limit=1000'
+      'https://blockchain.info/unspent?active=bc1qcj9pwdant20em83mvf9fzrc7ytm7szau5ysh9x&limit=1000'
     ).to_return(body: JSON.pretty_generate(json))
     sibit = Sibit.new(api: Sibit::Blockchain.new)
     target = sibit.create(sibit.generate)
