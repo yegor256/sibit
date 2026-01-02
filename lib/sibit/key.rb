@@ -47,9 +47,17 @@ class Sibit
       point.to_octet_string(@compressed ? :compressed : :uncompressed).unpack1('H*')
     end
 
-    def addr
+    def bech32
       hrp = { mainnet: 'bc', testnet: 'tb', regtest: 'bcrt' }[@network]
       Bech32.encode(hrp, 0, hash160(pub))
+    end
+
+    def base58
+      hash = hash160(pub)
+      prefix = @network == :mainnet ? '00' : '6f'
+      versioned = "#{prefix}#{hash}"
+      checksum = Base58.new(versioned).check
+      Base58.new(versioned + checksum).encode
     end
 
     def sign(data)

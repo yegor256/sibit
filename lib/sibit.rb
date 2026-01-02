@@ -59,7 +59,7 @@ class Sibit
   # Creates Bitcoin address using the private key in Hash160 format.
   def create(pvt)
     raise Error, 'Invalid private key (must be 64 chars)' unless /^[0-9a-f]{64}$/.match?(pvt)
-    Key.new(pvt).addr
+    Key.new(pvt).bech32
   end
 
   # Gets the balance of the address, in satoshi.
@@ -107,7 +107,7 @@ class Sibit
     p = price('USD')
     keys = sources.map { |k| Key.new(k, network: network) }
     network = keys.first&.network || :mainnet
-    sources = keys.to_h { |k| [k.addr, k.priv] }
+    sources = keys.to_h { |k| [k.bech32, k.priv] }
     satoshi = satoshi(amount)
     builder = TxBuilder.new
     unspent = 0
