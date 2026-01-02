@@ -58,6 +58,7 @@ class Sibit
 
   # Creates Bitcoin address using the private key in Hash160 format.
   def create(pvt)
+    raise Error, 'Invalid private key (must be 64 chars)' unless /^[0-9a-f]{64}$/.match?(pvt)
     Key.new(pvt).addr
   end
 
