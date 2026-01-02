@@ -111,7 +111,7 @@ begin
   when 'create'
     pvt = opts.arguments[1]
     raise 'Private key argument is required' if pvt.nil?
-    log.debug("Private key provided: #{pvt.ellipsized(8)}")
+    log.debug("Private key provided: #{pvt.ellipsized(8).inspect}")
     log.info(sibit.create(pvt))
   when 'balance'
     address = opts.arguments[1]
