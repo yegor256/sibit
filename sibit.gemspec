@@ -32,6 +32,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'backtrace', '~> 0.3'
   s.add_dependency 'decoor', '~> 0.1'
   s.add_dependency 'elapsed', '~> 0.2'
+  s.add_dependency 'ellipsized', '~> 0.3'
   s.add_dependency 'iri', '~> 0.5'
   s.add_dependency 'json', '~> 2.18'
   s.add_dependency 'loog', '~> 0.6'
