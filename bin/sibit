@@ -10,7 +10,7 @@ require 'backtrace'
 require 'ellipsized'
 require 'loog'
 require 'retriable_proxy'
-require 'slop'
+require 'thor'
 require_relative '../lib/sibit'
 require_relative '../lib/sibit/http'
 require_relative '../lib/sibit/httpproxy'
@@ -24,79 +24,30 @@ require_relative '../lib/sibit/fake'
 require_relative '../lib/sibit/firstof'
 require_relative '../lib/sibit/version'
 
-log = Loog::REGULAR
+# Command-line interface for Sibit.
+# Provides commands to interact with the Bitcoin network.
+class Bin < Thor
+  class_option :proxy, type: :string, desc: 'HTTPS proxy for all requests, e.g. "localhost:3128"'
+  class_option :attempts, type: :numeric, default: 1,
+                          desc: 'How many times should we try before failing'
+  class_option :dry, type: :boolean, default: false,
+                     desc: "Don't send a real payment, run in a read-only mode"
+  class_option :verbose, type: :boolean, default: false, desc: 'Print all possible debug messages'
+  class_option :api, type: :array, default: %w[blockchain btc bitcoinchain blockchair cex],
+                     desc: 'Ordered List of APIs to use, e.g. "blockchain,btc,bitcoinchain"'
 
-opts =
-  begin
-    Slop.parse(ARGV, strict: true, help: true) do |o|
-      o.banner = "Usage (#{Sibit::VERSION}): sibit [options] command [args]
-Commands are:
-  price:    Get current price of BTC in USD
-  fees:     Get currently recommended transaction fees
-  latest:   Get hash of the latest block
-  generate: Generate a new private key
-  create:   Create a public Bitcoin address from the key
-  balance:  Check the balance of the Bitcoin address
-  pay:      Send a new Bitcoin transaction
-Options are:"
-      o.string '--proxy', 'HTTPS proxy for all requests, e.g. "localhost:3128"'
-      o.integer(
-        '--attempts',
-        'How many times should we try before failing',
-        default: 1
-      )
-      o.bool '--dry', 'Don\'t send a real payment, run in a read-only mode'
-      o.bool '--help', 'Read this: https://github.com/yegor256/sibit' do
-        log.info(o)
-        exit
-      end
-      o.bool '--verbose', 'Print all possible debug messages'
-      o.array(
-        '--api',
-        'Ordered List of APIs to use, e.g. "eblockchain,btc,bitcoinchain"',
-        default: %w[blockchain btc bitcoinchain blockchair cex]
-      )
-      o.array(
-        '--skip-utxo',
-        'List of UTXTO that must be skipped while paying',
-        default: []
-      )
-    end
-  rescue Slop::Error => e
-    raise e.message
+  def self.exit_on_failure?
+    true
   end
 
-raise 'Try --help' if opts.arguments.empty?
-
-begin
-  log = Loog::VERBOSE if opts[:verbose]
-  http = opts[:proxy] ? Sibit::HttpProxy.new(opts[:proxy]) : Sibit::Http.new
-  apis = opts[:api].map(&:downcase).map do |a|
-    case a
-    when 'blockchain'
-      Sibit::Blockchain.new(http: http, log: log)
-    when 'btc'
-      Sibit::Btc.new(http: http, log: log)
-    when 'bitcoinchain'
-      Sibit::Bitcoinchain.new(http: http, log: log)
-    when 'blockchair'
-      Sibit::Blockchair.new(http: http, log: log)
-    when 'cex'
-      Sibit::Cex.new(http: http, log: log)
-    when 'fake'
-      Sibit::Fake.new
-    else
-      raise Sibit::Error, "Unknown API \"#{a}\""
-    end
+  desc 'price', 'Get current price of BTC in USD'
+  def price
+    log.info(client.price)
   end
-  api = Sibit::FirstOf.new(apis, log: log, verbose: true)
-  api = Sibit::Dry.new(api, log: log) if opts[:dry]
-  api = RetriableProxy.for_object(api, on: Sibit::Error) if opts[:attempts] > 1
-  sibit = Sibit.new(log: log, api: api)
-  case opts.arguments[0]
-  when 'price'
-    log.info(sibit.price)
-  when 'fees'
+
+  desc 'fees', 'Get currently recommended transaction fees'
+  def fees
+    sibit = client
     fees = sibit.fees
     text = %i[S M L XL].map do |m|
       sat = fees[m] * 250
@@ -104,45 +55,88 @@ begin
       "#{m}: #{sat}sat / $#{format('%<usd>.02f', usd: usd)}"
     end.join("\n")
     log.info(text)
-  when 'latest'
-    log.info(sibit.latest)
-  when 'generate'
-    log.info(sibit.generate)
-  when 'create'
-    pvt = opts.arguments[1]
-    raise 'Private key argument is required' if pvt.nil?
-    log.debug("Private key provided: #{pvt.ellipsized(8).inspect}")
-    log.info(sibit.create(pvt))
-  when 'balance'
-    address = opts.arguments[1]
-    raise 'Address argument is required' if address.nil?
-    log.info(sibit.balance(address))
-  when 'pay'
-    amount = opts.arguments[1]
-    raise 'Amount argument is required' if amount.nil?
+  end
+
+  desc 'latest', 'Get hash of the latest block'
+  def latest
+    log.info(client.latest)
+  end
+
+  desc 'generate', 'Generate a new private key'
+  def generate
+    log.info(client.generate)
+  end
+
+  desc 'create KEY', 'Create a public Bitcoin address from the private key'
+  def create(key)
+    log.debug("Private key provided: #{key.ellipsized(8).inspect}")
+    log.info(client.create(key))
+  end
+
+  desc 'balance ADDRESS', 'Check the balance of the Bitcoin address'
+  def balance(address)
+    log.info(client.balance(address))
+  end
+
+  desc 'pay AMOUNT FEE SOURCES TARGET CHANGE', 'Send a new Bitcoin transaction'
+  option :skip_utxo, type: :array, default: [],
+                     desc: 'List of UTXO that must be skipped while paying'
+  def pay(amount, fee, sources, target, change)
     amount = amount.to_i if /^[0-9]+$/.match?(amount)
-    fee = opts.arguments[2]
-    raise 'Miners fee argument is required' if fee.nil?
     fee = fee.to_i if /^[0-9]+$/.match?(fee)
-    sources = opts.arguments[3]
-    raise 'Addresses argument is required' if sources.nil?
-    target = opts.arguments[4]
-    raise 'Target argument is required' if target.nil?
-    change = opts.arguments[5]
-    raise 'Change argument is required' if change.nil?
     log.info(
-      sibit.pay(
+      client.pay(
         amount, fee,
         sources.split(','),
         target, change,
-        skip_utxo: opts['skip-utxo']
+        skip_utxo: options[:skip_utxo]
       )
     )
-  else
-    raise "Command #{opts.arguments[0]} is not supported"
   end
+
+  desc 'version', 'Print program version'
+  def version
+    log.info(Sibit::VERSION)
+  end
+
+  private
+
+  def log
+    @log ||= options[:verbose] ? Loog::VERBOSE : Loog::REGULAR
+  end
+
+  def client
+    http = options[:proxy] ? Sibit::HttpProxy.new(options[:proxy]) : Sibit::Http.new
+    apis = options[:api].flat_map { |a| a.split(',') }.map(&:downcase).map do |a|
+      case a
+      when 'blockchain'
+        Sibit::Blockchain.new(http: http, log: log)
+      when 'btc'
+        Sibit::Btc.new(http: http, log: log)
+      when 'bitcoinchain'
+        Sibit::Bitcoinchain.new(http: http, log: log)
+      when 'blockchair'
+        Sibit::Blockchair.new(http: http, log: log)
+      when 'cex'
+        Sibit::Cex.new(http: http, log: log)
+      when 'fake'
+        Sibit::Fake.new
+      else
+        raise Sibit::Error, "Unknown API \"#{a}\""
+      end
+    end
+    api = Sibit::FirstOf.new(apis, log: log, verbose: true)
+    api = Sibit::Dry.new(api, log: log) if options[:dry]
+    api = RetriableProxy.for_object(api, on: Sibit::Error) if options[:attempts] > 1
+    Sibit.new(log: log, api: api)
+  end
+end
+
+begin
+  Bin.start(ARGV)
 rescue StandardError => e
-  if opts[:verbose]
+  log = ARGV.include?('--verbose') ? Loog::VERBOSE : Loog::REGULAR
+  if ARGV.include?('--verbose')
     log.error(Backtrace.new(e))
   else
     log.error(e.message)

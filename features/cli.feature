@@ -6,7 +6,7 @@ Feature: Command Line Processing
   Scenario: Help can be printed
     When I run bin/sibit with "--help"
     Then Exit code is zero
-    And Stdout contains "--help"
+    And Stdout contains "Commands:"
 
   Scenario: Bitcoin price can be retrieved
     When I run bin/sibit with "price --attempts=4"

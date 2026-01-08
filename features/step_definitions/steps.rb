@@ -5,7 +5,6 @@
 
 require 'nokogiri'
 require 'tmpdir'
-require 'slop'
 require 'English'
 require_relative '../../lib/sibit'
 
@@ -14,10 +13,6 @@ Before do
   @dir = Dir.mktmpdir('test')
   FileUtils.mkdir_p(@dir)
   Dir.chdir(@dir)
-  @opts = Slop.parse ['-v', '-s', @dir] do |o|
-    o.bool '-v', '--verbose'
-    o.string '-s', '--source'
-  end
 end
 
 After do

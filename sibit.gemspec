@@ -38,5 +38,5 @@ Gem::Specification.new do |s|
   s.add_dependency 'loog', '~> 0.6'
   s.add_dependency 'openssl', '~> 3.0'
   s.add_dependency 'retriable_proxy', '~> 1.0'
-  s.add_dependency 'slop', '~> 4.6'
+  s.add_dependency 'thor', '~> 1.3'
 end
