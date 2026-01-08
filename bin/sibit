@@ -81,17 +81,20 @@ class Bin < Thor
   desc 'pay AMOUNT FEE SOURCES TARGET CHANGE', 'Send a new Bitcoin transaction'
   option :skip_utxo, type: :array, default: [],
                      desc: 'List of UTXO that must be skipped while paying'
+  option :yes, type: :boolean, default: false,
+               desc: 'Skip confirmation prompt and send the payment immediately'
   def pay(amount, fee, sources, target, change)
     amount = amount.to_i if /^[0-9]+$/.match?(amount)
     fee = fee.to_i if /^[0-9]+$/.match?(fee)
-    log.info(
-      client.pay(
-        amount, fee,
-        sources.split(','),
-        target, change,
-        skip_utxo: options[:skip_utxo]
-      )
-    )
+    args = [amount, fee, sources.split(','), target, change]
+    kwargs = { skip_utxo: options[:skip_utxo] }
+    unless options[:yes] || options[:dry]
+      client(dry: true).pay(*args, **kwargs)
+      print 'Do you confirm this payment? (yes/no): '
+      answer = $stdin.gets&.strip&.downcase
+      raise Sibit::Error, 'Payment cancelled by user' unless answer == 'yes'
+    end
+    log.info(client.pay(*args, **kwargs))
   end
 
   desc 'version', 'Print program version'
@@ -105,7 +108,7 @@ class Bin < Thor
     @log ||= options[:verbose] ? Loog::VERBOSE : Loog::REGULAR
   end
 
-  def client
+  def client(dry: false)
     http = options[:proxy] ? Sibit::HttpProxy.new(options[:proxy]) : Sibit::Http.new
     apis = options[:api].flat_map { |a| a.split(',') }.map(&:downcase).map do |a|
       case a
@@ -126,7 +129,7 @@ class Bin < Thor
       end
     end
     api = Sibit::FirstOf.new(apis, log: log, verbose: true)
-    api = Sibit::Dry.new(api, log: log) if options[:dry]
+    api = Sibit::Dry.new(api, log: log) if options[:dry] || dry
     api = RetriableProxy.for_object(api, on: Sibit::Error) if options[:attempts] > 1
     Sibit.new(log: log, api: api)
   end
