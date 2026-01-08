@@ -31,3 +31,8 @@ Feature: Command Line Processing
   Scenario: Bitcoin fees can be printed
     When I run bin/sibit with "fees --verbose --api=fake"
     Then Exit code is zero
+
+  Scenario: Pay help shows all options
+    When I run bin/sibit with "pay --help"
+    Then Exit code is zero
+    And Stdout contains "--skip-utxo"

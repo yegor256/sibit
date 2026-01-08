@@ -40,6 +40,11 @@ class Bin < Thor
     true
   end
 
+  def self.handle_argument_error(command, error, args, _arity)
+    raise error unless args.include?('--help') || args.include?('-h')
+    new.help(command.name)
+  end
+
   desc 'price', 'Get current price of BTC in USD'
   def price
     log.info(client.price)
