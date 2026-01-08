@@ -75,7 +75,7 @@ GEM
     ffi (1.17.3-arm64-darwin)
     ffi (1.17.3-x86_64-linux-gnu)
     hashdiff (1.2.1)
-    iri (0.11.4)
+    iri (0.11.6)
     json (2.18.0)
     language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)
@@ -106,7 +106,7 @@ GEM
     psych (5.3.1)
       date
       stringio
-    public_suffix (7.0.0)
+    public_suffix (7.0.2)
     qbash (0.5.0)
       backtrace (> 0)
       elapsed (> 0)
@@ -169,7 +169,7 @@ GEM
       ffi (~> 1.1)
       memoist3 (~> 1.0.0)
     tago (0.6.0)
-    thor (1.4.0)
+    thor (1.5.0)
     tsort (0.2.0)
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
