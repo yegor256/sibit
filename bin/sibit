@@ -24,7 +24,8 @@ require_relative '../lib/sibit/fake'
 require_relative '../lib/sibit/firstof'
 require_relative '../lib/sibit/version'
 
-VERBOSE = !ARGV.include?('--quiet') && (ARGV.include?('--verbose') || ENV.fetch('SIBIT_VERBOSE', nil))
+VERBOSE = !ARGV.include?('--quiet') &&
+          (ARGV.include?('--verbose') || ENV.fetch('SIBIT_VERBOSE', nil))
 LOG = VERBOSE ? Loog::VERBOSE : Loog::REGULAR
 
 # Command-line interface for Sibit.
@@ -36,7 +37,7 @@ class Bin < Thor
   class_option :dry, type: :boolean, default: false,
                      desc: "Don't send a real payment, run in a read-only mode"
   class_option :verbose, type: :boolean, default: false, desc: 'Print all possible debug messages'
-  class_option :quiet, type: :boolean, default: true, desc: 'Print only informative messages'
+  class_option :quiet, type: :boolean, default: false, desc: 'Print only informative messages'
   class_option :api, type: :array, default: %w[blockchain btc bitcoinchain blockchair cex],
                      desc: 'Ordered List of APIs to use, e.g. "blockchain,btc,bitcoinchain"'
 
