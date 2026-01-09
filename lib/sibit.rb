@@ -103,18 +103,26 @@ class Sibit
   # +target+: the target address to send to
   # +change+: the address where the change has to be sent to
   # +network+: optional network override (:mainnet, :testnet, :regtest)
-  def pay(amount, fee, sources, target, change, skip_utxo: [], network: nil)
+  def pay(amount, fee, sources, target, change, skip_utxo: [], network: nil, base58: false)
     p = price('USD')
     keys = sources.map { |k| Key.new(k, network: network) }
     network = keys.first&.network || :mainnet
-    sources = keys.to_h { |k| [k.bech32, k.priv] }
+    sources = keys.to_h do |k|
+      pub =
+        if base58
+          k.base58
+        else
+          k.bech32
+        end
+      @log.debug("Private key #{k.priv.ellipsized(8).inspect} is public as #{pub}:")
+      [pub, k.priv]
+    end
     satoshi = satoshi(amount)
     builder = TxBuilder.new
     unspent = 0
     size = 100
     utxos = @api.utxos(sources.keys)
-    @log.debug("#{utxos.count} UTXOs found, these will be used \
-(value/confirmations at tx_hash):")
+    @log.debug("#{utxos.count} UTXOs found, these will be used (value/confirmations at tx_hash):")
     utxos.each do |utxo|
       if skip_utxo.include?(utxo[:hash])
         @log.debug("UTXO skipped: #{utxo[:hash]}")
@@ -224,8 +232,10 @@ class Sibit
         checked += 1
       end
       count += 1
-      @log.debug("We checked #{checked} txns and #{checked_outputs} outputs \
-in block #{block} (by #{json[:provider]})")
+      @log.debug(
+        "Checked #{checked} txns and #{checked_outputs} outputs " \
+        "in block #{block} (by #{json[:provider]})"
+      )
       block = json[:next]
       begin
         if block.nil?

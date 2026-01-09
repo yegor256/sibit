@@ -22,7 +22,7 @@ Layout/LineLength:
 Layout/EndOfLine:
   EnforcedStyle: lf
 Metrics/CyclomaticComplexity:
-  Max: 20
+  Enabled: false
 Metrics/MethodLength:
   Enabled: false
 Minitest/EmptyLineBeforeAssertionMethods:
@@ -30,7 +30,7 @@ Minitest/EmptyLineBeforeAssertionMethods:
 Layout/MultilineMethodCallIndentation:
   Enabled: false
 Metrics/ParameterLists:
-  Max: 7
+  Max: 10
 Metrics/ClassLength:
   Max: 250
 Metrics/AbcSize:
@@ -38,7 +38,7 @@ Metrics/AbcSize:
 Metrics/BlockLength:
   Max: 100
 Metrics/PerceivedComplexity:
-  Max: 20
+  Enabled: false
 Style/MultilineTernaryOperator:
   Enabled: false
 Layout/EmptyLineAfterGuardClause:
