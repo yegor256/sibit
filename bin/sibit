@@ -24,6 +24,9 @@ require_relative '../lib/sibit/fake'
 require_relative '../lib/sibit/firstof'
 require_relative '../lib/sibit/version'
 
+VERBOSE = ARGV.include?('--verbose') || ENV.fetch('SIBIT_VERBOSE', nil)
+LOG = VERBOSE ? Loog::VERBOSE : Loog::REGULAR
+
 # Command-line interface for Sibit.
 # Provides commands to interact with the Bitcoin network.
 class Bin < Thor
@@ -116,7 +119,7 @@ class Bin < Thor
   private
 
   def log
-    @log ||= options[:verbose] ? Loog::VERBOSE : Loog::REGULAR
+    LOG
   end
 
   def client(dry: false)
@@ -152,11 +155,10 @@ if __FILE__ == $PROGRAM_NAME
   begin
     Bin.start(ARGV)
   rescue StandardError => e
-    log = ARGV.include?('--verbose') ? Loog::VERBOSE : Loog::REGULAR
-    if ARGV.include?('--verbose')
-      log.error(Backtrace.new(e))
+    if VERBOSE
+      LOG.error(Backtrace.new(e))
     else
-      log.error(e.message)
+      LOG.error(e.message)
     end
     exit(255)
   end
