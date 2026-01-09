@@ -120,7 +120,9 @@ class Bin < Thor
   end
 
   def client(dry: false)
-    http = options[:proxy] ? Sibit::HttpProxy.new(options[:proxy]) : Sibit::Http.new
+    proxy = options[:proxy] || ENV.fetch('SIBIT_PROXY', nil)
+    http = proxy ? Sibit::HttpProxy.new(proxy) : Sibit::Http.new
+    log.debug("Using proxy at #{http.host}") if proxy
     apis = options[:api].flat_map { |a| a.split(',') }.map(&:downcase).map do |a|
       case a
       when 'blockchain'

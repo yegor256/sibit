@@ -19,6 +19,8 @@ class Sibit
       @user, @password, @host, @port = parse(addr)
     end
 
+    attr_reader :host
+
     def client(uri)
       http = Net::HTTP.new(uri.host, uri.port, @host, @port.to_i, @user, @password)
       http.use_ssl = true
