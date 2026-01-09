@@ -22,18 +22,16 @@ require_relative '../lib/sibit/fake'
 require_relative '../lib/sibit/firstof'
 require_relative '../lib/sibit/version'
 
-if __FILE__ == $PROGRAM_NAME
-  begin
-    Sibit::Bin.start(ARGV)
-  rescue StandardError => e
-    verbose = !ARGV.include?('--quiet') &&
-              (ARGV.include?('--verbose') || ENV.fetch('SIBIT_VERBOSE', nil))
-    log = verbose ? Loog::VERBOSE : Loog::REGULAR
-    if verbose
-      log.error(Backtrace.new(e))
-    else
-      log.error(e.message)
-    end
-    exit(255)
+begin
+  Sibit::Bin.start(ARGV)
+rescue StandardError => e
+  verbose = !ARGV.include?('--quiet') &&
+            (ARGV.include?('--verbose') || ENV.fetch('SIBIT_VERBOSE', nil))
+  log = verbose ? Loog::VERBOSE : Loog::REGULAR
+  if verbose
+    log.error(Backtrace.new(e))
+  else
+    log.error(e.message)
   end
+  exit(255)
 end

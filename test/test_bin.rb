@@ -6,7 +6,8 @@
 require 'json'
 require 'webmock/minitest'
 require_relative 'test__helper'
-load File.join(__dir__, '../bin/sibit')
+require_relative '../lib/sibit'
+require_relative '../lib/sibit/bin'
 
 # Tests for the CLI.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
