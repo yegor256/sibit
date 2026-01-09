@@ -24,7 +24,7 @@ require_relative '../lib/sibit/fake'
 require_relative '../lib/sibit/firstof'
 require_relative '../lib/sibit/version'
 
-VERBOSE = ARGV.include?('--verbose') || ENV.fetch('SIBIT_VERBOSE', nil)
+VERBOSE = !ARGV.include?('--quiet') && (ARGV.include?('--verbose') || ENV.fetch('SIBIT_VERBOSE', nil))
 LOG = VERBOSE ? Loog::VERBOSE : Loog::REGULAR
 
 # Command-line interface for Sibit.
@@ -36,6 +36,7 @@ class Bin < Thor
   class_option :dry, type: :boolean, default: false,
                      desc: "Don't send a real payment, run in a read-only mode"
   class_option :verbose, type: :boolean, default: false, desc: 'Print all possible debug messages'
+  class_option :quiet, type: :boolean, default: true, desc: 'Print only informative messages'
   class_option :api, type: :array, default: %w[blockchain btc bitcoinchain blockchair cex],
                      desc: 'Ordered List of APIs to use, e.g. "blockchain,btc,bitcoinchain"'
 
@@ -50,7 +51,7 @@ class Bin < Thor
 
   desc 'price', 'Get current price of BTC in USD'
   def price
-    log.info(client.price)
+    LOG.info(client.price)
   end
 
   desc 'fees', 'Get currently recommended transaction fees'
@@ -62,28 +63,28 @@ class Bin < Thor
       usd = sat * sibit.price / 100_000_000
       "#{m}: #{sat}sat / $#{format('%<usd>.02f', usd: usd)}"
     end.join("\n")
-    log.info(text)
+    LOG.info(text)
   end
 
   desc 'latest', 'Get hash of the latest block'
   def latest
-    log.info(client.latest)
+    LOG.info(client.latest)
   end
 
   desc 'generate', 'Generate a new private key'
   def generate
-    log.info(client.generate)
+    LOG.info(client.generate)
   end
 
   desc 'create KEY', 'Create a public Bitcoin address from the private key'
   def create(key)
-    log.debug("Private key provided: #{key.ellipsized(8).inspect}")
-    log.info(client.create(key))
+    LOG.debug("Private key provided: #{key.ellipsized(8).inspect}")
+    LOG.info(client.create(key))
   end
 
   desc 'balance ADDRESS', 'Check the balance of the Bitcoin address'
   def balance(address)
-    log.info(client.balance(address))
+    LOG.info(client.balance(address))
   end
 
   desc 'pay AMOUNT FEE SOURCES TARGET CHANGE',
@@ -108,46 +109,42 @@ class Bin < Thor
       answer = $stdin.gets&.strip&.downcase
       raise Sibit::Error, 'Payment cancelled by user' unless answer == 'yes'
     end
-    log.info(client.pay(*args, **kwargs))
+    LOG.info(client.pay(*args, **kwargs))
   end
 
   desc 'version', 'Print program version'
   def version
-    log.info(Sibit::VERSION)
+    LOG.info(Sibit::VERSION)
   end
 
   private
 
-  def log
-    LOG
-  end
-
   def client(dry: false)
     proxy = options[:proxy] || ENV.fetch('SIBIT_PROXY', nil)
     http = proxy ? Sibit::HttpProxy.new(proxy) : Sibit::Http.new
-    log.debug("Using proxy at #{http.host}") if proxy
+    LOG.debug("Using proxy at #{http.host}") if proxy
     apis = options[:api].flat_map { |a| a.split(',') }.map(&:downcase).map do |a|
       case a
       when 'blockchain'
-        Sibit::Blockchain.new(http: http, log: log)
+        Sibit::Blockchain.new(http: http, log: LOG)
       when 'btc'
-        Sibit::Btc.new(http: http, log: log)
+        Sibit::Btc.new(http: http, log: LOG)
       when 'bitcoinchain'
-        Sibit::Bitcoinchain.new(http: http, log: log)
+        Sibit::Bitcoinchain.new(http: http, log: LOG)
       when 'blockchair'
-        Sibit::Blockchair.new(http: http, log: log)
+        Sibit::Blockchair.new(http: http, log: LOG)
       when 'cex'
-        Sibit::Cex.new(http: http, log: log)
+        Sibit::Cex.new(http: http, log: LOG)
       when 'fake'
         Sibit::Fake.new
       else
         raise Sibit::Error, "Unknown API \"#{a}\""
       end
     end
-    api = Sibit::FirstOf.new(apis, log: log, verbose: true)
-    api = Sibit::Dry.new(api, log: log) if options[:dry] || dry
+    api = Sibit::FirstOf.new(apis, log: LOG, verbose: true)
+    api = Sibit::Dry.new(api, log: LOG) if options[:dry] || dry
     api = RetriableProxy.for_object(api, on: Sibit::Error) if options[:attempts] > 1
-    Sibit.new(log: log, api: api)
+    Sibit.new(log: LOG, api: api)
   end
 end
 
