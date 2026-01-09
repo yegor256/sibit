@@ -83,15 +83,21 @@ class Bin < Thor
     log.info(client.balance(address))
   end
 
-  desc 'pay AMOUNT FEE SOURCES TARGET CHANGE', 'Send a new Bitcoin transaction'
+  desc 'pay AMOUNT FEE SOURCES TARGET CHANGE',
+       'Send a new Bitcoin transaction (AMOUNT can be "MAX" to use full balance)'
   option :skip_utxo, type: :array, default: [],
                      desc: 'List of UTXO that must be skipped while paying'
   option :yes, type: :boolean, default: false,
                desc: 'Skip confirmation prompt and send the payment immediately'
   def pay(amount, fee, sources, target, change)
-    amount = amount.to_i if /^[0-9]+$/.match?(amount)
+    keys = sources.split(',')
+    if amount.upcase == 'MAX'
+      addrs = keys.map { |k| Sibit::Key.new(k).bech32 }
+      amount = addrs.sum { |a| client.balance(a) }
+    end
+    amount = amount.to_i if amount.is_a?(String) && /^[0-9]+$/.match?(amount)
     fee = fee.to_i if /^[0-9]+$/.match?(fee)
-    args = [amount, fee, sources.split(','), target, change]
+    args = [amount, fee, keys, target, change]
     kwargs = { skip_utxo: options[:skip_utxo] }
     unless options[:yes] || options[:dry]
       client(dry: true).pay(*args, **kwargs)
@@ -140,14 +146,16 @@ class Bin < Thor
   end
 end
 
-begin
-  Bin.start(ARGV)
-rescue StandardError => e
-  log = ARGV.include?('--verbose') ? Loog::VERBOSE : Loog::REGULAR
-  if ARGV.include?('--verbose')
-    log.error(Backtrace.new(e))
-  else
-    log.error(e.message)
+if __FILE__ == $PROGRAM_NAME
+  begin
+    Bin.start(ARGV)
+  rescue StandardError => e
+    log = ARGV.include?('--verbose') ? Loog::VERBOSE : Loog::REGULAR
+    if ARGV.include?('--verbose')
+      log.error(Backtrace.new(e))
+    else
+      log.error(e.message)
+    end
+    exit(255)
   end
-  exit(255)
 end
