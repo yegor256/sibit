@@ -45,3 +45,5 @@ Layout/EmptyLineAfterGuardClause:
   Enabled: false
 Lint/OrAssignmentToConstant:
   Enabled: false
+Layout/HashAlignment:
+  Enabled: false

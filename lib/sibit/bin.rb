@@ -22,13 +22,13 @@ class Sibit
   class Bin < Thor
     class_option :proxy, type: :string, desc: 'HTTPS proxy for all requests, e.g. "localhost:3128"'
     class_option :attempts, type: :numeric, default: 1,
-                            desc: 'How many times should we try before failing'
+      desc: 'How many times should we try before failing'
     class_option :dry, type: :boolean, default: false,
-                       desc: "Don't send a real payment, run in a read-only mode"
+      desc: "Don't send a real payment, run in a read-only mode"
     class_option :verbose, type: :boolean, default: false, desc: 'Print all possible debug messages'
     class_option :quiet, type: :boolean, default: false, desc: 'Print only informative messages'
     class_option :api, type: :array, default: %w[blockchain btc bitcoinchain blockchair cex],
-                       desc: 'Ordered List of APIs to use, e.g. "blockchain,btc,bitcoinchain"'
+      desc: 'Ordered List of APIs to use, e.g. "blockchain,btc,bitcoinchain"'
 
     def self.exit_on_failure?
       true
@@ -77,22 +77,28 @@ class Sibit
       log.info(client.balance(address))
     end
 
-    desc 'pay AMOUNT FEE SOURCES TARGET CHANGE',
-         'Send a new Bitcoin transaction (AMOUNT can be "MAX" to use full balance)'
+    desc \
+      'pay AMOUNT FEE SOURCES TARGET CHANGE',
+      'Send a new Bitcoin transaction (AMOUNT can be "MAX" to use full balance)'
     option :skip_utxo, type: :array, default: [],
-                       desc: 'List of UTXO that must be skipped while paying'
+      desc: 'List of UTXO that must be skipped while paying'
+    option :base58, type: :boolean, default: false,
+      desc: 'Convert private addresses to public in base58'
     option :yes, type: :boolean, default: false,
-                 desc: 'Skip confirmation prompt and send the payment immediately'
+      desc: 'Skip confirmation prompt and send the payment immediately'
     def pay(amount, fee, sources, target, change)
       keys = sources.split(',')
       if amount.upcase == 'MAX'
-        addrs = keys.map { |k| Sibit::Key.new(k).bech32 }
+        addrs = keys.map do |k|
+          kk = Sibit::Key.new(k)
+          options[:base58] ? kk.base58 : kk.bech32
+        end
         amount = addrs.sum { |a| client.balance(a) }
       end
       amount = amount.to_i if amount.is_a?(String) && /^[0-9]+$/.match?(amount)
       fee = fee.to_i if /^[0-9]+$/.match?(fee)
       args = [amount, fee, keys, target, change]
-      kwargs = { skip_utxo: options[:skip_utxo] }
+      kwargs = { skip_utxo: options[:skip_utxo], base58: options[:base58] }
       unless options[:yes] || options[:dry]
         client(dry: true).pay(*args, **kwargs)
         print 'Do you confirm this payment? (yes/no): '
