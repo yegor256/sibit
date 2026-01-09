@@ -37,7 +37,7 @@ class TestBin < Minitest::Test
     stub_request(:post, 'https://blockchain.info/pushtx')
       .to_return(status: 200)
     key = 'fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2'
-    Bin.start(
+    Sibit::Bin.start(
       [
         'pay', 'MAX', '100', key, 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4',
         'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4', '--yes'
