@@ -22,12 +22,23 @@ class Sibit
     MIN_PRIV = 0x01
     MAX_PRIV = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364140
 
+    SECP256K1_N = OpenSSL::BN.new(
+      'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141', 16
+    )
+
     attr_reader :network
 
     def self.generate(network: :mainnet)
       key = OpenSSL::PKey::EC.generate('secp256k1')
-      pvt = key.private_key.to_s(16).rjust(64, '0').downcase
-      new(pvt, network: network)
+      pvt = key.private_key
+      raise 'Invalid private key: zero' if pvt.zero?
+      raise 'Invalid private key: out of range' if pvt >= SECP256K1_N
+      raise 'Invalid public key: not on curve' unless key.public_key.on_curve?
+      hex = key.private_key.to_s(16).rjust(64, '0').downcase
+      raise 'Invalid private key encoding' unless hex.match?(/\A[0-9a-f]{64}\z/)
+      trip = OpenSSL::BN.new(hex, 16)
+      raise 'Private key serialization is lossy' unless trip == pvt
+      new(hex, network: network)
     end
 
     def initialize(privkey, network: nil)
