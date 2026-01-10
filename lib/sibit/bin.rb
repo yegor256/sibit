@@ -29,6 +29,8 @@ class Sibit
     class_option :quiet, type: :boolean, default: false, desc: 'Print only informative messages'
     class_option :api, type: :array, default: %w[blockchain btc bitcoinchain blockchair cex],
       desc: 'Ordered List of APIs to use, e.g. "blockchain,btc,bitcoinchain"'
+    class_option :base58, type: :boolean, default: false,
+      desc: 'Use base58 address format instead of bech32'
 
     def self.exit_on_failure?
       true
@@ -69,7 +71,8 @@ class Sibit
     desc 'create KEY', 'Create a public Bitcoin address from the private key'
     def create(key)
       log.debug("Private key provided: #{key.ellipsized(8).inspect}")
-      log.info(client.create(key))
+      k = Sibit::Key.new(key)
+      log.info(options[:base58] ? k.base58 : k.bech32)
     end
 
     desc 'balance ADDRESS', 'Check the balance of the Bitcoin address'
@@ -82,8 +85,6 @@ class Sibit
       'Send a new Bitcoin transaction (AMOUNT can be "MAX" to use full balance)'
     option :skip_utxo, type: :array, default: [],
       desc: 'List of UTXO that must be skipped while paying'
-    option :base58, type: :boolean, default: false,
-      desc: 'Convert private addresses to public in base58'
     option :yes, type: :boolean, default: false,
       desc: 'Skip confirmation prompt and send the payment immediately'
     def pay(amount, fee, sources, target, change)
