@@ -60,11 +60,17 @@ class Sibit
 
     def bech32
       hrp = { mainnet: 'bc', testnet: 'tb', regtest: 'bcrt' }[@network]
-      Bech32.encode(hrp, 0, hash160(pub))
+      hex = pub
+      raise 'Invalid public key: not on curve' unless @key.public_key.on_curve?
+      raise 'Invalid public key format' unless hex.match?(/\A0[23][0-9a-f]{64}\z/)
+      Bech32.encode(hrp, 0, hash160(hex))
     end
 
     def base58
-      hash = hash160(pub)
+      hex = pub
+      raise 'Invalid public key: not on curve' unless @key.public_key.on_curve?
+      raise 'Invalid public key format' unless hex.match?(/\A0[23][0-9a-f]{64}\z/)
+      hash = hash160(hex)
       prefix = @network == :mainnet ? '00' : '6f'
       versioned = "#{prefix}#{hash}"
       checksum = Base58.new(versioned).check
