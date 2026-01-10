@@ -44,3 +44,8 @@ Feature: Command Line Processing
     When I run bin/sibit with "pay --help"
     Then Exit code is zero
     And Stdout contains "--skip-utxo"
+
+  Scenario: Unknown option shows error message
+    When I run bin/sibit with "generate --foo"
+    Then Exit code is not zero
+    And Stdout contains "Unknown option"

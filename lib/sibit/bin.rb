@@ -20,6 +20,8 @@ class Sibit
   #   Sibit::Bin.start(['price'])
   #   Sibit::Bin.start(['balance', '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'])
   class Bin < Thor
+    stop_on_unknown_option!
+
     class_option :proxy, type: :string, desc: 'HTTPS proxy for all requests, e.g. "localhost:3128"'
     class_option :attempts, type: :numeric, default: 1,
       desc: 'How many times should we try before failing'
@@ -37,8 +39,13 @@ class Sibit
     end
 
     def self.handle_argument_error(command, error, args, _arity)
-      raise error unless args.include?('--help') || args.include?('-h')
-      new.help(command.name)
+      return new.help(command.name) if args.include?('--help') || args.include?('-h')
+      unknown = args.find { |a| a.start_with?('-') }
+      if unknown
+        warn "Unknown option: #{unknown}"
+        exit 1
+      end
+      raise error
     end
 
     desc 'price', 'Get current price of BTC in USD'

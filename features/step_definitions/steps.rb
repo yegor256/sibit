@@ -27,7 +27,7 @@ end
 
 When(%r{^I run bin/sibit with "([^"]*)"$}) do |arg|
   home = File.join(File.dirname(__FILE__), '../..')
-  @stdout = `ruby -I#{home}/lib #{home}/bin/sibit #{arg}`
+  @stdout = `ruby -I#{home}/lib #{home}/bin/sibit #{arg} 2>&1`
   @exitstatus = $CHILD_STATUS.exitstatus
 end
 
