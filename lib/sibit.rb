@@ -3,6 +3,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2019-2026 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
+require 'ellipsized'
 require 'loog'
 require_relative 'sibit/base58'
 require_relative 'sibit/key'
