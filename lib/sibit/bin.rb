@@ -125,8 +125,8 @@ class Sibit
 
     def log
       @log ||= begin
-        verbose = !ARGV.include?('--quiet') &&
-                  (ARGV.include?('--verbose') || ENV.fetch('SIBIT_VERBOSE', nil))
+        verbose = !options[:quiet] &&
+                  (options[:verbose] || ENV.fetch('SIBIT_VERBOSE', nil))
         verbose ? Loog::VERBOSE : Loog::REGULAR
       end
     end
