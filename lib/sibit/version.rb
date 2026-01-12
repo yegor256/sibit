@@ -9,5 +9,5 @@
 # License:: MIT
 class Sibit
   # Current version of the library.
-  VERSION = '0.0.0' unless defined?(VERSION)
+  VERSION = '0.32.7' unless defined?(VERSION)
 end
