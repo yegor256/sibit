@@ -105,6 +105,13 @@ class Sibit
   # +change+: the address where the change has to be sent to
   # +network+: optional network override (:mainnet, :testnet, :regtest)
   def pay(amount, fee, sources, target, change, skip_utxo: [], network: nil, base58: false)
+    unless amount.is_a?(Integer) || amount.is_a?(String)
+      raise "The amount #{amount.inspect} must be Integer or String"
+    end
+    raise 'The amount must be positive' if amount.is_a?(Integer) && amount.negative?
+    raise 'The sources must be an Array' unless sources.is_a?(Array)
+    raise 'The target must be a String' unless target.is_a?(String)
+    raise 'The change must be a String' unless change.is_a?(String)
     p = price('USD')
     keys = sources.map { |k| Key.new(k, network: network) }
     network = keys.first&.network || :mainnet
