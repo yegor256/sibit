@@ -53,6 +53,11 @@ class TestRegtest < Minitest::Test
       tx = sibit.pay(10_000, 1000, [privkey], target, addr, network: :regtest)
       refute_nil(tx, 'transaction hash must not be nil')
       assert_match(/^[0-9a-f]{64}$/, tx, 'transaction hash format is invalid')
+      rpc(host, port, 'generatetoaddress', [1, addr], wallet)
+      received = rpc(host, port, 'listunspent', [1, 9999, [target]], wallet)
+      refute_empty(received, 'target must have received payment')
+      amount = (received.first['amount'] * 100_000_000).to_i
+      assert_equal(10_000, amount, 'target must receive exactly 10000 satoshis')
     end
   end
 
