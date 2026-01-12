@@ -113,7 +113,10 @@ class Sibit
     raise 'The target must be a String' unless target.is_a?(String)
     raise 'The change must be a String' unless change.is_a?(String)
     p = price('USD')
-    keys = sources.map { |k| Key.new(k, network: network) }
+    keys = sources.map do |k|
+      raise 'Each source private key must be a String' unless k.is_a?(String)
+      Key.new(k, network: network)
+    end
     network = keys.first&.network || :mainnet
     sources = keys.to_h do |k|
       pub =
