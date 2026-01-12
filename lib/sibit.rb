@@ -59,7 +59,7 @@ class Sibit
 
   # Creates Bitcoin address using the private key in Hash160 format.
   def create(pvt)
-    raise Error, 'Invalid private key (must be 64 chars)' unless /^[0-9a-f]{64}$/.match?(pvt)
+    raise Error, 'Invalid private key (must be 64 hex chars)' unless /^[0-9a-f]{64}$/.match?(pvt)
     Key.new(pvt).bech32
   end
 
@@ -106,15 +106,18 @@ class Sibit
   # +network+: optional network override (:mainnet, :testnet, :regtest)
   def pay(amount, fee, sources, target, change, skip_utxo: [], network: nil, base58: false)
     unless amount.is_a?(Integer) || amount.is_a?(String)
-      raise "The amount #{amount.inspect} must be Integer or String"
+      raise Error, "The amount #{amount.inspect} must be Integer or String"
     end
-    raise 'The amount must be positive' if amount.is_a?(Integer) && amount.negative?
-    raise 'The sources must be an Array' unless sources.is_a?(Array)
-    raise 'The target must be a String' unless target.is_a?(String)
-    raise 'The change must be a String' unless change.is_a?(String)
+    raise Error, 'The amount must be positive' if amount.is_a?(Integer) && amount.negative?
+    raise Error, 'The sources must be an Array' unless sources.is_a?(Array)
+    raise Error, 'The target must be a String' unless target.is_a?(String)
+    raise Error, 'The change must be a String' unless change.is_a?(String)
     p = price('USD')
     keys = sources.map do |k|
-      raise 'Each source private key must be a String' unless k.is_a?(String)
+      raise Error, 'Each source private key must be a String' unless k.is_a?(String)
+      hex = /^[0-9a-f]{64}$/i.match?(k)
+      wif = /^[5KLc][1-9A-HJ-NP-Za-km-z]{50,51}$/.match?(k)
+      raise Error, "Invalid private key format: #{k.inspect.ellipsized(8)}" unless hex || wif
       Key.new(k, network: network)
     end
     network = keys.first&.network || :mainnet
