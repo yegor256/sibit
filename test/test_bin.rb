@@ -41,7 +41,7 @@ class TestBin < Minitest::Test
     Sibit::Bin.start(
       [
         'pay', 'MAX', '100', key, 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4',
-        'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4', '--yes'
+        'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4', '--yes', '--quiet'
       ]
     )
     assert_requested(
