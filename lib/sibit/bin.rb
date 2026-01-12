@@ -22,13 +22,16 @@ class Sibit
   class Bin < Thor
     stop_on_unknown_option!
 
-    class_option :proxy, type: :string, desc: 'HTTPS proxy for all requests, e.g. "localhost:3128"'
+    class_option :proxy, type: :string,
+      desc: 'HTTPS proxy for all requests, e.g. "localhost:3128"'
     class_option :attempts, type: :numeric, default: 1,
       desc: 'How many times should we try before failing'
     class_option :dry, type: :boolean, default: false,
       desc: "Don't send a real payment, run in a read-only mode"
-    class_option :verbose, type: :boolean, default: false, desc: 'Print all possible debug messages'
-    class_option :quiet, type: :boolean, default: false, desc: 'Print only informative messages'
+    class_option :verbose, type: :boolean, default: false,
+      desc: 'Print all possible debug messages'
+    class_option :quiet, type: :boolean, default: false,
+      desc: 'Print only informative messages'
     class_option :api, type: :array, default: %w[blockchain btc bitcoinchain blockchair cex],
       desc: 'Ordered List of APIs to use, e.g. "blockchain,btc,bitcoinchain"'
     class_option :base58, type: :boolean, default: false,
