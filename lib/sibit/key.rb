@@ -79,7 +79,9 @@ class Sibit
     end
 
     def sign(data)
-      @key.dsa_sign_asn1(data)
+      sig = @key.dsa_sign_asn1(data)
+      raise Error, 'Signature verification failed' unless verify(data, sig)
+      sig
     end
 
     def verify(data, sig)

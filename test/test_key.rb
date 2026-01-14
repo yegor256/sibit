@@ -204,4 +204,47 @@ class TestKey < Minitest::Test
     invalid = Sibit::Base58.new(data + checksum).encode
     assert_raises(Sibit::Error) { Sibit::Key.new(invalid) }
   end
+
+  def test_signs_empty_data
+    key = Sibit::Key.generate
+    sig = key.sign('')
+    assert(key.verify('', sig), 'empty data signature must verify')
+  end
+
+  def test_signs_large_data
+    key = Sibit::Key.generate
+    data = SecureRandom.random_bytes(1024)
+    sig = key.sign(data)
+    assert(key.verify(data, sig), 'large data signature must verify')
+  end
+
+  def test_signature_is_der_encoded
+    key = Sibit::Key.generate
+    data = SecureRandom.random_bytes(32)
+    sig = key.sign(data)
+    assert(sig.start_with?("\x30"), 'signature must be DER encoded sequence')
+  end
+
+  def test_signatures_differ_for_same_data
+    key = Sibit::Key.generate
+    data = SecureRandom.random_bytes(32)
+    first = key.sign(data)
+    second = key.sign(data)
+    refute_equal(first, second, 'ECDSA signatures must use random k')
+  end
+
+  def test_different_keys_produce_different_signatures
+    data = SecureRandom.random_bytes(32)
+    first = Sibit::Key.generate.sign(data)
+    second = Sibit::Key.generate.sign(data)
+    refute_equal(first, second, 'different keys must produce different sigs')
+  end
+
+  def test_signature_not_verifiable_by_different_key
+    data = SecureRandom.random_bytes(32)
+    signer = Sibit::Key.generate
+    other = Sibit::Key.generate
+    sig = signer.sign(data)
+    refute(other.verify(data, sig), 'signature must not verify with wrong key')
+  end
 end
