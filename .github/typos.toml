@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026 Yegor Bugayenko
+# SPDX-License-Identifier: MIT
+
+[default]
+extend-ignore-identifiers-re = [
+  "SHS"       # false positive
+]
