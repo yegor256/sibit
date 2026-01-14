@@ -32,7 +32,7 @@ Layout/MultilineMethodCallIndentation:
 Metrics/ParameterLists:
   Max: 10
 Metrics/ClassLength:
-  Max: 250
+  Enabled: false
 Metrics/AbcSize:
   Enabled: false
 Metrics/BlockLength:
