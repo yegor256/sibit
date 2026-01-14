@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: MIT
 
 require 'json'
+require 'qbash'
 require 'webmock/minitest'
 require_relative 'test__helper'
 require_relative '../lib/sibit'
@@ -91,5 +92,10 @@ class TestBin < Minitest::Test
       ]
     )
     assert_not_requested(:post, 'https://blockchain.info/pushtx')
+  end
+
+  def test_generates_key_via_command_line
+    stdout = qbash('bin/sibit generate')
+    assert_match(/^[0-9a-f]{64}$/, stdout.strip, 'must print 64-char hex key')
   end
 end
