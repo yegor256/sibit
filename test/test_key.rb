@@ -103,4 +103,89 @@ class TestKey < Minitest::Test
     assert_equal(:regtest, key.network, 'network override not applied')
     assert(key.bech32.start_with?('bcrt1q'), 'regtest bech32 must start with bcrt1q')
   end
+
+  def test_imports_wif_mainnet_compressed
+    wif = 'KwdMAjGmerYanjeui5SHS7JkmpZvVipYvB2LJGU1ZxJwYvP98617'
+    pvt = '0c28fca386c7a227600b2fe50b7cae11ec86d3bf1fbe471be89827e19d72aa1d'
+    key = Sibit::Key.new(wif)
+    assert_equal(pvt, key.priv, 'WIF decode produced wrong private key')
+    assert_equal(:mainnet, key.network, 'WIF should detect mainnet')
+  end
+
+  def test_imports_wif_mainnet_uncompressed
+    wif = '5HueCGU8rMjxEXxiPuD5BDku4MkFqeZyd4dZ1jvhTVqvbTLvyTJ'
+    pvt = '0c28fca386c7a227600b2fe50b7cae11ec86d3bf1fbe471be89827e19d72aa1d'
+    key = Sibit::Key.new(wif)
+    assert_equal(pvt, key.priv, 'uncompressed WIF decode produced wrong key')
+    assert_equal(:mainnet, key.network, 'uncompressed WIF should detect mainnet')
+  end
+
+  def test_imports_wif_testnet_compressed
+    wif = 'cMzLdeGd5vEqxB8B6VFQoRopQ3sLAAvEzDAoQgvX54xwofSWj1fx'
+    pvt = '0c28fca386c7a227600b2fe50b7cae11ec86d3bf1fbe471be89827e19d72aa1d'
+    key = Sibit::Key.new(wif)
+    assert_equal(pvt, key.priv, 'testnet WIF decode produced wrong key')
+    assert_equal(:testnet, key.network, 'testnet WIF should detect testnet')
+  end
+
+  def test_imports_wif_testnet_uncompressed
+    wif = '91gGn1HgSap6CbU12F6z3pJri26xzp7Ay1VW6NHCoEayNXwRpu2'
+    pvt = '0c28fca386c7a227600b2fe50b7cae11ec86d3bf1fbe471be89827e19d72aa1d'
+    key = Sibit::Key.new(wif)
+    assert_equal(pvt, key.priv, 'testnet uncompressed WIF produced wrong key')
+    assert_equal(:testnet, key.network, 'testnet uncompressed WIF should detect testnet')
+  end
+
+  def test_wif_and_hex_produce_same_address
+    wif = 'KwdMAjGmerYanjeui5SHS7JkmpZvVipYvB2LJGU1ZxJwYvP98617'
+    pvt = '0c28fca386c7a227600b2fe50b7cae11ec86d3bf1fbe471be89827e19d72aa1d'
+    from_wif = Sibit::Key.new(wif)
+    from_hex = Sibit::Key.new(pvt)
+    assert_equal(from_hex.bech32, from_wif.bech32, 'WIF and hex must produce same address')
+  end
+
+  def test_accepts_uppercase_hex
+    pvt = 'FD2333686F49D8647E1CE8D5EF39C304520B08F3C756B67068B30A3DB217DCB2'
+    key = Sibit::Key.new(pvt)
+    refute_nil(key.bech32, 'uppercase hex must be accepted')
+    assert(key.bech32.start_with?('bc1q'), 'uppercase hex must produce valid address')
+  end
+
+  def test_uppercase_and_lowercase_produce_same_key
+    upper = 'FD2333686F49D8647E1CE8D5EF39C304520B08F3C756B67068B30A3DB217DCB2'
+    lower = 'fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2'
+    from_upper = Sibit::Key.new(upper)
+    from_lower = Sibit::Key.new(lower)
+    assert_equal(from_lower.bech32, from_upper.bech32, 'case must not affect address')
+  end
+
+  def test_generated_key_survives_roundtrip
+    original = Sibit::Key.generate
+    restored = Sibit::Key.new(original.priv)
+    assert_equal(original.priv, restored.priv, 'private key must survive roundtrip')
+    assert_equal(original.pub, restored.pub, 'public key must survive roundtrip')
+    assert_equal(original.bech32, restored.bech32, 'address must survive roundtrip')
+  end
+
+  def test_accepts_minimum_private_key
+    min = '0000000000000000000000000000000000000000000000000000000000000001'
+    key = Sibit::Key.new(min)
+    refute_nil(key.bech32, 'minimum private key must be accepted')
+  end
+
+  def test_accepts_maximum_private_key
+    max = 'fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364140'
+    key = Sibit::Key.new(max)
+    refute_nil(key.bech32, 'maximum private key must be accepted')
+  end
+
+  def test_rejects_curve_order
+    order = 'fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141'
+    assert_raises(RuntimeError) { Sibit::Key.new(order) }
+  end
+
+  def test_rejects_above_curve_order
+    above = 'fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364142'
+    assert_raises(RuntimeError) { Sibit::Key.new(above) }
+  end
 end
