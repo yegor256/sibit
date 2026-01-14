@@ -97,6 +97,8 @@ class Sibit
       desc: 'List of UTXO that must be skipped while paying'
     option :yes, type: :boolean, default: false,
       desc: 'Skip confirmation prompt and send the payment immediately'
+    option :price, type: :numeric,
+      desc: 'BTC price in USD (skips API price fetch if provided)'
     def pay(amount, fee, sources, target, change)
       keys = sources.split(',')
       if amount.upcase == 'MAX'
@@ -109,7 +111,7 @@ class Sibit
       amount = amount.to_i if amount.is_a?(String) && /^[0-9]+$/.match?(amount)
       fee = fee.to_i if /^[0-9]+$/.match?(fee)
       args = [amount, fee, keys, target, change]
-      kwargs = { skip_utxo: options[:skip_utxo], base58: options[:base58] }
+      kwargs = { skip_utxo: options[:skip_utxo], base58: options[:base58], price: options[:price] }
       unless options[:yes] || options[:dry]
         client(dry: true).pay(*args, **kwargs)
         print 'Do you confirm this payment? (yes/no): '

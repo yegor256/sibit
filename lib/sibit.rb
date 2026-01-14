@@ -104,7 +104,9 @@ class Sibit
   # +target+: the target address to send to
   # +change+: the address where the change has to be sent to
   # +network+: optional network override (:mainnet, :testnet, :regtest)
-  def pay(amount, fee, sources, target, change, skip_utxo: [], network: nil, base58: false)
+  # +price+: optional BTC price in USD (skips API fetch if provided)
+  def pay(amount, fee, sources, target, change, skip_utxo: [], network: nil, base58: false,
+          price: nil)
     unless amount.is_a?(Integer) || amount.is_a?(String)
       raise Error, "The amount #{amount.inspect} must be Integer or String"
     end
@@ -112,7 +114,7 @@ class Sibit
     raise Error, 'The sources must be an Array' unless sources.is_a?(Array)
     raise Error, 'The target must be a String' unless target.is_a?(String)
     raise Error, 'The change must be a String' unless change.is_a?(String)
-    p = price('USD')
+    p = price || price('USD')
     keys = sources.map do |k|
       raise Error, 'Each source private key must be a String' unless k.is_a?(String)
       hex = /^[0-9a-f]{64}$/i.match?(k)

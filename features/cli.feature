@@ -44,6 +44,7 @@ Feature: Command Line Processing
     When I run bin/sibit with "pay --help"
     Then Exit code is zero
     And Stdout contains "--skip-utxo"
+    And Stdout contains "--price"
 
   Scenario: Unknown option shows error message
     When I run bin/sibit with "generate --foo"
