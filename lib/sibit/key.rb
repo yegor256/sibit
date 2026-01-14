@@ -7,6 +7,7 @@ require 'digest'
 require 'openssl'
 require_relative 'base58'
 require_relative 'bech32'
+require_relative 'error'
 
 # Sibit main class.
 class Sibit
@@ -114,10 +115,15 @@ class Sibit
     def decode(key)
       if key.length == 64 && key.match?(/\A[0-9a-f]+\z/i)
         @network = @override || :mainnet
-        return key
+        return key.downcase
       end
       raw = Base58.new(key).decode
+      payload = raw[0..-9]
+      checksum = raw[-8..]
+      expected = Base58.new(payload).check
+      raise Error, 'Invalid WIF checksum' unless checksum == expected
       version = raw[0, 2]
+      raise Error, "Invalid WIF version: #{version}" unless %w[80 ef].include?(version)
       detected = version == '80' ? :mainnet : :testnet
       @network = @override || detected
       body = raw[2..-9]

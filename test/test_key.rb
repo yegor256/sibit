@@ -4,8 +4,10 @@
 # SPDX-License-Identifier: MIT
 
 require_relative 'test__helper'
+require 'digest'
 require 'securerandom'
 require_relative '../lib/sibit/key'
+require_relative '../lib/sibit/base58'
 
 # Sibit::Key test.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
@@ -187,5 +189,19 @@ class TestKey < Minitest::Test
   def test_rejects_above_curve_order
     above = 'fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364142'
     assert_raises(RuntimeError) { Sibit::Key.new(above) }
+  end
+
+  def test_rejects_wif_with_invalid_checksum
+    valid = 'KwdMAjGmerYanjeui5SHS7JkmpZvVipYvB2LJGU1ZxJwYvP98617'
+    corrupted = valid[0..-2] + (valid[-1] == 'a' ? 'b' : 'a')
+    assert_raises(Sibit::Error) { Sibit::Key.new(corrupted) }
+  end
+
+  def test_rejects_wif_with_invalid_version
+    pvt = '0c28fca386c7a227600b2fe50b7cae11ec86d3bf1fbe471be89827e19d72aa1d'
+    data = "99#{pvt}01"
+    checksum = Digest::SHA256.hexdigest(Digest::SHA256.digest([data].pack('H*')))[0...8]
+    invalid = Sibit::Base58.new(data + checksum).encode
+    assert_raises(Sibit::Error) { Sibit::Key.new(invalid) }
   end
 end
