@@ -181,19 +181,28 @@ class Sibit
       change_address: change
     )
     left = unspent - tx.outputs.sum(&:value)
-    @log.debug("A new Bitcoin transaction #{tx.hash} prepared:
-  #{tx.in.count} input#{'s' if tx.in.count > 1}:
-    #{tx.inputs.map { |i| " in: #{i.prev_out.unpack1('H*')}:#{i.prev_out_index}" }.join("\n    ")}
-  #{tx.out.count} output#{'s' if tx.out.count > 1}:
-    #{tx.outputs.map { |o| "out: #{o.script_hex} / #{num(o.value, p)}" }.join("\n    ")}
-  Min fee: #{num(MIN_SATOSHI_PER_BYTE, p)} /byte
-  Fee requested: #{num(f, p)} as \"#{fee}\"
-  Fee actually paid: #{num(left, p)}
-  Tx size: #{size} bytes
-  Unspent: #{num(unspent, p)}
-  Amount: #{num(satoshi, p)}
-  Target address: #{target}
-  Change address is #{change}")
+    has_change = tx.out.count > 1
+    @log.debug(
+      [
+        "A new Bitcoin transaction #{tx.hash} prepared:",
+        "#{tx.in.count} input#{'s' if tx.in.count > 1}:",
+        tx.inputs.map do |i|
+          "  in: #{i.prev_out.unpack1('H*')}:#{i.prev_out_index}"
+        end,
+        "#{tx.out.count} output#{'s' if tx.out.count > 1}:",
+        tx.outputs.map do |o|
+          "  out: #{o.script_hex} / #{num(o.value, p)}"
+        end,
+        "Min fee: #{num(MIN_SATOSHI_PER_BYTE, p)} /byte",
+        "Fee requested: #{num(f, p)} as \"#{fee}\"",
+        "Fee actually paid: #{num(left, p)}",
+        "Tx size: #{size} bytes",
+        "Unspent: #{num(unspent, p)}",
+        "Amount: #{num(satoshi, p)}",
+        "Target address: #{target}",
+        ("Change address: #{change}" if has_change)
+      ].flatten.compact.join("\n")
+    )
     @api.push(tx.to_payload.bth)
     tx.hash
   end
