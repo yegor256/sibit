@@ -53,7 +53,7 @@ class Sibit
   # Generates new Bitcoin private key and returns in Hash160 format.
   def generate
     key = Key.generate.priv
-    @log.debug("Bitcoin private key generated: #{key[0..8]}...")
+    @log.debug("Bitcoin private key generated: #{key.ellipsized(8)}...")
     key
   end
 

@@ -50,12 +50,12 @@ class TestKey < Minitest::Test
   end
 
   def test_rejects_invalid_private_key_zero
-    assert_raises(RuntimeError) { Sibit::Key.new('00' * 32) }
+    assert_raises(Sibit::Error) { Sibit::Key.new('00' * 32) }
   end
 
   def test_rejects_private_key_above_curve_order
     above = 'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
-    assert_raises(RuntimeError) { Sibit::Key.new(above) }
+    assert_raises(Sibit::Error) { Sibit::Key.new(above) }
   end
 
   def test_verify_returns_false_for_invalid_signature
@@ -183,12 +183,12 @@ class TestKey < Minitest::Test
 
   def test_rejects_curve_order
     order = 'fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141'
-    assert_raises(RuntimeError) { Sibit::Key.new(order) }
+    assert_raises(Sibit::Error) { Sibit::Key.new(order) }
   end
 
   def test_rejects_above_curve_order
     above = 'fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364142'
-    assert_raises(RuntimeError) { Sibit::Key.new(above) }
+    assert_raises(Sibit::Error) { Sibit::Key.new(above) }
   end
 
   def test_rejects_wif_with_invalid_checksum

@@ -41,7 +41,7 @@ class TestSibit < Minitest::Test
     sibit = Sibit.new(log: Logger.new(strio), api: Sibit::Fake.new)
     key = sibit.generate
     assert_includes(strio.string, 'private key generated')
-    assert_includes(strio.string, key[0..4])
+    assert_includes(strio.string, key[0..2])
     refute_includes(strio.string, key)
   end
 

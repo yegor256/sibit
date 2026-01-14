@@ -33,7 +33,7 @@ Feature: Command Line Processing
     Then Exit code is zero
 
   Scenario: Bitcoin balance can be checked
-    When I run bin/sibit with "balance 1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f --verbose --api=blockchain,btc"
+    When I run bin/sibit with "balance 1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f --verbose"
     Then Exit code is zero
 
   Scenario: Bitcoin fees can be printed

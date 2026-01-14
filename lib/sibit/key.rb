@@ -62,20 +62,30 @@ class Sibit
     def bech32
       hrp = { mainnet: 'bc', testnet: 'tb', regtest: 'bcrt' }[@network]
       hex = pub
-      raise 'Invalid public key: not on curve' unless @key.public_key.on_curve?
-      raise 'Invalid public key format' unless hex.match?(/\A0[23][0-9a-f]{64}\z/)
-      Bech32.encode(hrp, 0, hash160(hex))
+      raise Error, 'Invalid public key: not on curve' unless @key.public_key.on_curve?
+      raise Error, 'Invalid public key format' unless hex.match?(/\A0[23][0-9a-f]{64}\z/)
+      addr = Bech32.encode(hrp, 0, hash160(hex))
+      expected = /\A#{hrp}1q[a-z0-9]{38,58}\z/
+      raise Error, "Invalid bech32 address: #{addr}" unless addr.match?(expected)
+      addr
     end
 
     def base58
       hex = pub
-      raise 'Invalid public key: not on curve' unless @key.public_key.on_curve?
-      raise 'Invalid public key format' unless hex.match?(/\A0[23][0-9a-f]{64}\z/)
+      raise Error, 'Invalid public key: not on curve' unless @key.public_key.on_curve?
+      raise Error, 'Invalid public key format' unless hex.match?(/\A0[23][0-9a-f]{64}\z/)
       hash = hash160(hex)
       prefix = @network == :mainnet ? '00' : '6f'
       versioned = "#{prefix}#{hash}"
       checksum = Base58.new(versioned).check
-      Base58.new(versioned + checksum).encode
+      addr = Base58.new(versioned + checksum).encode
+      mainnet = /\A1[1-9A-HJ-NP-Za-km-z]{25,34}\z/
+      testnet = /\A[mn][1-9A-HJ-NP-Za-km-z]{25,34}\z/
+      unless addr.match?(@network == :mainnet ? mainnet : testnet)
+        raise Error,
+              "Invalid base58 address: #{addr}"
+      end
+      addr
     end
 
     def sign(data)
@@ -94,7 +104,7 @@ class Sibit
 
     def build(privkey)
       value = privkey.to_i(16)
-      raise 'private key is not on curve' unless value.between?(MIN_PRIV, MAX_PRIV)
+      raise Error, 'Private key is not on curve' unless value.between?(MIN_PRIV, MAX_PRIV)
       group = OpenSSL::PKey::EC::Group.new('secp256k1')
       bn = OpenSSL::BN.new(privkey, 16)
       pubkey = group.generator.mul(bn)
