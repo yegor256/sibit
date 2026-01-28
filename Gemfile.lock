@@ -80,7 +80,8 @@ GEM
     language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)
     logger (1.7.0)
-    loog (0.6.1)
+    loog (0.7.2)
+      ellipsized
       logger (~> 1.0)
     memoist3 (1.0.0)
     mini_mime (1.1.5)
@@ -107,7 +108,7 @@ GEM
       date
       stringio
     public_suffix (7.0.2)
-    qbash (0.6.0)
+    qbash (0.7.1)
       backtrace (> 0)
       elapsed (> 0)
       loog (> 0)
@@ -167,7 +168,7 @@ GEM
     sys-uname (1.4.1)
       ffi (~> 1.1)
       memoist3 (~> 1.0.0)
-    tago (0.6.0)
+    tago (0.7.0)
     thor (1.5.0)
     tsort (0.2.0)
     unicode-display_width (3.2.0)
