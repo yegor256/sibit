@@ -27,7 +27,7 @@ class TestCross < Minitest::Test
           volumes: { tmp => '/pkg' },
           command: 'bash -c "gem install --no-document /pkg/sibit.gem && sibit generate"',
           root: true,
-          log: Loog::NULL
+          stdout: Loog::NULL, stderr: Loog::NULL
         )
         assert_match(/sibit/, stdout, 'sibit generate must mention sibit')
       end

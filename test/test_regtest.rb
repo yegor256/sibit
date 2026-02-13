@@ -186,7 +186,7 @@ class TestRegtest < Minitest::Test
         '-fallbackfee=0.0001'
       ].join(' '),
       timeout: 600,
-      log: Loog::NULL
+      stdout: Loog::NULL
     ) do |_id|
       host = '127.0.0.1'
       wait_for_rpc(host, port)
