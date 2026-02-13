@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026 Yegor Bugayenko
+# SPDX-License-Identifier: MIT
+
+FROM ubuntu:24.04
+
+RUN apt-get update && \
+    apt-get install -y ruby ruby-dev gcc make libssl-dev && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*

@@ -1,0 +1,13 @@
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026 Yegor Bugayenko
+# SPDX-License-Identifier: MIT
+
+FROM quay.io/centos/centos:stream9
+
+RUN dnf install -y epel-release && \
+    dnf config-manager --set-enabled crb && \
+    dnf install -y gcc make openssl-devel libyaml-devel libffi-devel readline-devel zlib-devel tar && \
+    curl -fsSL https://github.com/rbenv/ruby-build/archive/refs/heads/master.tar.gz | tar -xz && \
+    PREFIX=/usr/local ./ruby-build-master/install.sh && \
+    ruby-build 3.2.6 /usr/local && \
+    rm -rf ruby-build-master && \
+    dnf clean all
