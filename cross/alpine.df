@@ -1,0 +1,6 @@
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026 Yegor Bugayenko
+# SPDX-License-Identifier: MIT
+
+FROM alpine:3.21
+
+RUN apk add --no-cache ruby ruby-dev gcc make musl-dev openssl-dev bash

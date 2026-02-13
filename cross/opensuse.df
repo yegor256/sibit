@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026 Yegor Bugayenko
+# SPDX-License-Identifier: MIT
+
+FROM opensuse/tumbleweed
+
+RUN zypper --non-interactive install ruby ruby-devel gcc make libopenssl-devel bash && \
+    zypper clean --all && \
+    gem update --system --no-document && \
+    sed -i '/format.executable/d' /etc/gemrc
