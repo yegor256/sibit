@@ -6,6 +6,7 @@
 require 'donce'
 require 'loog'
 require 'qbash'
+require 'shellwords'
 require 'tmpdir'
 require_relative 'test__helper'
 
@@ -16,11 +17,13 @@ require_relative 'test__helper'
 class TestCross < Minitest::Test
   Dir.glob(File.join(__dir__, '..', 'cross', '*.df')).each do |df|
     name = File.basename(df, '.df')
-    define_method("test_installs_and_runs_on_#{name}") do
+    define_method("test_works_on_#{name}") do
       skip unless docker?
       Dir.mktmpdir do |tmp|
-        root = File.expand_path('..', __dir__)
-        qbash("cd #{root} && gem build sibit.gemspec -o #{tmp}/sibit.gem 2>&1")
+        qbash(
+          "gem build sibit.gemspec -o #{Shellwords.escape(File.join(tmp, 'sibit.gem'))}",
+          chdir: File.expand_path('..', __dir__)
+        )
         stdout = donce(
           dockerfile: File.read(df),
           volumes: { tmp => '/pkg' },
