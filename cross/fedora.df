@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: Copyright (c) 2019-2026 Yegor Bugayenko
+# SPDX-License-Identifier: MIT
+
+FROM fedora:41
+
+RUN dnf install -y ruby ruby-devel gcc make openssl-devel && \
+    dnf clean all

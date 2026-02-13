@@ -25,11 +25,11 @@ class TestCross < Minitest::Test
         stdout = donce(
           dockerfile: File.read(df),
           volumes: { tmp => '/pkg' },
-          command: 'bash -c "gem install --no-document /pkg/sibit.gem && sibit --help"',
+          command: 'bash -c "gem install --no-document /pkg/sibit.gem && sibit generate"',
           root: true,
           log: Loog::NULL
         )
-        assert_match(/sibit/, stdout, 'sibit --help must mention sibit')
+        assert_match(/sibit/, stdout, 'sibit generate must mention sibit')
       end
     end
   end
