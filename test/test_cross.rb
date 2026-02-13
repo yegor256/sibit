@@ -18,7 +18,6 @@ class TestCross < Minitest::Test
     name = File.basename(df, '.df')
     define_method("test_installs_and_runs_on_#{name}") do
       skip unless docker?
-      WebMock.allow_net_connect!
       Dir.mktmpdir do |tmp|
         root = File.expand_path('..', __dir__)
         qbash("cd #{root} && gem build sibit.gemspec -o #{tmp}/sibit.gem 2>&1")
