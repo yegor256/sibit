@@ -108,7 +108,7 @@ GEM
       date
       stringio
     public_suffix (7.0.2)
-    qbash (0.7.2)
+    qbash (0.8.0)
       backtrace (> 0)
       elapsed (> 0)
       loog (> 0)
