@@ -67,6 +67,7 @@ GEM
       backtrace (~> 0.3)
       os (~> 1.1)
       qbash (~> 0.3)
+    drb (2.2.3)
     elapsed (0.3.1)
       loog (~> 0.6)
       tago (~> 0.1)
@@ -85,7 +86,8 @@ GEM
       logger (~> 1.0)
     memoist3 (1.0.0)
     mini_mime (1.1.5)
-    minitest (6.0.1)
+    minitest (6.0.2)
+      drb (~> 2.0)
       prism (~> 1.5)
     minitest-reporters (1.7.1)
       ansi
