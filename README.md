@@ -7,7 +7,7 @@
 [![rake](https://github.com/yegor256/sibit/actions/workflows/rake.yml/badge.svg)](https://github.com/yegor256/sibit/actions/workflows/rake.yml)
 [![PDD status](https://www.0pdd.com/svg?name=yegor256/sibit)](https://www.0pdd.com/p?name=yegor256/sibit)
 [![Gem Version](https://badge.fury.io/rb/sibit.svg)](https://badge.fury.io/rb/sibit)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/yegor256/takes/sibit/master/LICENSE.txt)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/yegor256/sibit/blob/master/LICENSE.txt)
 [![Test Coverage](https://img.shields.io/codecov/c/github/yegor256/sibit.svg)](https://codecov.io/github/yegor256/sibit?branch=master)
 [![Hits-of-Code](https://hitsofcode.com/github/yegor256/sibit)](https://hitsofcode.com/view/github/yegor256/sibit)
 
@@ -80,7 +80,7 @@ Not all [UTXOs] may be used, but only the necessary amount of them.
 
 By default, the fee is paid on top of the payment amount you are sending.
 Say, you are sending 0.5 BTC and the fee is 0.0001 BTC.
-Totally, you spend 0.5001.
+In total, you spend 0.5001 BTC.
 However, you can make Sibit deduct the fee from the payment amount.
 In this case you should provide a negative amount
   of the fee or one of `S-`, `M-`, `L-`, `XL-`.
