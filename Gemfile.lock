@@ -18,7 +18,7 @@ GEM
   specs:
     addressable (2.8.9)
       public_suffix (>= 2.0.2, < 8.0)
-    ansi (1.5.0)
+    ansi (1.6.0)
     aruba (2.4.0)
       bundler (>= 1.17)
       contracts (>= 0.16.0, < 0.18.0)
@@ -96,10 +96,10 @@ GEM
     minitest (6.0.6)
       drb (~> 2.0)
       prism (~> 1.5)
-    minitest-reporters (1.7.1)
+    minitest-reporters (1.8.0)
       ansi
       builder
-      minitest (>= 5.0)
+      minitest (>= 5.0, < 7)
       ruby-progressbar
     multi_test (1.1.0)
     nokogiri (1.19.3-arm64-darwin)
