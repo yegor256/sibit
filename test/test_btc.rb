@@ -4,8 +4,8 @@
 # SPDX-License-Identifier: MIT
 
 require_relative 'test__helper'
-require 'webmock/minitest'
 require 'json'
+require 'webmock/minitest'
 require_relative '../lib/sibit'
 require_relative '../lib/sibit/btc'
 
@@ -19,8 +19,7 @@ class TestBtc < Minitest::Test
       :get,
       'https://chain.api.btc.com/v3/address/1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f/unspent'
     ).to_return(body: '{"data":{"list":[]}}')
-    sibit = Sibit::Btc.new
-    balance = sibit.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')
+    balance = Sibit::Btc.new.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')
     assert_kind_of(Integer, balance)
     assert_equal(0, balance)
   end
@@ -30,8 +29,7 @@ class TestBtc < Minitest::Test
       :get,
       'https://chain.api.btc.com/v3/address/1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f/unspent'
     ).to_return(body: '{"data":{}}')
-    sibit = Sibit::Btc.new
-    balance = sibit.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')
+    balance = Sibit::Btc.new.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')
     assert_kind_of(Integer, balance)
     assert_equal(0, balance)
   end
@@ -41,8 +39,7 @@ class TestBtc < Minitest::Test
       :get,
       'https://chain.api.btc.com/v3/address/1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f/unspent'
     ).to_return(body: '{}')
-    sibit = Sibit::Btc.new
-    balance = sibit.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')
+    balance = Sibit::Btc.new.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')
     assert_kind_of(Integer, balance)
     assert_equal(0, balance)
   end
@@ -52,8 +49,7 @@ class TestBtc < Minitest::Test
       :get,
       'https://chain.api.btc.com/v3/address/1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f/unspent'
     ).to_return(body: '{"data":null,"err_no":1,"err_msg":"Resource Not Found"}')
-    sibit = Sibit::Btc.new
-    balance = sibit.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')
+    balance = Sibit::Btc.new.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')
     assert_kind_of(Integer, balance)
     assert_equal(0, balance)
   end
@@ -63,8 +59,7 @@ class TestBtc < Minitest::Test
       :get,
       'https://chain.api.btc.com/v3/address/1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f/unspent'
     ).to_return(body: '{"data":{"list":[{"value":123}]}}')
-    sibit = Sibit::Btc.new
-    balance = sibit.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')
+    balance = Sibit::Btc.new.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')
     assert_kind_of(Integer, balance)
     assert_equal(123, balance)
   end
@@ -76,7 +71,7 @@ class TestBtc < Minitest::Test
     stub_request(:get, "https://chain.api.btc.com/v3/block/#{hash}/tx?page=1&pagesize=50")
       .to_return(body: '{}')
     sibit = Sibit::Btc.new
-    assert_raises Sibit::Error do
+    assert_raises(Sibit::Error) do
       sibit.block(hash)
     end
   end
@@ -86,10 +81,11 @@ class TestBtc < Minitest::Test
     stub_request(:get, "https://chain.api.btc.com/v3/block/#{hash}")
       .to_return(body: '{"data": {"next_block_hash": "n", "hash": "h", "prev_block_hash": "p"}}')
     stub_request(:get, "https://chain.api.btc.com/v3/block/#{hash}/tx?page=1&pagesize=50")
-      .to_return(body: '{"data": {"list":[{"hash": "thash",
-        "outputs": [{"addresses": ["a1"], "value": 123}]}]}}')
-    sibit = Sibit::Btc.new
-    json = sibit.block(hash)
+      .to_return(
+        body: '{"data": {"list":[{"hash": "thash",
+        "outputs": [{"addresses": ["a1"], "value": 123}]}]}}'
+      )
+    json = Sibit::Btc.new.block(hash)
     assert(json[:next])
     assert(json[:previous])
     assert_equal('h', json[:hash])
@@ -116,9 +112,7 @@ class TestBtc < Minitest::Test
   def test_fetch_latest_block_hash
     stub_request(:get, 'https://chain.api.btc.com/v3/block/latest')
       .to_return(body: '{"data": {"hash": "00000000abc123"}}')
-    sibit = Sibit::Btc.new
-    hash = sibit.latest
-    assert_equal('00000000abc123', hash, 'latest hash does not match')
+    assert_equal('00000000abc123', Sibit::Btc.new.latest, 'latest hash does not match')
   end
 
   def test_fetch_latest_raises_on_missing_data
@@ -132,19 +126,15 @@ class TestBtc < Minitest::Test
     hash = '000000000000000007341915521967247f1dec17b3a311b8a8f4495392f1439b'
     stub_request(:get, "https://chain.api.btc.com/v3/block/#{hash}")
       .to_return(body: '{"data": {"next_block_hash": "00000000next"}}')
-    sibit = Sibit::Btc.new
-    nxt = sibit.next_of(hash)
-    assert_equal('00000000next', nxt, 'next block hash does not match')
+    assert_equal('00000000next', Sibit::Btc.new.next_of(hash), 'next block hash does not match')
   end
 
   def test_fetch_next_of_returns_nil_for_latest
     hash = '000000000000000007341915521967247f1dec17b3a311b8a8f4495392f1439b'
-    zeros = '0000000000000000000000000000000000000000000000000000000000000000'
+    zero = '0' * 64
     stub_request(:get, "https://chain.api.btc.com/v3/block/#{hash}")
-      .to_return(body: "{\"data\": {\"next_block_hash\": \"#{zeros}\"}}")
-    sibit = Sibit::Btc.new
-    nxt = sibit.next_of(hash)
-    assert_nil(nxt, 'next of latest block should be nil')
+      .to_return(body: %({"data": {"next_block_hash": "#{zero}"}}))
+    assert_nil(Sibit::Btc.new.next_of(hash), 'next of latest block should be nil')
   end
 
   def test_fetch_next_of_raises_on_missing_block
@@ -159,9 +149,7 @@ class TestBtc < Minitest::Test
     hash = '000000000000000007341915521967247f1dec17b3a311b8a8f4495392f1439b'
     stub_request(:get, "https://chain.api.btc.com/v3/block/#{hash}")
       .to_return(body: '{"data": {"height": 500000}}')
-    sibit = Sibit::Btc.new
-    h = sibit.height(hash)
-    assert_equal(500_000, h, 'block height does not match')
+    assert_equal(500_000, Sibit::Btc.new.height(hash), 'block height does not match')
   end
 
   def test_fetch_height_raises_on_missing_block
@@ -174,8 +162,7 @@ class TestBtc < Minitest::Test
 
   def test_fetch_height_raises_on_missing_height
     hash = '000000000000000007341915521967247f1dec17b3a311b8a8f4495392f1439b'
-    stub_request(:get, "https://chain.api.btc.com/v3/block/#{hash}")
-      .to_return(body: '{"data": {}}')
+    stub_request(:get, "https://chain.api.btc.com/v3/block/#{hash}").to_return(body: '{"data": {}}')
     sibit = Sibit::Btc.new
     assert_raises(Sibit::Error) { sibit.height(hash) }
   end
@@ -190,15 +177,14 @@ class TestBtc < Minitest::Test
 
   def test_block_sets_next_to_nil_for_latest
     hash = '000000000000000007341915521967247f1dec17b3a311b8a8f4495392f1439b'
-    zeros = '0000000000000000000000000000000000000000000000000000000000000000'
+    zero = '0' * 64
     stub_request(:get, "https://chain.api.btc.com/v3/block/#{hash}")
-      .to_return(body: "{\"data\": {\"next_block_hash\": \"#{zeros}\", \
-        \"hash\": \"h\", \"prev_block_hash\": \"p\"}}")
+      .to_return(
+        body: %({"data": {"next_block_hash": "#{zero}", "hash": "h", "prev_block_hash": "p"}})
+      )
     stub_request(:get, "https://chain.api.btc.com/v3/block/#{hash}/tx?page=1&pagesize=50")
       .to_return(body: '{"data": {"list":[]}}')
-    sibit = Sibit::Btc.new
-    json = sibit.block(hash)
-    assert_nil(json[:next], 'next should be nil for latest block')
+    assert_nil(Sibit::Btc.new.block(hash)[:next], 'next should be nil for latest block')
   end
 
   def test_txns_raises_on_empty_list

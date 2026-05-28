@@ -9,7 +9,7 @@ lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require_relative 'lib/sibit/version'
 Gem::Specification.new do |s|
-  if s.respond_to? :required_rubygems_version=
+  if s.respond_to?(:required_rubygems_version=)
     s.required_rubygems_version = Gem::Requirement.new('>= 0')
   end
   s.required_ruby_version = '>= 3.0'
@@ -29,14 +29,14 @@ Gem::Specification.new do |s|
   s.executables = s.files.grep(%r{^bin/}) { |f| File.basename(f) }
   s.rdoc_options = ['--charset=UTF-8']
   s.extra_rdoc_files = ['README.md', 'LICENSE.txt']
-  s.add_dependency 'backtrace', '~> 0.3'
-  s.add_dependency 'decoor', '~> 0.1'
-  s.add_dependency 'elapsed', '~> 0.2'
-  s.add_dependency 'ellipsized', '~> 0.3'
-  s.add_dependency 'iri', '~> 0.5'
-  s.add_dependency 'json', '~> 2.18'
-  s.add_dependency 'loog', '~> 0.6'
-  s.add_dependency 'openssl', '~> 3.0'
-  s.add_dependency 'retriable_proxy', '~> 1.0'
-  s.add_dependency 'thor', '~> 1.3'
+  s.add_dependency('backtrace', '~> 0.3')
+  s.add_dependency('decoor', '~> 0.1')
+  s.add_dependency('elapsed', '~> 0.2')
+  s.add_dependency('ellipsized', '~> 0.3')
+  s.add_dependency('iri', '~> 0.5')
+  s.add_dependency('json', '~> 2.18')
+  s.add_dependency('loog', '~> 0.6')
+  s.add_dependency('openssl', '~> 3.0')
+  s.add_dependency('retriable_proxy', '~> 1.0')
+  s.add_dependency('thor', '~> 1.3')
 end

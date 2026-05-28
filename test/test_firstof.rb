@@ -3,10 +3,10 @@
 # SPDX-FileCopyrightText: Copyright (c) 2019-2026 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
-require_relative 'test__helper'
 require_relative '../lib/sibit'
 require_relative '../lib/sibit/fake'
 require_relative '../lib/sibit/firstof'
+require_relative 'test__helper'
 
 # Sibit::FirstOf test.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
@@ -34,11 +34,11 @@ class TestFirstOf < Minitest::Test
   def test_all_fail
     api = Class.new do
       def latest
-        raise Sibit::Error, 'intentionally'
+        raise(Sibit::Error, 'intentionally')
       end
     end.new
     sibit = Sibit::FirstOf.new([api, api])
-    assert_raises Sibit::Error do
+    assert_raises(Sibit::Error) do
       sibit.latest
     end
   end

@@ -13,6 +13,7 @@ plugins:
   - rubocop-rake
   - rubocop-minitest
   - rubocop-performance
+  - rubocop-elegant
 Gemspec/RequireMFA:
   Enabled: false
 Style/ClassAndModuleChildren:
@@ -47,3 +48,91 @@ Lint/OrAssignmentToConstant:
   Enabled: false
 Layout/HashAlignment:
   Enabled: false
+# Suggests in-place mutators (compact!, map!, reject!) that conflict with the
+# immutable-objects principle, so it is disabled in favor of immutability.
+Performance/ChainArrayAllocation:
+  Enabled: false
+# The cop misreads the executable shebang on the first line of bin/sibit as a
+# forbidden comment, so the script is excluded.
+Elegant/NoComments:
+  Exclude:
+    - 'bin/sibit'
+Elegant/NoRedundantVariable:
+  Exclude:
+    - 'test/**/*'
+Elegant/NoNilReturn:
+  Exclude:
+    - 'lib/sibit/dry.rb'
+    - 'lib/sibit/fake.rb'
+    - 'lib/sibit/script.rb'
+Elegant/ClassInModule:
+  Exclude:
+    - 'lib/**/*'
+    - '**/test_*.rb'
+    - '**/*Test.rb'
+Elegant/GoodVariableName:
+  AllowedNames:
+    - '@prev_out_hash'
+    - '@prev_out_idx'
+    - '@prev_script'
+    - '@script_sig'
+Elegant/GoodMethodName:
+  AllowedNames:
+    - add_input
+    - add_output
+    - base58
+    - bech32
+    - best_of
+    - create_wallet
+    - der_sig
+    - exit_on_failure?
+    - first_of
+    - for_each
+    - handle_argument_error
+    - hash_outputs
+    - hash_prevouts
+    - hash_sequence
+    - hash160
+    - in_docker
+    - legacy_sighash
+    - low_s?
+    - next_of
+    - p2pkh_address
+    - p2pkh_script
+    - p2pkh?
+    - p2wpkh_address
+    - p2wpkh?
+    - prev_out
+    - prev_out_index
+    - prev_out_script=
+    - prev_out_value
+    - pubkey_script
+    - random_port
+    - script_code
+    - script_hex
+    - segwit_script
+    - segwit_sighash
+    - serialize_for_signing
+    - serialize_witness
+    - sign_inputs
+    - signature_key
+    - user_agent
+    - wait_for_rpc
+    - test_base58_address_starts_with_one
+    - test_bech32_address_starts_with_bc1q
+    - test_decodes_base58_to_hex
+    - test_decodes_p2wpkh_address
+    - test_derives_correct_base58_address
+    - test_derives_correct_bech32_address
+    - test_different_inputs_produce_different_checksums
+    - test_encodes_hex_to_base58
+    - test_extracts_hash160_from_p2wpkh
+    - test_extracts_hash160_from_script
+    - test_extracts_segwit_address_from_p2wpkh
+    - test_parses_p2pkh_script
+    - test_parses_p2wpkh_script
+    - test_regtest_bech32_starts_with_bcrt1q
+    - test_rejects_non_p2pkh_script
+    - test_rejects_wrong_op_hash160
+    - test_returns_nil_address_for_non_p2pkh
+    - test_returns_nil_hash160_for_non_p2pkh

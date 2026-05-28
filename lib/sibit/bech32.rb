@@ -19,15 +19,13 @@ class Sibit
     GENERATOR = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3].freeze
 
     def self.encode(hrp, ver, prog)
-      bytes = [prog].pack('H*').bytes
-      data = [ver] + bits(bytes, 8, 5, true)
+      data = [ver] + bits([prog].pack('H*').bytes, 8, 5, true)
       chk = checksum(hrp, data)
       "#{hrp}1#{(data + chk).map { |d| CHARSET[d] }.join}"
     end
 
     def self.checksum(hrp, data)
-      values = expanded(hrp) + data + [0, 0, 0, 0, 0, 0]
-      poly = pm(values) ^ 1
+      poly = pm(expanded(hrp) + data + [0, 0, 0, 0, 0, 0]) ^ 1
       (0..5).map { |i| (poly >> (5 * (5 - i))) & 31 }
     end
 
@@ -68,9 +66,8 @@ class Sibit
 
     def witness
       hrp, data = parse
-      raise Sibit::Error, "Invalid Bech32 checksum in '#{@addr}'" unless verified?(hrp, data)
-      prog = convert(data[1..-7], 5, 8, false)
-      prog.pack('C*').unpack1('H*')
+      raise(Sibit::Error, "Invalid Bech32 checksum in '#{@addr}'") unless verified?(hrp, data)
+      convert(data[1..-7], 5, 8, false).pack('C*').unpack1('H*')
     end
 
     def version
@@ -82,18 +79,16 @@ class Sibit
 
     def parse
       pos = @addr.rindex('1')
-      raise Sibit::Error, "Invalid Bech32 address '#{@addr}': no separator" if pos.nil? || pos < 1
-      hrp = @addr[0...pos]
+      raise(Sibit::Error, "Invalid Bech32 address '#{@addr}': no separator") if pos.nil? || pos < 1
       rest = @addr[(pos + 1)..]
-      raise Sibit::Error, "Invalid Bech32 address '#{@addr}': data too short" if rest.length < 6
+      raise(Sibit::Error, "Invalid Bech32 address '#{@addr}': data too short") if rest.length < 6
       data = rest.chars.map { |c| CHARSET.index(c) }
-      raise Sibit::Error, "Invalid Bech32 character in '#{@addr}'" if data.include?(nil)
-      [hrp, data]
+      raise(Sibit::Error, "Invalid Bech32 character in '#{@addr}'") if data.include?(nil)
+      [@addr[0...pos], data]
     end
 
     def verified?(hrp, data)
-      chk = polymod(expand(hrp) + data)
-      [1, 0x2bc830a3].include?(chk)
+      [1, 0x2bc830a3].include?(polymod(expand(hrp) + data))
     end
 
     def expand(hrp)

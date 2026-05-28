@@ -25,51 +25,52 @@ class Sibit::Cex
 
   # Current price of BTC in USD (float returned).
   def price(currency = 'USD')
-    json = Sibit::Json.new(http: @http, log: @log).get(
-      Iri.new('https://cex.io/api/last_price/BTC').append(currency)
+    p = Float(
+      Sibit::Json.new(http: @http, log: @log).get(
+        Iri.new('https://cex.io/api/last_price/BTC').append(currency)
+      )['lprice']
     )
-    p = json['lprice'].to_f
     @log.debug("The price of BTC is #{p} #{currency}")
     p
   end
 
   # Get hash of the block after this one.
   def next_of(_hash)
-    raise Sibit::NotSupportedError, 'Cex.io API doesn\'t provide next_of()'
+    raise(Sibit::NotSupportedError, 'Cex.io API doesn\'t provide next_of()')
   end
 
   # Gets the balance of the address, in satoshi.
   def balance(_address)
-    raise Sibit::NotSupportedError, 'Cex.io doesn\'t implement balance()'
+    raise(Sibit::NotSupportedError, 'Cex.io doesn\'t implement balance()')
   end
 
   # The height of the block.
   def height(_hash)
-    raise Sibit::NotSupportedError, 'Cex.io doesn\'t implement height()'
+    raise(Sibit::NotSupportedError, 'Cex.io doesn\'t implement height()')
   end
 
   # Get recommended fees, in satoshi per byte.
   def fees
-    raise Sibit::NotSupportedError, 'Cex.io doesn\'t implement fees()'
+    raise(Sibit::NotSupportedError, 'Cex.io doesn\'t implement fees()')
   end
 
   # Gets the hash of the latest block.
   def latest
-    raise Sibit::NotSupportedError, 'Cex.io doesn\'t implement latest()'
+    raise(Sibit::NotSupportedError, 'Cex.io doesn\'t implement latest()')
   end
 
   # Fetch all unspent outputs per address.
   def utxos(_sources)
-    raise Sibit::NotSupportedError, 'Cex.io doesn\'t implement utxos()'
+    raise(Sibit::NotSupportedError, 'Cex.io doesn\'t implement utxos()')
   end
 
   # Push this transaction (in hex format) to the network.
   def push(_hex)
-    raise Sibit::NotSupportedError, 'Cex.io doesn\'t implement push()'
+    raise(Sibit::NotSupportedError, 'Cex.io doesn\'t implement push()')
   end
 
   # This method should fetch a Blockchain block and return as a hash.
   def block(_hash)
-    raise Sibit::NotSupportedError, 'Cex.io doesn\'t implement block()'
+    raise(Sibit::NotSupportedError, 'Cex.io doesn\'t implement block()')
   end
 end

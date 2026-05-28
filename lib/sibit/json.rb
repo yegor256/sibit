@@ -43,16 +43,16 @@ class Sibit::Json
           'Accept-Encoding' => ''
         }.merge(headers)
       )
-      unless accept.include?(res.code.to_i)
-        raise Sibit::Error, "Failed to retrieve #{uri} (#{res.code}): #{res.body}"
+      unless accept.include?(Integer(res.code, 10))
+        raise(Sibit::Error, "Failed to retrieve #{uri} (#{res.code}): #{res.body}")
       end
       ret =
         begin
           JSON.parse(res.body)
         rescue JSON::ParserError => e
-          raise Sibit::Error, "Can't parse JSON: #{e.message}"
+          raise(Sibit::Error, "Can't parse JSON: #{e.message}")
         end
-      throw :"GET #{uri}: #{res.code}/#{length(res.body.length)}"
+      throw(:"GET #{uri}: #{res.code}/#{length(res.body.length)}")
     end
     ret
   end
@@ -72,9 +72,9 @@ class Sibit::Json
         }.merge(headers)
       )
       unless res.code == '200'
-        raise Sibit::Error, "Failed to post tx to #{uri}: #{res.code}\n#{res.body}"
+        raise(Sibit::Error, "Failed to post tx to #{uri}: #{res.code}\n#{res.body}")
       end
-      throw :"POST #{uri}: #{res.code}"
+      throw(:"POST #{uri}: #{res.code}")
     end
   end
 

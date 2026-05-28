@@ -83,18 +83,18 @@ class Sibit::FirstOf
   private
 
   def first_of(method)
-    return yield @list unless @list.is_a?(Array)
+    return yield(@list) unless @list.is_a?(Array)
     errors = []
     done = false
     result = nil
     @list.each do |api|
       @log.debug("Calling #{api.class.name}##{method}()...")
       begin
-        result = yield api
+        result = yield(api)
         done = true
         break
       rescue Sibit::NotSupportedError
-        # Just ignore it
+        nil
       rescue Sibit::Error => e
         errors << e
         @log.debug("The API #{api.class.name} failed at #{method}(): #{e.message}") if @verbose
@@ -102,8 +102,11 @@ class Sibit::FirstOf
     end
     unless done
       errors.each { |e| @log.debug(Backtrace.new(e).to_s) }
-      raise Sibit::Error, "No APIs out of #{@list.length} managed to succeed at #{method}(): \
-#{@list.map { |a| a.class.name }.join(', ')}"
+      raise(
+        Sibit::Error,
+        "No APIs out of #{@list.length} managed to succeed at #{method}(): " \
+        "#{@list.map { |a| a.class.name }.join(', ')}"
+      )
     end
     result
   end

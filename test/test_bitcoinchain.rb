@@ -4,8 +4,8 @@
 # SPDX-License-Identifier: MIT
 
 require_relative 'test__helper'
-require 'webmock/minitest'
 require 'json'
+require 'webmock/minitest'
 require_relative '../lib/sibit'
 require_relative '../lib/sibit/bitcoinchain'
 
@@ -19,18 +19,14 @@ class TestBitcoinchain < Minitest::Test
       :get,
       'https://api-r.bitcoinchain.com/v1/status'
     ).to_return(body: '{"hash": "test"}')
-    sibit = Sibit::Bitcoinchain.new
-    hash = sibit.latest
-    assert_equal('test', hash)
+    assert_equal('test', Sibit::Bitcoinchain.new.latest)
   end
 
   def test_fetch_balance
     hash = '1Chain4asCYNnLVbvG6pgCLGBrtzh4Lx4b'
     stub_request(:get, "https://api-r.bitcoinchain.com/v1/address/#{hash}")
       .to_return(body: '[{"balance": 5}]')
-    sibit = Sibit::Bitcoinchain.new
-    satoshi = sibit.balance(hash)
-    assert_equal(500_000_000, satoshi)
+    assert_equal(500_000_000, Sibit::Bitcoinchain.new.balance(hash))
   end
 
   def test_fetch_block
@@ -44,8 +40,7 @@ class TestBitcoinchain < Minitest::Test
         body: '[{"txs":[{"self_hash":"hash123",
           "outputs":[{"value": 123, "receiver": "a1"}]}]}]'
       )
-    sibit = Sibit::Bitcoinchain.new
-    json = sibit.block(hash)
+    json = Sibit::Bitcoinchain.new.block(hash)
     assert_equal('nn', json[:next])
     assert_equal('pp', json[:previous])
     assert_equal('hh', json[:hash])

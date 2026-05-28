@@ -3,9 +3,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2019-2026 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
+require 'English'
 require 'nokogiri'
 require 'tmpdir'
-require 'English'
 require_relative '../../lib/sibit'
 
 Before do
@@ -32,19 +32,19 @@ When(%r{^I run bin/sibit with "([^"]*)"$}) do |arg|
 end
 
 Then(/^Stdout contains "([^"]*)"$/) do |txt|
-  raise "STDOUT doesn't contain '#{txt}':\n#{@stdout}" unless @stdout.include?(txt)
+  raise(StandardError, "STDOUT doesn't contain '#{txt}':\n#{@stdout}") unless @stdout.include?(txt)
 end
 
 Then(/^Stdout is empty$/) do
-  raise "STDOUT is not empty:\n#{@stdout}" unless @stdout == ''
+  raise(StandardError, "STDOUT is not empty:\n#{@stdout}") unless @stdout == ''
 end
 
 Then(/^Exit code is zero$/) do
-  raise "Non-zero exit #{@exitstatus}:\n#{@stdout}" unless @exitstatus.zero?
+  raise(StandardError, "Non-zero exit #{@exitstatus}:\n#{@stdout}") unless @exitstatus.zero?
 end
 
 Then(/^Exit code is not zero$/) do
-  raise 'Zero exit code' if @exitstatus.zero?
+  raise(StandardError, 'Zero exit code') if @exitstatus.zero?
 end
 
 When(/^I run bash with "([^"]*)"$/) do |text|

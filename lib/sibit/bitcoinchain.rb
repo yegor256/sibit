@@ -26,12 +26,12 @@ class Sibit::Bitcoinchain
 
   # Current price of BTC in USD (float returned).
   def price(_currency = 'USD')
-    raise Sibit::NotSupportedError, 'Bitcoinchain API doesn\'t provide BTC price'
+    raise(Sibit::NotSupportedError, 'Bitcoinchain API doesn\'t provide BTC price')
   end
 
   # The height of the block.
   def height(_hash)
-    raise Sibit::NotSupportedError, 'Bitcoinchain API doesn\'t provide height()'
+    raise(Sibit::NotSupportedError, 'Bitcoinchain API doesn\'t provide height()')
   end
 
   # Get hash of the block after this one.
@@ -39,7 +39,7 @@ class Sibit::Bitcoinchain
     block = Sibit::Json.new(http: @http, log: @log).get(
       Iri.new('https://api-r.bitcoinchain.com/v1/block').append(hash)
     )[0]
-    raise Sibit::Error, "Block #{hash} not found" if block.nil?
+    raise(Sibit::Error, "Block #{hash} not found") if block.nil?
     nxt = block['next_block']
     nxt = nil if nxt == '0000000000000000000000000000000000000000000000000000000000000000'
     @log.debug("The block #{hash} is the latest, there is no next block") if nxt.nil?
@@ -59,14 +59,14 @@ class Sibit::Bitcoinchain
       return 0
     end
     b *= 100_000_000
-    b = b.to_i
+    b = Integer(b)
     @log.debug("The balance of #{address} is #{b} satoshi (#{json['transactions']} txns)")
     b
   end
 
   # Get recommended fees, in satoshi per byte.
   def fees
-    raise Sibit::NotSupportedError, 'Not implemented yet'
+    raise(Sibit::NotSupportedError, 'Not implemented yet')
   end
 
   # Gets the hash of the latest block.
@@ -80,12 +80,12 @@ class Sibit::Bitcoinchain
 
   # Fetch all unspent outputs per address.
   def utxos(_sources)
-    raise Sibit::NotSupportedError, 'Not implemented yet'
+    raise(Sibit::NotSupportedError, 'Not implemented yet')
   end
 
   # Push this transaction (in hex format) to the network.
   def push(_hex)
-    raise Sibit::NotSupportedError, 'Not implemented yet'
+    raise(Sibit::NotSupportedError, 'Not implemented yet')
   end
 
   # This method should fetch a Blockchain block and return as a hash. Raises
@@ -94,7 +94,7 @@ class Sibit::Bitcoinchain
     head = Sibit::Json.new(http: @http, log: @log).get(
       Iri.new('https://api-r.bitcoinchain.com/v1/block').append(hash)
     )[0]
-    raise Sibit::Error, "The block #{hash} is not found" if head.nil?
+    raise(Sibit::Error, "The block #{hash} is not found") if head.nil?
     txs = Sibit::Json.new(http: @http, log: @log).get(
       Iri.new('https://api-r.bitcoinchain.com/v1/block/txs').append(hash)
     )

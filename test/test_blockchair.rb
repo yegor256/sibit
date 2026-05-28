@@ -4,8 +4,8 @@
 # SPDX-License-Identifier: MIT
 
 require_relative 'test__helper'
-require 'webmock/minitest'
 require 'json'
+require 'webmock/minitest'
 require_relative '../lib/sibit'
 require_relative '../lib/sibit/blockchair'
 
@@ -17,20 +17,21 @@ class TestBlockchair < Minitest::Test
   def test_fetch_balance
     hash = '1GkQmKAmHtNfnD3LHhTkewJxKHVSta4m2a'
     stub_request(:get, "https://api.blockchair.com/bitcoin/dashboards/address/#{hash}")
-      .to_return(body: "{\"data\": {\"#{hash}\": {\"address\":
-        {\"balance\": 1, \"transactions\": []}}}}")
-    sibit = Sibit::Blockchair.new
-    satoshi = sibit.balance(hash)
-    assert_equal(1, satoshi)
+      .to_return(
+        body: "{\"data\": {\"#{hash}\": {\"address\":
+        {\"balance\": 1, \"transactions\": []}}}}"
+      )
+    assert_equal(1, Sibit::Blockchair.new.balance(hash))
   end
 
   def test_returns_zero_for_unknown_address
     hash = '1Unknown123Address'
     stub_request(:get, "https://api.blockchair.com/bitcoin/dashboards/address/#{hash}")
       .to_return(body: "{\"data\": {\"#{hash}\": null}}")
-    sibit = Sibit::Blockchair.new
-    satoshi = sibit.balance(hash)
-    assert_equal(0, satoshi, 'unknown address should return zero balance')
+    assert_equal(
+      0, Sibit::Blockchair.new.balance(hash),
+      'unknown address should return zero balance'
+    )
   end
 
   def test_price_raises_not_supported
@@ -71,23 +72,22 @@ class TestBlockchair < Minitest::Test
   def test_push_transaction
     stub_request(:post, 'https://api.blockchair.com/bitcoin/push/transaction')
       .to_return(body: '{"data": {"transaction_hash": "abc123"}}')
-    sibit = Sibit::Blockchair.new
-    sibit.push('deadbeef')
+    Sibit::Blockchair.new.push('deadbeef')
   end
 
   def test_uses_api_key_in_requests
     hash = '1GkQmKAmHtNfnD3LHhTkewJxKHVSta4m2a'
     stub_request(:get, "https://api.blockchair.com/bitcoin/dashboards/address/#{hash}")
       .to_return(body: "{\"data\": {\"#{hash}\": {\"address\": {\"balance\": 100}}}}")
-    sibit = Sibit::Blockchair.new(key: 'testkey')
-    satoshi = sibit.balance(hash)
-    assert_equal(100, satoshi, 'balance with API key does not match')
+    assert_equal(
+      100, Sibit::Blockchair.new(key: 'testkey').balance(hash),
+      'balance with API key does not match'
+    )
   end
 
   def test_push_with_api_key
     stub_request(:post, 'https://api.blockchair.com/bitcoin/push/transaction')
       .to_return(body: '{"data": {"transaction_hash": "abc123"}}')
-    sibit = Sibit::Blockchair.new(key: 'testkey')
-    sibit.push('deadbeef')
+    Sibit::Blockchair.new(key: 'testkey').push('deadbeef')
   end
 end

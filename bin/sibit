@@ -10,8 +10,6 @@ require 'backtrace'
 require 'loog'
 require_relative '../lib/sibit'
 require_relative '../lib/sibit/bin'
-require_relative '../lib/sibit/http'
-require_relative '../lib/sibit/httpproxy'
 require_relative '../lib/sibit/bitcoinchain'
 require_relative '../lib/sibit/blockchain'
 require_relative '../lib/sibit/blockchair'
@@ -20,13 +18,15 @@ require_relative '../lib/sibit/cex'
 require_relative '../lib/sibit/dry'
 require_relative '../lib/sibit/fake'
 require_relative '../lib/sibit/firstof'
+require_relative '../lib/sibit/http'
+require_relative '../lib/sibit/httpproxy'
 require_relative '../lib/sibit/version'
 
 begin
   Sibit::Bin.start(ARGV)
 rescue StandardError => e
-  verbose = !ARGV.include?('--quiet') &&
-            (ARGV.include?('--verbose') || ENV.fetch('SIBIT_VERBOSE', nil))
+  wants = ARGV.include?('--verbose') || ENV.fetch('SIBIT_VERBOSE', nil)
+  verbose = !ARGV.include?('--quiet') && wants
   log = verbose ? Loog::VERBOSE : Loog::REGULAR
   if verbose
     log.error(Backtrace.new(e))

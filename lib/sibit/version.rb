@@ -8,6 +8,5 @@
 # Copyright:: Copyright (c) 2019-2026 Yegor Bugayenko
 # License:: MIT
 class Sibit
-  # Current version of the library.
   VERSION = '0.0.0' unless defined?(VERSION)
 end

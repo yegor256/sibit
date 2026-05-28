@@ -6,11 +6,11 @@
 require 'ellipsized'
 require 'loog'
 require_relative 'sibit/base58'
+require_relative 'sibit/blockchain'
 require_relative 'sibit/key'
 require_relative 'sibit/script'
 require_relative 'sibit/tx'
 require_relative 'sibit/txbuilder'
-require_relative 'sibit/blockchain'
 require_relative 'sibit/version'
 
 # Sibit main class.
@@ -19,7 +19,6 @@ require_relative 'sibit/version'
 # Copyright:: Copyright (c) 2019-2026 Yegor Bugayenko
 # License:: MIT
 class Sibit
-  # Minimum fee we must pay for transaction processing:
   MIN_SATOSHI_PER_BYTE = 0.1
 
   # Constructor.
@@ -46,7 +45,7 @@ class Sibit
 
   # Current price of 1 BTC in USD (or another currency), float returned.
   def price(currency = 'USD')
-    raise Error, "Invalid currency #{currency.inspect}" unless /^[A-Z]{3}$/.match?(currency)
+    raise(Error, "Invalid currency #{currency.inspect}") unless /^[A-Z]{3}$/.match?(currency)
     @api.price(currency)
   end
 
@@ -59,25 +58,25 @@ class Sibit
 
   # Creates Bitcoin address using the private key in Hash160 format.
   def create(pvt)
-    raise Error, 'Invalid private key (must be 64 hex chars)' unless /^[0-9a-f]{64}$/.match?(pvt)
+    raise(Error, 'Invalid private key (must be 64 hex chars)') unless /^[0-9a-f]{64}$/.match?(pvt)
     Key.new(pvt).bech32
   end
 
   # Gets the balance of the address, in satoshi.
   def balance(address)
-    raise Error, "Invalid address #{address.inspect}" unless /^[0-9a-zA-Z]+$/.match?(address)
+    raise(Error, "Invalid address #{address.inspect}") unless /^[0-9a-zA-Z]+$/.match?(address)
     @api.balance(address)
   end
 
   # Get the height of the block.
   def height(hash)
-    raise Error, "Invalid block hash #{hash.inspect}" unless /^[0-9a-f]{64}$/.match?(hash)
+    raise(Error, "Invalid block hash #{hash.inspect}") unless /^[0-9a-f]{64}$/.match?(hash)
     @api.height(hash)
   end
 
   # Get the hash of the next block.
   def next_of(hash)
-    raise Error, "Invalid block hash #{hash.inspect}" unless /^[0-9a-f]{64}$/.match?(hash)
+    raise(Error, "Invalid block hash #{hash.inspect}") unless /^[0-9a-f]{64}$/.match?(hash)
     @api.next_of(hash)
   end
 
@@ -105,34 +104,39 @@ class Sibit
   # +change+: the address where the change has to be sent to
   # +network+: optional network override (:mainnet, :testnet, :regtest)
   # +price+: optional BTC price in USD (skips API fetch if provided)
-  def pay(amount, fee, sources, target, change, skip_utxo: [], network: nil, base58: false,
-          price: nil)
+  def pay(
+    amount, fee, sources, target, change, skip_utxo: [], network: nil, base58: false,
+    price: nil
+  )
     unless amount.is_a?(Integer) || amount.is_a?(String)
-      raise Error, "The amount #{amount.inspect} must be Integer or String"
+      raise(Error, "The amount #{amount.inspect} must be Integer or String")
     end
-    raise Error, 'The amount must be positive' if amount.is_a?(Integer) && amount.negative?
-    raise Error, 'The sources must be an Array' unless sources.is_a?(Array)
-    raise Error, 'The target must be a String' unless target.is_a?(String)
-    raise Error, 'The change must be a String' unless change.is_a?(String)
+    raise(Error, 'The amount must be positive') if amount.is_a?(Integer) && amount.negative?
+    raise(Error, 'The sources must be an Array') unless sources.is_a?(Array)
+    raise(Error, 'The target must be a String') unless target.is_a?(String)
+    raise(Error, 'The change must be a String') unless change.is_a?(String)
     p = price || price('USD')
-    keys = sources.map do |k|
-      raise Error, 'Each source private key must be a String' unless k.is_a?(String)
-      hex = /^[0-9a-f]{64}$/i.match?(k)
-      wif = /^[5KLc][1-9A-HJ-NP-Za-km-z]{50,51}$/.match?(k)
-      raise Error, "Invalid private key format: #{k.inspect.ellipsized(8)}" unless hex || wif
-      Key.new(k, network: network)
-    end
-    network = keys.first&.network || :mainnet
-    sources = keys.to_h do |k|
-      pub =
-        if base58
-          k.base58
-        else
-          k.bech32
+    keys =
+      sources.map do |k|
+        raise(Error, 'Each source private key must be a String') unless k.is_a?(String)
+        wif = /^[5KLc][1-9A-HJ-NP-Za-km-z]{50,51}$/.match?(k)
+        unless /^[0-9a-f]{64}$/i.match?(k) || wif
+          raise(Error, "Invalid private key format: #{k.inspect.ellipsized(8)}")
         end
-      @log.debug("Private key #{k.priv.ellipsized(8).inspect} is public as #{pub}:")
-      [pub, k.priv]
-    end
+        Key.new(k, network: network)
+      end
+    network = keys.first&.network || :mainnet
+    sources =
+      keys.to_h do |k|
+        pub =
+          if base58
+            k.base58
+          else
+            k.bech32
+          end
+        @log.debug("Private key #{k.priv.ellipsized(8).inspect} is public as #{pub}:")
+        [pub, k.priv]
+      end
     satoshi = satoshi(amount)
     builder = TxBuilder.new
     unspent = 0
@@ -156,34 +160,30 @@ class Sibit
         i.prev_out_value(utxo[:value])
         address = Script.new(script_hex(utxo[:script])).address(network)
         k = sources[address]
-        raise Error, "UTXO arrived to #{address} is incorrect" unless k
+        raise(Error, "UTXO arrived to #{address} is incorrect") unless k
         i.signature_key(key(k))
       end
       size += 180
-      @log.debug(
-        "  #{num(utxo[:value], p)}/#{utxo[:confirmations]} at #{utxo[:hash]}"
-      )
+      @log.debug("  #{num(utxo[:value], p)}/#{utxo[:confirmations]} at #{utxo[:hash]}")
       break if unspent > satoshi
     end
     if unspent < satoshi
-      raise Error, "Not enough funds to send #{num(satoshi, p)}, only #{num(unspent, p)} left"
+      raise(Error, "Not enough funds to send #{num(satoshi, p)}, only #{num(unspent, p)} left")
     end
     f = mfee(fee, size)
     if f.negative?
       satoshi += f
       f = -f
     end
-    raise Error, "The fee #{f.abs} covers the entire amount" if satoshi.zero?
-    raise Error, "The fee #{f.abs} is bigger than the amount #{satoshi}" if satoshi.negative?
+    raise(Error, "The fee #{f.abs} covers the entire amount") if satoshi.zero?
+    raise(Error, "The fee #{f.abs} is bigger than the amount #{satoshi}") if satoshi.negative?
     builder.output(satoshi, target)
     tx = builder.tx(
       input_value: unspent,
       leave_fee: true,
-      extra_fee: [f, (size * MIN_SATOSHI_PER_BYTE).to_i].max,
+      extra_fee: [f, Integer(size * MIN_SATOSHI_PER_BYTE)].max,
       change_address: change
     )
-    left = unspent - tx.outputs.sum(&:value)
-    has_change = tx.out.count > 1
     @log.debug(
       [
         "A new Bitcoin transaction #{tx.hash} prepared:",
@@ -197,12 +197,12 @@ class Sibit
         end,
         "Min fee: #{num(MIN_SATOSHI_PER_BYTE, p)} /byte",
         "Fee requested: #{num(f, p)} as \"#{fee}\"",
-        "Fee actually paid: #{num(left, p)}",
+        "Fee actually paid: #{num(unspent - tx.outputs.sum(&:value), p)}",
         "Tx size: #{size} bytes",
         "Unspent: #{num(unspent, p)}",
         "Amount: #{num(satoshi, p)}",
         "Target address: #{target}",
-        ("Change address: #{change}" if has_change)
+        ("Change address: #{change}" if tx.out.count > 1)
       ].flatten.compact.join("\n")
     )
     @api.push(tx.to_payload.bth)
@@ -225,8 +225,8 @@ class Sibit
   # in satoshi. The callback should return non-false if the transaction
   # found was useful.
   def scan(start, max: 4)
-    raise Error, "Invalid block hash #{start.inspect}" unless /^[0-9a-f]{64}$/.match?(start)
-    raise Error, "The max number must be above zero: #{max}" if max < 1
+    raise(Error, "Invalid block hash #{start.inspect}") unless /^[0-9a-f]{64}$/.match?(start)
+    raise(Error, "The max number must be above zero: #{max}") if max < 1
     block = start
     count = 0
     json = {}
@@ -243,11 +243,11 @@ class Sibit
         next
       end
       checked = 0
-      checked_outputs = 0
+      outputs = 0
       json[:txns].each do |t|
         t[:outputs].each_with_index do |o, i|
           address = o[:address]
-          checked_outputs += 1
+          outputs += 1
           hash = "#{t[:hash]}:#{i}"
           satoshi = o[:value]
           if yield(address, hash, satoshi)
@@ -258,7 +258,7 @@ class Sibit
       end
       count += 1
       @log.debug(
-        "Checked #{checked} txns and #{checked_outputs} outputs " \
+        "Checked #{checked} txns and #{outputs} outputs " \
         "in block #{block} (by #{json[:provider]})"
       )
       block = json[:next]
@@ -298,10 +298,10 @@ class Sibit
   def satoshi(amount)
     return amount if amount.is_a?(Integer)
     unless amount.is_a?(String)
-      raise Error, "Amount should either be a String or Integer, #{amount.class.name} provided"
+      raise(Error, "Amount should either be a String or Integer, #{amount.class.name} provided")
     end
-    return (amount.gsub(/BTC$/, '').to_f * 100_000_000).to_i if amount.end_with?('BTC')
-    raise Error, "Can't understand the amount #{amount.inspect}"
+    return Integer(Float(amount.gsub(/BTC$/, '')) * 100_000_000) if amount.end_with?('BTC')
+    raise(Error, "Can't understand the amount #{amount.inspect}")
   end
 
   # Calculates a fee in satoshi for the transaction of the specified size.
@@ -310,15 +310,15 @@ class Sibit
   # fee will be calculated using the +size+ argument (which is the size
   # of the transaction in bytes).
   def mfee(fee, size)
-    return fee.to_i if fee.is_a?(Integer)
-    raise Error, 'Fee should either be a String or Integer' unless fee.is_a?(String)
+    return fee if fee.is_a?(Integer)
+    raise(Error, 'Fee should either be a String or Integer') unless fee.is_a?(String)
     mul = 1
     if fee.end_with?('+', '-')
       mul = -1 if fee.end_with?('-')
       fee = fee[0..-2]
     end
     sat = fees[fee.to_sym]
-    raise Error, "Can't understand the fee: #{fee.inspect}" if sat.nil?
+    raise(Error, "Can't understand the fee: #{fee.inspect}") if sat.nil?
     f = mul * sat * size
     @log.debug("Fee calculated as #{mul} * #{sat}s * #{size} = #{f}s")
     f

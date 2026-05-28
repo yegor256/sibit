@@ -22,16 +22,13 @@ class Sibit
   class Bin < Thor
     stop_on_unknown_option!
 
-    class_option :proxy, type: :string,
-      desc: 'HTTPS proxy for all requests, e.g. "localhost:3128"'
+    class_option :proxy, type: :string, desc: 'HTTPS proxy for all requests, e.g. "localhost:3128"'
     class_option :attempts, type: :numeric, default: 1,
       desc: 'How many times should we try before failing'
     class_option :dry, type: :boolean, default: false,
       desc: "Don't send a real payment, run in a read-only mode"
-    class_option :verbose, type: :boolean, default: false,
-      desc: 'Print all possible debug messages'
-    class_option :quiet, type: :boolean, default: false,
-      desc: 'Print only informative messages'
+    class_option :verbose, type: :boolean, default: false, desc: 'Print all possible debug messages'
+    class_option :quiet, type: :boolean, default: false, desc: 'Print only informative messages'
     class_option :api, type: :array, default: %w[blockchain btc bitcoinchain blockchair cex],
       desc: 'Ordered List of APIs to use, e.g. "blockchain,btc,bitcoinchain"'
     class_option :base58, type: :boolean, default: false,
@@ -45,10 +42,10 @@ class Sibit
       return new.help(command.name) if args.include?('--help') || args.include?('-h')
       unknown = args.find { |a| a.start_with?('-') }
       if unknown
-        warn "Unknown option: #{unknown}"
-        exit 1
+        warn("Unknown option: #{unknown}")
+        exit(1)
       end
-      raise error
+      raise(error)
     end
 
     desc 'price', 'Get current price of BTC in USD'
@@ -60,12 +57,12 @@ class Sibit
     def fees
       sibit = client
       fees = sibit.fees
-      text = %i[S M L XL].map do |m|
-        sat = fees[m] * 250
-        usd = sat * sibit.price / 100_000_000
-        "#{m}: #{sat}sat / $#{format('%<usd>.02f', usd: usd)}"
-      end.join("\n")
-      log.info(text)
+      log.info(
+        %i[S M L XL].map do |m|
+          sat = fees[m] * 250
+          "#{m}: #{sat}sat / $#{format('%<usd>.02f', usd: (sat * sibit.price / 100_000_000))}"
+        end.join("\n")
+      )
     end
 
     desc 'latest', 'Get hash of the latest block'
@@ -97,26 +94,27 @@ class Sibit
       desc: 'List of UTXO that must be skipped while paying'
     option :yes, type: :boolean, default: false,
       desc: 'Skip confirmation prompt and send the payment immediately'
-    option :price, type: :numeric,
-      desc: 'BTC price in USD (skips API price fetch if provided)'
+    option :price, type: :numeric, desc: 'BTC price in USD (skips API price fetch if provided)'
     def pay(amount, fee, sources, target, change)
       keys = sources.split(',')
       if amount.upcase == 'MAX'
-        addrs = keys.map do |k|
-          kk = Sibit::Key.new(k)
-          options[:base58] ? kk.base58 : kk.bech32
-        end
+        addrs =
+          keys.map do |k|
+            kk = Sibit::Key.new(k)
+            options[:base58] ? kk.base58 : kk.bech32
+          end
         amount = addrs.sum { |a| client.balance(a) }
       end
-      amount = amount.to_i if amount.is_a?(String) && /^[0-9]+$/.match?(amount)
-      fee = fee.to_i if /^[0-9]+$/.match?(fee)
+      amount = Integer(amount, 10) if amount.is_a?(String) && /^[0-9]+$/.match?(amount)
+      fee = Integer(fee, 10) if /^[0-9]+$/.match?(fee)
       args = [amount, fee, keys, target, change]
       kwargs = { skip_utxo: options[:skip_utxo], base58: options[:base58], price: options[:price] }
       unless options[:yes] || options[:dry]
         client(dry: true).pay(*args, **kwargs)
-        print 'Do you confirm this payment? (yes/no): '
-        answer = $stdin.gets&.strip&.downcase
-        raise Sibit::Error, 'Payment cancelled by user' unless answer == 'yes'
+        print('Do you confirm this payment? (yes/no): ')
+        unless $stdin.gets&.strip&.downcase == 'yes'
+          raise(Sibit::Error, 'Payment cancelled by user')
+        end
       end
       log.info(client.pay(*args, **kwargs))
     end
@@ -129,36 +127,39 @@ class Sibit
     private
 
     def log
-      @log ||= begin
-        verbose = !options[:quiet] &&
-                  (options[:verbose] || ENV.fetch('SIBIT_VERBOSE', nil))
-        verbose ? Loog::VERBOSE : Loog::REGULAR
-      end
+      return @log if @log
+      @log =
+        if !options[:quiet] && (options[:verbose] || ENV.fetch('SIBIT_VERBOSE', nil))
+          Loog::VERBOSE
+        else
+          Loog::REGULAR
+        end
     end
 
     def client(dry: false)
       proxy = options[:proxy] || ENV.fetch('SIBIT_PROXY', nil)
       http = proxy ? Sibit::HttpProxy.new(proxy) : Sibit::Http.new
       log.debug("Using proxy at #{http.host}") if proxy
-      apis = options[:api].flat_map { |a| a.split(',') }.map(&:downcase).map do |a|
-        case a
-        when 'blockchain'
-          Sibit::Blockchain.new(http: http, log: log)
-        when 'btc'
-          Sibit::Btc.new(http: http, log: log)
-        when 'bitcoinchain'
-          Sibit::Bitcoinchain.new(http: http, log: log)
-        when 'blockchair'
-          Sibit::Blockchair.new(http: http, log: log)
-        when 'cex'
-          Sibit::Cex.new(http: http, log: log)
-        when 'fake'
-          Sibit::Fake.new
-        else
-          raise Sibit::Error, "Unknown API \"#{a}\""
-        end
-      end
-      api = Sibit::FirstOf.new(apis, log: log, verbose: true)
+      api = Sibit::FirstOf.new(
+        options[:api].flat_map { |a| a.split(',') }.map(&:downcase).map do |a|
+          case a
+          when 'blockchain'
+            Sibit::Blockchain.new(http: http, log: log)
+          when 'btc'
+            Sibit::Btc.new(http: http, log: log)
+          when 'bitcoinchain'
+            Sibit::Bitcoinchain.new(http: http, log: log)
+          when 'blockchair'
+            Sibit::Blockchair.new(http: http, log: log)
+          when 'cex'
+            Sibit::Cex.new(http: http, log: log)
+          when 'fake'
+            Sibit::Fake.new
+          else
+            raise(Sibit::Error, "Unknown API \"#{a}\"")
+          end
+        end, log: log, verbose: true
+      )
       api = Sibit::Dry.new(api, log: log) if options[:dry] || dry
       api = RetriableProxy.for_object(api, on: Sibit::Error) if options[:attempts] > 1
       Sibit.new(log: log, api: api)

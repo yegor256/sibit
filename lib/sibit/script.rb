@@ -59,17 +59,14 @@ class Sibit
     def p2pkh_address(network)
       h = hash160
       return nil unless h
-      prefix = network == :mainnet ? '00' : '6f'
-      versioned = "#{prefix}#{h}"
-      checksum = Base58.new(versioned).check
-      Base58.new(versioned + checksum).encode
+      versioned = "#{network == :mainnet ? '00' : '6f'}#{h}"
+      Base58.new(versioned + Base58.new(versioned).check).encode
     end
 
     def p2wpkh_address(network)
       h = hash160
       return nil unless h
-      hrp = { mainnet: 'bc', testnet: 'tb', regtest: 'bcrt' }[network]
-      Bech32.encode(hrp, 0, h)
+      Bech32.encode({ mainnet: 'bc', testnet: 'tb', regtest: 'bcrt' }[network], 0, h)
     end
   end
 end

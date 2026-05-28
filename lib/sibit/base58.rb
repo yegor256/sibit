@@ -23,28 +23,25 @@ class Sibit
     end
 
     def encode
-      bytes = [@data].pack('H*')
-      leading = bytes.match(/^\x00*/)[0].length
       num = @data.to_i(16)
       result = ''
       while num.positive?
         num, remainder = num.divmod(58)
         result = ALPHABET[remainder] + result
       end
-      ('1' * leading) + result
+      ('1' * [@data].pack('H*').match(/^\x00*/)[0].length) + result
     end
 
     def decode
-      leading = @data.match(/^1*/)[0].length
       num = 0
       @data.each_char do |c|
         idx = ALPHABET.index(c)
-        raise Sibit::Error, "Invalid Base58 character '#{c}' in address '#{@data}'" if idx.nil?
+        raise(Sibit::Error, "Invalid Base58 character '#{c}' in address '#{@data}'") if idx.nil?
         num = (num * 58) + idx
       end
       hex = num.zero? ? '' : num.to_s(16)
       hex = "0#{hex}" if hex.length.odd?
-      ('00' * leading) + hex
+      ('00' * @data.match(/^1*/)[0].length) + hex
     end
 
     def check

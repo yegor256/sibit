@@ -3,8 +3,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2019-2026 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
-require_relative 'test__helper'
 require_relative '../lib/sibit/bech32'
+require_relative 'test__helper'
 
 # Sibit::Bech32 test.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
@@ -12,26 +12,28 @@ require_relative '../lib/sibit/bech32'
 # License:: MIT
 class TestBech32 < Minitest::Test
   def test_decodes_p2wpkh_address
-    addr = 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4'
-    bech = Sibit::Bech32.new(addr)
-    assert_equal('751e76e8199196d454941c45d1b3a323f1433bd6', bech.witness, 'witness mismatch')
+    assert_equal(
+      '751e76e8199196d454941c45d1b3a323f1433bd6',
+      Sibit::Bech32.new('bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4').witness, 'witness mismatch'
+    )
   end
 
   def test_returns_version_zero
-    addr = 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4'
-    bech = Sibit::Bech32.new(addr)
-    assert_equal(0, bech.version, 'version must be 0 for P2WPKH')
+    assert_equal(
+      0, Sibit::Bech32.new('bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4').version,
+      'version must be 0 for P2WPKH'
+    )
   end
 
   def test_decodes_uppercase_address
-    addr = 'BC1QW508D6QEJXTDG4Y5R3ZARVARY0C5XW7KV8F3T4'
-    bech = Sibit::Bech32.new(addr)
-    assert_equal('751e76e8199196d454941c45d1b3a323f1433bd6', bech.witness, 'uppercase must work')
+    assert_equal(
+      '751e76e8199196d454941c45d1b3a323f1433bd6',
+      Sibit::Bech32.new('BC1QW508D6QEJXTDG4Y5R3ZARVARY0C5XW7KV8F3T4').witness, 'uppercase must work'
+    )
   end
 
   def test_rejects_invalid_checksum
-    addr = 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t5'
-    bech = Sibit::Bech32.new(addr)
+    bech = Sibit::Bech32.new('bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t5')
     assert_raises(Sibit::Error) { bech.witness }
   end
 
@@ -46,14 +48,19 @@ class TestBech32 < Minitest::Test
   end
 
   def test_encodes_witness_to_mainnet_address
-    prog = '751e76e8199196d454941c45d1b3a323f1433bd6'
-    addr = Sibit::Bech32.encode('bc', 0, prog)
-    assert_equal('bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4', addr, 'encoded address mismatch')
+    assert_equal(
+      'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4',
+      Sibit::Bech32.encode('bc', 0, '751e76e8199196d454941c45d1b3a323f1433bd6'),
+      'encoded address mismatch'
+    )
   end
 
   def test_encodes_witness_to_testnet_address
-    prog = '751e76e8199196d454941c45d1b3a323f1433bd6'
-    addr = Sibit::Bech32.encode('tb', 0, prog)
-    assert(addr.start_with?('tb1q'), 'testnet address must start with tb1q')
+    assert(
+      Sibit::Bech32.encode(
+        'tb', 0,
+        '751e76e8199196d454941c45d1b3a323f1433bd6'
+      ).start_with?('tb1q'), 'testnet address must start with tb1q'
+    )
   end
 end

@@ -4,8 +4,8 @@
 # SPDX-License-Identifier: MIT
 
 require_relative 'test__helper'
-require 'webmock/minitest'
 require 'uri'
+require 'webmock/minitest'
 require_relative '../lib/sibit/json'
 
 # Sibit::Json test.

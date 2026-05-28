@@ -119,16 +119,15 @@ class Sibit
       private
 
       def p2pkh_script
-        decoded = Base58.new(@address).decode
-        hash = decoded[2..41]
-        [0x76, 0xa9, 0x14].pack('C*') + [hash].pack('H*') + [0x88, 0xac].pack('C*')
+        [
+          0x76, 0xa9,
+          0x14
+        ].pack('C*') + [Base58.new(@address).decode[2..41]].pack('H*') + [0x88, 0xac].pack('C*')
       end
 
       def segwit_script
-        bech = Bech32.new(@address)
-        witness = bech.witness
-        len = witness.length / 2
-        [0x00, len].pack('C*') + [witness].pack('H*')
+        witness = Bech32.new(@address).witness
+        [0x00, (witness.length / 2)].pack('C*') + [witness].pack('H*')
       end
     end
 
@@ -140,12 +139,10 @@ class Sibit
 
     def sign_inputs
       @inputs.each_with_index do |input, idx|
-        sighash = input.segwit? ? segwit_sighash(idx) : legacy_sighash(idx)
-        sig = sign(input.key, sighash)
+        sig = sign(input.key, (input.segwit? ? segwit_sighash(idx) : legacy_sighash(idx)))
         pubkey = [input.key.pub].pack('H*')
         if input.segwit?
-          witness_sig = sig + [SIGHASH_ALL].pack('C')
-          input.witness = [witness_sig.bytes, pubkey.bytes]
+          input.witness = [(sig + [SIGHASH_ALL].pack('C')).bytes, pubkey.bytes]
         else
           input.script_sig = der_sig(sig) + pubkey_script(pubkey)
         end
@@ -153,9 +150,9 @@ class Sibit
     end
 
     def legacy_sighash(idx)
-      tx_copy = serialize_for_signing(idx)
-      hash_type = [SIGHASH_ALL].pack('V')
-      Digest::SHA256.digest(Digest::SHA256.digest(tx_copy + hash_type))
+      Digest::SHA256.digest(
+        Digest::SHA256.digest(serialize_for_signing(idx) + [SIGHASH_ALL].pack('V'))
+      )
     end
 
     def segwit_sighash(idx)
@@ -175,48 +172,55 @@ class Sibit
     end
 
     def hash_prevouts
-      data = @inputs.map { |i| [i.hash].pack('H*').reverse + [i.index].pack('V') }.join
-      Digest::SHA256.digest(Digest::SHA256.digest(data))
+      Digest::SHA256.digest(
+        Digest::SHA256.digest(
+          @inputs.map do |i|
+            [i.hash].pack('H*').reverse + [i.index].pack('V')
+          end.join
+        )
+      )
     end
 
     def hash_sequence
-      data = @inputs.map { [SEQUENCE].pack('V') }.join
-      Digest::SHA256.digest(Digest::SHA256.digest(data))
+      Digest::SHA256.digest(Digest::SHA256.digest(@inputs.map { [SEQUENCE].pack('V') }.join))
     end
 
     def hash_outputs
-      data = @outputs.map { |o| [o.value].pack('Q<') + varint(o.script.length) + o.script }.join
-      Digest::SHA256.digest(Digest::SHA256.digest(data))
+      Digest::SHA256.digest(
+        Digest::SHA256.digest(
+          @outputs.map do |o|
+            [o.value].pack('Q<') + varint(o.script.length) + o.script
+          end.join
+        )
+      )
     end
 
     def script_code(input)
-      hash160 = input.prev_script[4..]
-      code = [0x76, 0xa9, 0x14].pack('C*') + [hash160].pack('H*') + [0x88, 0xac].pack('C*')
+      code = [
+        0x76, 0xa9,
+        0x14
+      ].pack('C*') + [input.prev_script[4..]].pack('H*') + [0x88, 0xac].pack('C*')
       varint(code.length) + code
     end
 
     def sign(key, hash)
-      der = key.sign(hash)
-      repack(der)
+      repack(key.sign(hash))
     end
 
     def repack(der)
       return der if low_s?(der)
       seq = OpenSSL::ASN1.decode(der)
-      r = seq.value[0].value.to_i
-      s = seq.value[1].value.to_i
+      s = Integer(seq.value[1].value)
       order = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
       s = order - s if s > order / 2
       OpenSSL::ASN1::Sequence.new(
-        [OpenSSL::ASN1::Integer.new(r), OpenSSL::ASN1::Integer.new(s)]
+        [OpenSSL::ASN1::Integer.new(Integer(seq.value[0].value)), OpenSSL::ASN1::Integer.new(s)]
       ).to_der
     end
 
     def low_s?(der)
-      seq = OpenSSL::ASN1.decode(der)
-      s = seq.value[1].value.to_i
-      order = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
-      s <= order / 2
+      Integer(OpenSSL::ASN1.decode(der).value[1].value) <=
+        0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141 / 2
     end
 
     def der_sig(sig)

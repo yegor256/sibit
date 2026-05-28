@@ -4,8 +4,8 @@
 # SPDX-License-Identifier: MIT
 
 require_relative 'test__helper'
-require 'webmock/minitest'
 require 'json'
+require 'webmock/minitest'
 require_relative '../lib/sibit'
 require_relative '../lib/sibit/fake'
 
@@ -27,12 +27,13 @@ class TestFake < Minitest::Test
     sibit = Sibit.new(api: Sibit::Fake.new)
     hash = '00000000000000000008df8a6e1b61d1136803ac9791b8725235c9f780b4ed71'
     found = false
-    tail = sibit.scan(hash) do |addr, tx, satoshi|
-      assert_equal(1000, satoshi)
-      assert_equal('1HqhZx8U18TYS5paraTM1MzUQWb7ZbcG9u', addr)
-      assert_equal("#{hash}:0", tx)
-      found = true
-    end
+    tail =
+      sibit.scan(hash) do |addr, tx, satoshi|
+        assert_equal(1000, satoshi)
+        assert_equal('1HqhZx8U18TYS5paraTM1MzUQWb7ZbcG9u', addr)
+        assert_equal("#{hash}:0", tx)
+        found = true
+      end
     assert(found)
     assert_equal(hash, tail)
   end

@@ -24,7 +24,7 @@ class Sibit
 
     def input
       inp = Input.new
-      yield inp
+      yield(inp)
       @inputs << inp
     end
 
@@ -43,10 +43,10 @@ class Sibit
           value: inp.amount
         )
       end
-      total_out = @outputs.sum { |o| o[:value] }
+      total = @outputs.sum { |o| o[:value] }
       @outputs.each { |o| txn.add_output(o[:value], o[:address]) }
       if leave_fee
-        change = input_value - total_out - extra_fee
+        change = input_value - total - extra_fee
         txn.add_output(change, change_address) if change.positive?
       end
       Built.new(txn, @inputs, @outputs)

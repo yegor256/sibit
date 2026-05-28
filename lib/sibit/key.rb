@@ -32,13 +32,14 @@ class Sibit
     def self.generate(network: :mainnet)
       key = OpenSSL::PKey::EC.generate('secp256k1')
       pvt = key.private_key
-      raise 'Invalid private key: zero' if pvt.zero?
-      raise 'Invalid private key: out of range' if pvt >= SECP256K1_N
-      raise 'Invalid public key: not on curve' unless key.public_key.on_curve?
+      raise(Sibit::Error, 'Invalid private key: zero') if pvt.zero?
+      raise(Sibit::Error, 'Invalid private key: out of range') if pvt >= SECP256K1_N
+      raise(Sibit::Error, 'Invalid public key: not on curve') unless key.public_key.on_curve?
       hex = key.private_key.to_s(16).rjust(64, '0').downcase
-      raise 'Invalid private key encoding' unless hex.match?(/\A[0-9a-f]{64}\z/)
-      trip = OpenSSL::BN.new(hex, 16)
-      raise 'Private key serialization is lossy' unless trip == pvt
+      raise(Sibit::Error, 'Invalid private key encoding') unless hex.match?(/\A[0-9a-f]{64}\z/)
+      unless OpenSSL::BN.new(hex, 16) == pvt
+        raise(Sibit::Error, 'Private key serialization is lossy')
+      end
       new(hex, network: network)
     end
 
@@ -55,42 +56,38 @@ class Sibit
     end
 
     def pub
-      point = @key.public_key
-      point.to_octet_string(@compressed ? :compressed : :uncompressed).unpack1('H*')
+      @key.public_key.to_octet_string(@compressed ? :compressed : :uncompressed).unpack1('H*')
     end
 
     def bech32
       hrp = { mainnet: 'bc', testnet: 'tb', regtest: 'bcrt' }[@network]
       hex = pub
-      raise Error, 'Invalid public key: not on curve' unless @key.public_key.on_curve?
-      raise Error, 'Invalid public key format' unless hex.match?(/\A0[23][0-9a-f]{64}\z/)
+      raise(Error, 'Invalid public key: not on curve') unless @key.public_key.on_curve?
+      raise(Error, 'Invalid public key format') unless hex.match?(/\A0[23][0-9a-f]{64}\z/)
       addr = Bech32.encode(hrp, 0, hash160(hex))
-      expected = /\A#{hrp}1q[a-z0-9]{38,58}\z/
-      raise Error, "Invalid bech32 address: #{addr}" unless addr.match?(expected)
+      unless addr.match?(/\A#{hrp}1q[a-z0-9]{38,58}\z/)
+        raise(Error, "Invalid bech32 address: #{addr}")
+      end
       addr
     end
 
     def base58
       hex = pub
-      raise Error, 'Invalid public key: not on curve' unless @key.public_key.on_curve?
-      raise Error, 'Invalid public key format' unless hex.match?(/\A0[23][0-9a-f]{64}\z/)
-      hash = hash160(hex)
-      prefix = @network == :mainnet ? '00' : '6f'
-      versioned = "#{prefix}#{hash}"
-      checksum = Base58.new(versioned).check
-      addr = Base58.new(versioned + checksum).encode
+      raise(Error, 'Invalid public key: not on curve') unless @key.public_key.on_curve?
+      raise(Error, 'Invalid public key format') unless hex.match?(/\A0[23][0-9a-f]{64}\z/)
+      versioned = "#{@network == :mainnet ? '00' : '6f'}#{hash160(hex)}"
+      addr = Base58.new(versioned + Base58.new(versioned).check).encode
       mainnet = /\A1[1-9A-HJ-NP-Za-km-z]{25,34}\z/
       testnet = /\A[mn][1-9A-HJ-NP-Za-km-z]{25,34}\z/
       unless addr.match?(@network == :mainnet ? mainnet : testnet)
-        raise Error,
-              "Invalid base58 address: #{addr}"
+        raise(Error, "Invalid base58 address: #{addr}")
       end
       addr
     end
 
     def sign(data)
       sig = @key.dsa_sign_asn1(data)
-      raise Error, 'Signature verification failed' unless verify(data, sig)
+      raise(Error, 'Signature verification failed') unless verify(data, sig)
       sig
     end
 
@@ -103,25 +100,29 @@ class Sibit
     private
 
     def build(privkey)
-      value = privkey.to_i(16)
-      raise Error, 'Private key is not on curve' unless value.between?(MIN_PRIV, MAX_PRIV)
-      group = OpenSSL::PKey::EC::Group.new('secp256k1')
-      bn = OpenSSL::BN.new(privkey, 16)
-      pubkey = group.generator.mul(bn)
-      asn1 = OpenSSL::ASN1::Sequence(
-        [
-          OpenSSL::ASN1::Integer.new(1),
-          OpenSSL::ASN1::OctetString(bn.to_s(2)),
-          OpenSSL::ASN1::ObjectId('secp256k1', 0, :EXPLICIT),
-          OpenSSL::ASN1::BitString(pubkey.to_octet_string(:uncompressed), 1, :EXPLICIT)
-        ]
+      raise(Error, 'Private key is not on curve') unless privkey.to_i(16).between?(
+        MIN_PRIV,
+        MAX_PRIV
       )
-      OpenSSL::PKey::EC.new(asn1.to_der)
+      bn = OpenSSL::BN.new(privkey, 16)
+      OpenSSL::PKey::EC.new(
+        OpenSSL::ASN1::Sequence(
+          [
+            OpenSSL::ASN1::Integer.new(1),
+            OpenSSL::ASN1::OctetString(bn.to_s(2)),
+            OpenSSL::ASN1::ObjectId('secp256k1', 0, :EXPLICIT),
+            OpenSSL::ASN1::BitString(
+              OpenSSL::PKey::EC::Group.new('secp256k1').generator.mul(bn)
+                .to_octet_string(:uncompressed),
+              1, :EXPLICIT
+            )
+          ]
+        ).to_der
+      )
     end
 
     def hash160(hex)
-      bytes = [hex].pack('H*')
-      Digest::RMD160.hexdigest(Digest::SHA256.digest(bytes))
+      Digest::RMD160.hexdigest(Digest::SHA256.digest([hex].pack('H*')))
     end
 
     def decode(key)
@@ -130,12 +131,9 @@ class Sibit
         return key.downcase
       end
       raw = Base58.new(key).decode
-      payload = raw[0..-9]
-      checksum = raw[-8..]
-      expected = Base58.new(payload).check
-      raise Error, 'Invalid WIF checksum' unless checksum == expected
+      raise(Error, 'Invalid WIF checksum') unless raw[-8..] == Base58.new(raw[0..-9]).check
       version = raw[0, 2]
-      raise Error, "Invalid WIF version: #{version}" unless %w[80 ef].include?(version)
+      raise(Error, "Invalid WIF version: #{version}") unless %w[80 ef].include?(version)
       detected = version == '80' ? :mainnet : :testnet
       @network = @override || detected
       body = raw[2..-9]

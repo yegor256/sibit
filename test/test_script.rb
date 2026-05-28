@@ -3,8 +3,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2019-2026 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
-require_relative 'test__helper'
 require_relative '../lib/sibit/script'
+require_relative 'test__helper'
 
 # Sibit::Script test.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
@@ -12,92 +12,101 @@ require_relative '../lib/sibit/script'
 # License:: MIT
 class TestScript < Minitest::Test
   def test_parses_p2pkh_script
-    script = '76a914c14b1e5c95a4687da3f7c932bf39a3a89bdb3fa988ac'
-    parsed = Sibit::Script.new(script)
-    assert_predicate(parsed, :p2pkh?, 'script is not recognized as P2PKH')
+    assert_predicate(
+      Sibit::Script.new('76a914c14b1e5c95a4687da3f7c932bf39a3a89bdb3fa988ac'),
+      :p2pkh?, 'script is not recognized as P2PKH'
+    )
   end
 
   def test_extracts_hash160_from_script
-    script = '76a914c14b1e5c95a4687da3f7c932bf39a3a89bdb3fa988ac'
-    parsed = Sibit::Script.new(script)
-    assert_equal('c14b1e5c95a4687da3f7c932bf39a3a89bdb3fa9', parsed.hash160,
-                 'hash160 does not match')
+    assert_equal(
+      'c14b1e5c95a4687da3f7c932bf39a3a89bdb3fa9', Sibit::Script.new('76a914c14b1e5c95a4687da3f7c932bf39a3a89bdb3fa988ac').hash160,
+      'hash160 does not match'
+    )
   end
 
   def test_extracts_address_from_script
-    script = '76a914c14b1e5c95a4687da3f7c932bf39a3a89bdb3fa988ac'
-    parsed = Sibit::Script.new(script)
-    assert(parsed.address.start_with?('1'), 'address does not start with 1')
+    assert(
+      Sibit::Script.new('76a914c14b1e5c95a4687da3f7c932bf39a3a89bdb3fa988ac').address.start_with?('1'),
+      'address does not start with 1'
+    )
   end
 
   def test_rejects_non_p2pkh_script
-    script = 'a914c14b1e5c95a4687da3f7c932bf39a3a89bdb3fa987'
-    parsed = Sibit::Script.new(script)
-    refute_predicate(parsed, :p2pkh?, 'non-P2PKH script wrongly identified as P2PKH')
+    refute_predicate(
+      Sibit::Script.new('a914c14b1e5c95a4687da3f7c932bf39a3a89bdb3fa987'), :p2pkh?,
+      'non-P2PKH script wrongly identified as P2PKH'
+    )
   end
 
   def test_returns_nil_address_for_non_p2pkh
-    script = 'a914c14b1e5c95a4687da3f7c932bf39a3a89bdb3fa987'
-    parsed = Sibit::Script.new(script)
-    assert_nil(parsed.address, 'non-P2PKH should return nil address')
+    assert_nil(
+      Sibit::Script.new('a914c14b1e5c95a4687da3f7c932bf39a3a89bdb3fa987').address,
+      'non-P2PKH should return nil address'
+    )
   end
 
   def test_returns_nil_hash160_for_non_p2pkh
-    script = 'a914c14b1e5c95a4687da3f7c932bf39a3a89bdb3fa987'
-    parsed = Sibit::Script.new(script)
-    assert_nil(parsed.hash160, 'non-P2PKH should return nil hash160')
+    assert_nil(
+      Sibit::Script.new('a914c14b1e5c95a4687da3f7c932bf39a3a89bdb3fa987').hash160,
+      'non-P2PKH should return nil hash160'
+    )
   end
 
   def test_rejects_too_short_script
-    script = '76a914'
-    parsed = Sibit::Script.new(script)
-    refute_predicate(parsed, :p2pkh?, 'too short script should not be P2PKH')
+    refute_predicate(Sibit::Script.new('76a914'), :p2pkh?, 'too short script should not be P2PKH')
   end
 
   def test_rejects_wrong_op_dup
-    script = '00a914c14b1e5c95a4687da3f7c932bf39a3a89bdb3fa988ac'
-    parsed = Sibit::Script.new(script)
-    refute_predicate(parsed, :p2pkh?, 'wrong OP_DUP should not be P2PKH')
+    refute_predicate(
+      Sibit::Script.new('00a914c14b1e5c95a4687da3f7c932bf39a3a89bdb3fa988ac'),
+      :p2pkh?, 'wrong OP_DUP should not be P2PKH'
+    )
   end
 
   def test_rejects_wrong_op_hash160
-    script = '7600c14b1e5c95a4687da3f7c932bf39a3a89bdb3fa914088ac'
-    parsed = Sibit::Script.new(script)
-    refute_predicate(parsed, :p2pkh?, 'wrong OP_HASH160 should not be P2PKH')
+    refute_predicate(
+      Sibit::Script.new('7600c14b1e5c95a4687da3f7c932bf39a3a89bdb3fa914088ac'),
+      :p2pkh?, 'wrong OP_HASH160 should not be P2PKH'
+    )
   end
 
   def test_rejects_wrong_hash_length
-    script = '76a915c14b1e5c95a4687da3f7c932bf39a3a89bdb3fa988ac'
-    parsed = Sibit::Script.new(script)
-    refute_predicate(parsed, :p2pkh?, 'wrong hash length should not be P2PKH')
+    refute_predicate(
+      Sibit::Script.new('76a915c14b1e5c95a4687da3f7c932bf39a3a89bdb3fa988ac'),
+      :p2pkh?, 'wrong hash length should not be P2PKH'
+    )
   end
 
   def test_handles_empty_script
-    parsed = Sibit::Script.new('')
-    refute_predicate(parsed, :p2pkh?, 'empty script should not be P2PKH')
+    refute_predicate(Sibit::Script.new(''), :p2pkh?, 'empty script should not be P2PKH')
   end
 
   def test_parses_p2wpkh_script
-    script = '0014c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc'
-    parsed = Sibit::Script.new(script)
-    assert_predicate(parsed, :p2wpkh?, 'script is not recognized as P2WPKH')
+    assert_predicate(
+      Sibit::Script.new('0014c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc'), :p2wpkh?,
+      'script is not recognized as P2WPKH'
+    )
   end
 
   def test_extracts_hash160_from_p2wpkh
-    script = '0014c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc'
-    parsed = Sibit::Script.new(script)
-    assert_equal('c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc', parsed.hash160, 'hash160 mismatch')
+    assert_equal(
+      'c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc',
+      Sibit::Script.new('0014c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc').hash160, 'hash160 mismatch'
+    )
   end
 
   def test_extracts_segwit_address_from_p2wpkh
-    script = '0014c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc'
-    parsed = Sibit::Script.new(script)
-    assert(parsed.address.start_with?('bc1q'), 'P2WPKH address must start with bc1q')
+    assert(
+      Sibit::Script.new('0014c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc').address.start_with?('bc1q'),
+      'P2WPKH address must start with bc1q'
+    )
   end
 
   def test_rejects_wrong_witness_version
-    script = '0114c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc'
-    parsed = Sibit::Script.new(script)
-    refute_predicate(parsed, :p2wpkh?, 'wrong witness version should not be P2WPKH')
+    refute_predicate(
+      Sibit::Script.new('0114c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc'), :p2wpkh?,
+      'wrong witness version should not be P2WPKH'
+    )
   end
 end

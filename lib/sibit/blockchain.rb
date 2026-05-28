@@ -32,7 +32,7 @@ class Sibit::Blockchain
     h = Sibit::Json.new(http: @http, log: @log).get(
       Iri.new('https://blockchain.info/ticker')
     )[currency]
-    raise Error, "Unrecognized currency #{currency}" if h.nil?
+    raise(Error, "Unrecognized currency #{currency}") if h.nil?
     price = h['15m']
     @log.debug("The price of BTC is #{price} USD")
     price
@@ -40,25 +40,14 @@ class Sibit::Blockchain
 
   # Get hash of the block after this one.
   def next_of(_hash)
-    raise Sibit::NotSupportedError, 'next_of() in Blockchain API is broken, always returns NULL'
-    # json = Sibit::Json.new(http: @http, log: @log).get(
-    #   Iri.new('https://blockchain.info/rawblock').append(hash)
-    # )
-    # nxt = json['next_block'][0]
-    # if nxt.nil?
-    #   @log.debug("There is no block after #{hash}")
-    # else
-    #   @log.debug("The next block of #{hash} is #{nxt}")
-    # end
-    # nxt
+    raise(Sibit::NotSupportedError, 'next_of() in Blockchain API is broken, always returns NULL')
   end
 
   # The height of the block.
   def height(hash)
-    json = Sibit::Json.new(http: @http, log: @log).get(
+    h = Sibit::Json.new(http: @http, log: @log).get(
       Iri.new('https://blockchain.info/rawblock').append(hash)
-    )
-    h = json['height']
+    )['height']
     @log.debug("The height of #{hash} is #{h}")
     h
   end
@@ -111,10 +100,7 @@ class Sibit::Blockchain
 
   # Push this transaction (in hex format) to the network.
   def push(hex)
-    Sibit::Json.new(http: @http, log: @log).post(
-      Iri.new('https://blockchain.info/pushtx'),
-      hex
-    )
+    Sibit::Json.new(http: @http, log: @log).post(Iri.new('https://blockchain.info/pushtx'), hex)
   end
 
   # Gets the hash of the latest block.

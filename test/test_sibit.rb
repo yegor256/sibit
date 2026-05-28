@@ -21,25 +21,22 @@ class TestSibit < Minitest::Test
     stub_request(
       :get, 'https://blockchain.info/ticker'
     ).to_return(body: '{"USD" : {"15m" : 5160.04}}')
-    sibit = Sibit.new
-    price = sibit.price
+    price = Sibit.new.price
     refute_nil(price)
     assert_in_delta(5160.04, price, 0.001, price)
   end
 
   def test_generate_key
-    sibit = Sibit.new(api: Sibit::Fake.new)
-    pkey = sibit.generate
+    pkey = Sibit.new(api: Sibit::Fake.new).generate
     refute_nil(pkey)
     assert_match(/^[0-9a-f]{64}$/, pkey)
   end
 
   def test_generate_key_and_prints
-    require 'stringio'
-    require 'logger'
+    require('logger')
+    require('stringio')
     strio = StringIO.new
-    sibit = Sibit.new(log: Logger.new(strio), api: Sibit::Fake.new)
-    key = sibit.generate
+    key = Sibit.new(log: Logger.new(strio), api: Sibit::Fake.new).generate
     assert_includes(strio.string, 'private key generated')
     assert_includes(strio.string, key[0..2])
     refute_includes(strio.string, key)
@@ -59,8 +56,7 @@ class TestSibit < Minitest::Test
       :get,
       'https://blockchain.info/rawaddr/1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f?limit=0'
     ).to_return(body: '{"final_balance": 100}')
-    sibit = Sibit.new
-    balance = sibit.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')
+    balance = Sibit.new.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')
     assert_kind_of(Integer, balance)
     assert_equal(100, balance)
   end
@@ -69,9 +65,10 @@ class TestSibit < Minitest::Test
     stub_request(:get, 'https://blockchain.info/latestblock').to_return(
       body: '{"hash": "0000000000000538200a48202ca6340e983646ca088c7618ae82d68e0c76ef5a"}'
     )
-    sibit = Sibit.new
-    hash = sibit.latest
-    assert_equal('0000000000000538200a48202ca6340e983646ca088c7618ae82d68e0c76ef5a', hash)
+    assert_equal(
+      '0000000000000538200a48202ca6340e983646ca088c7618ae82d68e0c76ef5a',
+      Sibit.new.latest
+    )
   end
 
   def test_send_payment
@@ -99,12 +96,10 @@ class TestSibit < Minitest::Test
     ).to_return(body: JSON.pretty_generate(json))
     stub_request(:post, 'https://blockchain.info/pushtx').to_return(status: 200)
     sibit = Sibit.new(api: Sibit::FirstOf.new([Sibit::Blockchain.new]))
-    target = sibit.create(sibit.generate)
-    change = sibit.create(sibit.generate)
     tx = sibit.pay(
       '0.0001BTC', 'S+',
       ['fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2'],
-      target, change
+      sibit.create(sibit.generate), sibit.create(sibit.generate)
     )
     refute_nil(tx)
     assert_operator(tx.length, :>, 30, tx)
@@ -135,12 +130,10 @@ class TestSibit < Minitest::Test
     ).to_return(body: JSON.pretty_generate(json))
     stub_request(:post, 'https://blockchain.info/pushtx').to_return(status: 200)
     sibit = Sibit.new(api: Sibit::FirstOf.new([Sibit::Blockchain.new]))
-    target = sibit.create(sibit.generate)
-    change = sibit.create(sibit.generate)
     tx = sibit.pay(
       50_000, 'XL-',
       ['fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2'],
-      target, change
+      sibit.create(sibit.generate), sibit.create(sibit.generate)
     )
     refute_nil(tx, 'transaction hash must not be nil')
   end
@@ -149,17 +142,14 @@ class TestSibit < Minitest::Test
     stub_request(
       :get, 'https://blockchain.info/ticker'
     ).to_return(body: '{"USD" : {"15m" : 5160.04}}')
-    json = {
-      unspent_outputs: []
-    }
     stub_request(
       :get,
       'https://blockchain.info/unspent?active=bc1qcj9pwdant20em83mvf9fzrc7ytm7szau5ysh9x&limit=1000'
-    ).to_return(body: JSON.pretty_generate(json))
+    ).to_return(body: JSON.pretty_generate({ unspent_outputs: [] }))
     sibit = Sibit.new(api: Sibit::Blockchain.new)
     target = sibit.create(sibit.generate)
     change = sibit.create(sibit.generate)
-    assert_raises Sibit::Error do
+    assert_raises(Sibit::Error) do
       sibit.pay(
         '0.0001BTC', -5000,
         ['fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2'],
@@ -192,12 +182,13 @@ class TestSibit < Minitest::Test
     sibit = Sibit.new(api: api)
     found = false
     start = '00000000000000000008df8a6e1b61d1136803ac9791b8725235c9f780b4ed71'
-    tail = sibit.scan(start) do |addr, tx, satoshi|
-      assert_equal(123, satoshi)
-      assert_equal('addr', addr)
-      assert_equal('hash:0', tx)
-      found = true
-    end
+    tail =
+      sibit.scan(start) do |addr, tx, satoshi|
+        assert_equal(123, satoshi)
+        assert_equal('addr', addr)
+        assert_equal('hash:0', tx)
+        found = true
+      end
     assert(found)
     assert_equal('next', tail)
   end

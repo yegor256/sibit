@@ -4,9 +4,9 @@
 # SPDX-License-Identifier: MIT
 
 require_relative 'test__helper'
-require 'webmock/minitest'
-require 'json'
 require 'backtrace'
+require 'json'
+require 'webmock/minitest'
 require_relative '../lib/sibit'
 
 # Live tests.
@@ -37,8 +37,7 @@ class TestLive < Minitest::Test
 
   def test_balance
     for_each do |api|
-      hash = '1GkQmKAmHtNfnD3LHhTkewJxKHVSta4m2a'
-      satoshi = api.balance(hash)
+      satoshi = api.balance('1GkQmKAmHtNfnD3LHhTkewJxKHVSta4m2a')
       assert_kind_of(Integer, satoshi, "Wrong type of balance: #{satoshi.class.name}")
       assert_equal(5_000_028_421, satoshi)
     end
@@ -46,42 +45,37 @@ class TestLive < Minitest::Test
 
   def test_absent_balance
     for_each do |api|
-      hash = '12NJ7DxjBMCkk7EFdb6nXnMsuJV1nAXGiM'
-      satoshi = api.balance(hash)
-      assert_equal(0, satoshi)
+      assert_equal(0, api.balance('12NJ7DxjBMCkk7EFdb6nXnMsuJV1nAXGiM'))
     end
   end
 
   def test_latest
     for_each do |api|
-      hash = api.latest
-      assert_equal(64, hash.length)
+      assert_equal(64, api.latest.length)
     end
   end
 
   def test_price
     for_each do |api|
-      price = api.price
-      assert_kind_of(Float, price)
+      assert_kind_of(Float, api.price)
     end
   end
 
   def test_next_of
     for_each do |api|
-      hash = '000000003031a0e73735690c5a1ff2a4be82553b2a12b776fbd3a215dc8f778d'
-      nxt = api.next_of(hash)
       assert_equal(
         '0000000071966c2b1d065fd446b1e485b2c9d9594acd2007ccbd5441cfc89444',
-        nxt
+        api.next_of('000000003031a0e73735690c5a1ff2a4be82553b2a12b776fbd3a215dc8f778d')
       )
     end
   end
 
   def test_height
     for_each do |api|
-      hash = '000000003031a0e73735690c5a1ff2a4be82553b2a12b776fbd3a215dc8f778d'
-      height = api.height(hash)
-      assert_equal(6, height)
+      assert_equal(
+        6,
+        api.height('000000003031a0e73735690c5a1ff2a4be82553b2a12b776fbd3a215dc8f778d')
+      )
     end
   end
 
@@ -100,22 +94,22 @@ class TestLive < Minitest::Test
     skip if ENV['skip_live']
     WebMock.allow_net_connect!
     apis = []
-    require_relative '../lib/sibit/btc'
+    require_relative('../lib/sibit/btc')
     apis << Sibit::Btc.new
-    require_relative '../lib/sibit/blockchain'
+    require_relative('../lib/sibit/blockchain')
     apis << Sibit::Blockchain.new
-    require_relative '../lib/sibit/blockchair'
+    require_relative('../lib/sibit/blockchair')
     apis << Sibit::Blockchair.new
-    require_relative '../lib/sibit/cryptoapis'
+    require_relative('../lib/sibit/cryptoapis')
     apis << Sibit::Cryptoapis.new('')
-    require_relative '../lib/sibit/cex'
+    require_relative('../lib/sibit/cex')
     apis << Sibit::Cex.new
-    require_relative '../lib/sibit/bitcoinchain'
+    require_relative('../lib/sibit/bitcoinchain')
     apis << Sibit::Bitcoinchain.new
     apis.each do |api|
-      yield api
+      yield(api)
     rescue Sibit::Error => e
-      puts Backtrace.new(e)
+      puts(Backtrace.new(e))
     end
   end
 end

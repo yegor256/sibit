@@ -83,21 +83,24 @@ class Sibit::BestOf
   private
 
   def best_of(method)
-    return yield @list unless @list.is_a?(Array)
+    return yield(@list) unless @list.is_a?(Array)
     results = []
     errors = []
     @list.each do |api|
       results << yield(api)
     rescue Sibit::NotSupportedError
-      # Just ignore it
+      nil
     rescue Sibit::Error => e
       errors << e
       @log.debug("The API #{api.class.name} failed at #{method}(): #{e.message}") if @verbose
     end
     if results.empty?
       errors.each { |e| @log.debug(Backtrace.new(e).to_s) }
-      raise Sibit::Error, "No APIs out of #{@list.length} managed to succeed at #{method}(): \
-#{@list.map { |a| a.class.name }.join(', ')}"
+      raise(
+        Sibit::Error,
+        "No APIs out of #{@list.length} managed to succeed at #{method}(): " \
+        "#{@list.map { |a| a.class.name }.join(', ')}"
+      )
     end
     results.group_by(&:to_s).values.max_by(&:size)[0]
   end
