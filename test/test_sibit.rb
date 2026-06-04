@@ -158,6 +158,69 @@ class TestSibit < Minitest::Test
     end
   end
 
+  def test_balance_with_trust_sums_confirmed_utxos
+    json = {
+      unspent_outputs: [
+        { tx_hash_big_endian: 'a' * 64, tx_output_n: 0, script: '', confirmations: 0, value: 11 },
+        { tx_hash_big_endian: 'b' * 64, tx_output_n: 0, script: '', confirmations: 2, value: 22 },
+        { tx_hash_big_endian: 'c' * 64, tx_output_n: 0, script: '', confirmations: 7, value: 44 }
+      ]
+    }
+    stub_request(
+      :get,
+      'https://blockchain.info/unspent?active=1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f&limit=1000'
+    ).to_return(body: JSON.pretty_generate(json))
+    sibit = Sibit.new(api: Sibit::Blockchain.new)
+    assert_equal(44, sibit.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f', trust: 3))
+  end
+
+  def test_balance_default_trust_uses_api_balance
+    stub_request(
+      :get,
+      'https://blockchain.info/rawaddr/1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f?limit=0'
+    ).to_return(body: '{"final_balance": 999}')
+    assert_equal(999, Sibit.new.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f'))
+  end
+
+  def test_balance_rejects_negative_trust
+    sibit = Sibit.new(api: Sibit::Fake.new)
+    assert_raises(Sibit::Error) { sibit.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f', trust: -1) }
+  end
+
+  def test_send_payment_skips_utxo_below_trust
+    stub_request(
+      :get, 'https://api.blockchain.info/mempool/fees'
+    ).to_return(body: '{"regular":300,"priority":200,"limits":{"max":88}}')
+    stub_request(
+      :get, 'https://blockchain.info/ticker'
+    ).to_return(body: '{"USD" : {"15m" : 5160.04}}')
+    json = {
+      unspent_outputs: [
+        {
+          tx_hash: 'fc8fb1a526aef220b54a66bbb3e0549bf34db4f25e1aebc3feb87e86d341e65d',
+          tx_hash_big_endian: '5de641d3867eb8fec3eb1a5ef2b44df39b54e0b3bb664ab520f2ae26a5b18ffc',
+          tx_output_n: 0,
+          script: '0014c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc',
+          confirmations: 1,
+          value: 100_000
+        }
+      ]
+    }
+    stub_request(
+      :get,
+      'https://blockchain.info/unspent?active=bc1qcj9pwdant20em83mvf9fzrc7ytm7szau5ysh9x&limit=1000'
+    ).to_return(body: JSON.pretty_generate(json))
+    sibit = Sibit.new(api: Sibit::FirstOf.new([Sibit::Blockchain.new]))
+    assert_raises(Sibit::Error) do
+      sibit.pay(
+        '0.0001BTC', 'S+',
+        ['fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2'],
+        sibit.create(sibit.generate), sibit.create(sibit.generate),
+        trust: 6
+      )
+    end
+  end
+
   def test_scan
     api = Object.new
     def api.block(hash)

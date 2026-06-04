@@ -91,6 +91,18 @@ It is recommended to run it with `--dry --verbose` options first,
 If everything looks correct, remove the `--dry` and run again,
   the transaction is pushed to the network.
 
+To require a minimum number of confirmations on every UTXO before it is
+  spent, or before it counts toward the reported balance, pass `--trust`:
+
+```bash
+sibit --trust=6 balance 1PfsYNygsuVL8fvBarJNQnHytkg4rGih1U
+sibit --trust=6 pay 10000 S P1,P2 TARGET CHANGE
+```
+
+The default is `0`, which preserves the existing behavior.
+The same option is available from the Ruby SDK via the `trust:` keyword
+  argument on `Sibit#balance` and `Sibit#pay`.
+
 To use an HTTPS proxy for all requests:
 
 ```bash
