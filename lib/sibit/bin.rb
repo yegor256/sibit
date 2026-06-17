@@ -83,8 +83,10 @@ class Sibit
     end
 
     desc 'balance ADDRESS', 'Check the balance of the Bitcoin address'
+    option :trust, type: :numeric, default: 0,
+      desc: 'Minimum number of confirmations required for a UTXO to count toward the balance'
     def balance(address)
-      log.info(client.balance(address))
+      log.info(client.balance(address, trust: options[:trust]))
     end
 
     desc \
@@ -95,6 +97,8 @@ class Sibit
     option :yes, type: :boolean, default: false,
       desc: 'Skip confirmation prompt and send the payment immediately'
     option :price, type: :numeric, desc: 'BTC price in USD (skips API price fetch if provided)'
+    option :trust, type: :numeric, default: 0,
+      desc: 'Minimum number of confirmations required on a UTXO before it can be spent'
     def pay(amount, fee, sources, target, change)
       keys = sources.split(',')
       if amount.upcase == 'MAX'
@@ -103,12 +107,15 @@ class Sibit
             kk = Sibit::Key.new(k)
             options[:base58] ? kk.base58 : kk.bech32
           end
-        amount = addrs.sum { |a| client.balance(a) }
+        amount = addrs.sum { |a| client.balance(a, trust: options[:trust]) }
       end
       amount = Integer(amount, 10) if amount.is_a?(String) && /^[0-9]+$/.match?(amount)
       fee = Integer(fee, 10) if /^[0-9]+$/.match?(fee)
       args = [amount, fee, keys, target, change]
-      kwargs = { skip_utxo: options[:skip_utxo], base58: options[:base58], price: options[:price] }
+      kwargs = {
+        skip_utxo: options[:skip_utxo], base58: options[:base58],
+        price: options[:price], trust: options[:trust]
+      }
       unless options[:yes] || options[:dry]
         client(dry: true).pay(*args, **kwargs)
         print('Do you confirm this payment? (yes/no): ')

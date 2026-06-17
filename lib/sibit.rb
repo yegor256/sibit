@@ -62,10 +62,16 @@ class Sibit
     Key.new(pvt).bech32
   end
 
-  # Gets the balance of the address, in satoshi.
-  def balance(address)
+  # Gets the balance of the address, in satoshi. When +trust+ is greater
+  # than zero, only UTXOs with at least that many confirmations are summed,
+  # which requires the underlying API to support +utxos+.
+  def balance(address, trust: 0)
     raise(Error, "Invalid address #{address.inspect}") unless /^[0-9a-zA-Z]+$/.match?(address)
-    @api.balance(address)
+    unless trust.is_a?(Integer) && !trust.negative?
+      raise(Error, "Trust must be a non-negative Integer, got #{trust.inspect}")
+    end
+    return @api.balance(address) if trust.zero?
+    @api.utxos([address]).sum { |u| (u[:confirmations] || 0) >= trust ? u[:value] : 0 }
   end
 
   # Get the height of the block.
@@ -106,7 +112,7 @@ class Sibit
   # +price+: optional BTC price in USD (skips API fetch if provided)
   def pay(
     amount, fee, sources, target, change, skip_utxo: [], network: nil, base58: false,
-    price: nil
+    price: nil, trust: 0
   )
     unless amount.is_a?(Integer) || amount.is_a?(String)
       raise(Error, "The amount #{amount.inspect} must be Integer or String")
@@ -115,6 +121,9 @@ class Sibit
     raise(Error, 'The sources must be an Array') unless sources.is_a?(Array)
     raise(Error, 'The target must be a String') unless target.is_a?(String)
     raise(Error, 'The change must be a String') unless change.is_a?(String)
+    unless trust.is_a?(Integer) && !trust.negative?
+      raise(Error, "Trust must be a non-negative Integer, got #{trust.inspect}")
+    end
     p = price || price('USD')
     keys =
       sources.map do |k|
@@ -150,6 +159,10 @@ class Sibit
       end
       unless utxo[:confirmations]&.positive?
         @log.debug("UTXO with no confirmations: #{utxo[:hash]}")
+        next
+      end
+      if utxo[:confirmations] < trust
+        @log.debug("UTXO below trust=#{trust} (#{utxo[:confirmations]} conf): #{utxo[:hash]}")
         next
       end
       unspent += utxo[:value]
