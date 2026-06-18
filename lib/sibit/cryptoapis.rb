@@ -88,7 +88,7 @@ class Sibit::Cryptoapis
   # Push this transaction (in hex format) to the network.
   def push(hex)
     Sibit::Json.new(http: @http, log: @log).post(
-      Iri.new('https://api.cryptoapis.io/v1/bc/btc/testnet/txs/send'),
+      Iri.new('https://api.cryptoapis.io/v1/bc/btc/mainnet/txs/send'),
       JSON.pretty_generate(hex: hex),
       headers: headers
     )

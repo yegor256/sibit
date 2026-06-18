@@ -79,9 +79,10 @@ class TestCryptoapis < Minitest::Test
   end
 
   def test_push_transaction
-    stub_request(:post, 'https://api.cryptoapis.io/v1/bc/btc/testnet/txs/send')
+    stub = stub_request(:post, 'https://api.cryptoapis.io/v1/bc/btc/mainnet/txs/send')
       .to_return(body: '{"payload": {"txid": "abc123"}}')
     Sibit::Cryptoapis.new('-').push('deadbeef')
+    assert_requested(stub)
   end
 
   def test_works_without_api_key
