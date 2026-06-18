@@ -196,4 +196,56 @@ class TestBtc < Minitest::Test
     sibit = Sibit::Btc.new
     assert_raises(Sibit::Error) { sibit.block(hash) }
   end
+
+  def test_utxos_accumulates_across_addresses
+    alpha = '1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+    beta = '1BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'
+    stub_request(:get, "https://chain.api.btc.com/v3/address/#{alpha}/unspent")
+      .to_return(body: '{"data":{"list":[{"tx_hash":"aaaa","confirmations":3}]}}')
+    stub_request(:get, "https://chain.api.btc.com/v3/address/#{beta}/unspent")
+      .to_return(body: '{"data":{"list":[{"tx_hash":"bbbb","confirmations":7}]}}')
+    stub_request(:get, 'https://chain.api.btc.com/v3/tx/aaaa?verbose=3').to_return(
+      body: %({"data":{"outputs":[{"addresses":["#{alpha}"],"value":100,"script_hex":"dead"}]}})
+    )
+    stub_request(:get, 'https://chain.api.btc.com/v3/tx/bbbb?verbose=3').to_return(
+      body: %({"data":{"outputs":[{"addresses":["#{beta}"],"value":200,"script_hex":"cafe"}]}})
+    )
+    utxos = Sibit::Btc.new.utxos([alpha, beta])
+    assert_equal(2, utxos.length)
+    assert_equal(%w[aaaa bbbb], utxos.map { |u| u[:hash] })
+    assert_equal([100, 200], utxos.map { |u| u[:value] })
+    assert_equal([3, 7], utxos.map { |u| u[:confirmations] })
+    utxos.each { |u| assert_kind_of(Integer, u[:index]) }
+  end
+
+  def test_utxos_skips_outputs_for_other_addresses
+    mine = '1CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC'
+    other = '1DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD'
+    stub_request(:get, "https://chain.api.btc.com/v3/address/#{mine}/unspent")
+      .to_return(body: '{"data":{"list":[{"tx_hash":"cccc","confirmations":1}]}}')
+    stub_request(:get, 'https://chain.api.btc.com/v3/tx/cccc?verbose=3')
+      .to_return(
+        body: %({"data":{"outputs":[
+          {"addresses":["#{other}"],"value":50,"script_hex":"00"},
+          {"addresses":["#{mine}"],"value":75,"script_hex":"11"}
+        ]}})
+      )
+    utxos = Sibit::Btc.new.utxos([mine])
+    assert_equal(1, utxos.length)
+    assert_equal(75, utxos[0][:value])
+    assert_equal(1, utxos[0][:index])
+  end
+
+  def test_utxos_returns_empty_when_list_missing
+    mine = '1EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE'
+    stub_request(:get, "https://chain.api.btc.com/v3/address/#{mine}/unspent")
+      .to_return(body: '{"data":{}}')
+    assert_empty(Sibit::Btc.new.utxos([mine]))
+  end
+
+  def test_utxos_raises_when_data_missing
+    mine = '1FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'
+    stub_request(:get, "https://chain.api.btc.com/v3/address/#{mine}/unspent").to_return(body: '{}')
+    assert_raises(Sibit::Error) { Sibit::Btc.new.utxos([mine]) }
+  end
 end
