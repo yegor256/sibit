@@ -187,6 +187,81 @@ class TestBtc < Minitest::Test
     assert_nil(Sibit::Btc.new.block(hash)[:next], 'next should be nil for latest block')
   end
 
+  def test_fetch_utxos_for_single_address
+    addr = '1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f'
+    stub_request(:get, "https://chain.api.btc.com/v3/address/#{addr}/unspent")
+      .to_return(
+        body: '{"data":{"list":[{"tx_hash":"aa","confirmations":5}]}}'
+      )
+    stub_request(:get, 'https://chain.api.btc.com/v3/tx/aa?verbose=3')
+      .to_return(
+        body: %({"data":{"outputs":[{"addresses":["#{addr}"],"value":42,"script_hex":"00"}]}})
+      )
+    utxos = Sibit::Btc.new.utxos([addr])
+    assert_kind_of(Array, utxos)
+    assert_equal(1, utxos.length)
+    out = utxos[0]
+    assert_equal(42, out[:value])
+    assert_equal('aa', out[:hash])
+    assert_equal(0, out[:index])
+    assert_equal(5, out[:confirmations])
+    assert_kind_of(String, out[:script])
+  end
+
+  def test_fetch_utxos_accumulates_across_addresses
+    one = '1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f'
+    two = '1JSQBzkELK8UA9NVm4sZJ1CWGLEp8zUxR6'
+    stub_request(:get, "https://chain.api.btc.com/v3/address/#{one}/unspent")
+      .to_return(body: '{"data":{"list":[{"tx_hash":"aa","confirmations":3}]}}')
+    stub_request(:get, "https://chain.api.btc.com/v3/address/#{two}/unspent")
+      .to_return(body: '{"data":{"list":[{"tx_hash":"bb","confirmations":4}]}}')
+    stub_request(:get, 'https://chain.api.btc.com/v3/tx/aa?verbose=3')
+      .to_return(
+        body: %({"data":{"outputs":[{"addresses":["#{one}"],"value":11,"script_hex":"00"}]}})
+      )
+    stub_request(:get, 'https://chain.api.btc.com/v3/tx/bb?verbose=3')
+      .to_return(
+        body: %({"data":{"outputs":[{"addresses":["#{two}"],"value":22,"script_hex":"01"}]}})
+      )
+    utxos = Sibit::Btc.new.utxos([one, two])
+    assert_equal(2, utxos.length)
+    assert_equal(%w[aa bb], utxos.map { |u| u[:hash] })
+    assert_equal([11, 22], utxos.map { |u| u[:value] })
+  end
+
+  def test_fetch_utxos_skips_outputs_for_other_address
+    addr = '1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f'
+    other = '1OtherAddrCCCCCCCCCCCCCCCCCCCCCCCC'
+    stub_request(:get, "https://chain.api.btc.com/v3/address/#{addr}/unspent")
+      .to_return(body: '{"data":{"list":[{"tx_hash":"aa","confirmations":1}]}}')
+    stub_request(:get, 'https://chain.api.btc.com/v3/tx/aa?verbose=3')
+      .to_return(
+        body: %({"data":{"outputs":[
+          {"addresses":["#{other}"],"value":99,"script_hex":"FF"},
+          {"addresses":["#{addr}"],"value":7,"script_hex":"00"}
+        ]}})
+      )
+    utxos = Sibit::Btc.new.utxos([addr])
+    assert_equal(1, utxos.length)
+    assert_equal(7, utxos[0][:value])
+    assert_equal(1, utxos[0][:index])
+  end
+
+  def test_fetch_utxos_raises_when_address_not_found
+    addr = '1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f'
+    stub_request(:get, "https://chain.api.btc.com/v3/address/#{addr}/unspent")
+      .to_return(body: '{"data":null}')
+    assert_raises(Sibit::Error) { Sibit::Btc.new.utxos([addr]) }
+  end
+
+  def test_fetch_utxos_returns_empty_when_list_is_nil
+    addr = '1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f'
+    stub_request(:get, "https://chain.api.btc.com/v3/address/#{addr}/unspent")
+      .to_return(body: '{"data":{}}')
+    utxos = Sibit::Btc.new.utxos([addr])
+    assert_equal([], utxos)
+  end
+
   def test_txns_raises_on_empty_list
     hash = '000000000000000007341915521967247f1dec17b3a311b8a8f4495392f1439b'
     stub_request(:get, "https://chain.api.btc.com/v3/block/#{hash}")
