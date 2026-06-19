@@ -160,6 +160,10 @@ class Sibit
             Sibit::Blockchair.new(http: http, log: log)
           when 'cex'
             Sibit::Cex.new(http: http, log: log)
+          when 'cryptoapis'
+            Sibit::Cryptoapis.new(ENV.fetch('SIBIT_CRYPTOAPIS_KEY', nil), http: http, log: log)
+          when 'sochain'
+            Sibit::Sochain.new(http: http, log: log)
           when 'fake'
             Sibit::Fake.new
           else

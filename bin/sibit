@@ -15,11 +15,13 @@ require_relative '../lib/sibit/blockchain'
 require_relative '../lib/sibit/blockchair'
 require_relative '../lib/sibit/btc'
 require_relative '../lib/sibit/cex'
+require_relative '../lib/sibit/cryptoapis'
 require_relative '../lib/sibit/dry'
 require_relative '../lib/sibit/fake'
 require_relative '../lib/sibit/firstof'
 require_relative '../lib/sibit/http'
 require_relative '../lib/sibit/httpproxy'
+require_relative '../lib/sibit/sochain'
 require_relative '../lib/sibit/version'
 
 begin
