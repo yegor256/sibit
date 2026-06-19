@@ -77,7 +77,7 @@ class TestBlockchair < Minitest::Test
 
   def test_uses_api_key_in_requests
     hash = '1GkQmKAmHtNfnD3LHhTkewJxKHVSta4m2a'
-    stub_request(:get, "https://api.blockchair.com/bitcoin/dashboards/address/#{hash}")
+    stub_request(:get, "https://api.blockchair.com/bitcoin/dashboards/address/#{hash}?key=testkey")
       .to_return(body: "{\"data\": {\"#{hash}\": {\"address\": {\"balance\": 100}}}}")
     assert_equal(
       100, Sibit::Blockchair.new(key: 'testkey').balance(hash),
@@ -86,8 +86,22 @@ class TestBlockchair < Minitest::Test
   end
 
   def test_push_with_api_key
-    stub_request(:post, 'https://api.blockchair.com/bitcoin/push/transaction')
+    stub_request(:post, 'https://api.blockchair.com/bitcoin/push/transaction?key=testkey')
       .to_return(body: '{"data": {"transaction_hash": "abc123"}}')
     Sibit::Blockchair.new(key: 'testkey').push('deadbeef')
+  end
+
+  def test_balance_url_omits_key_when_nil
+    hash = '1GkQmKAmHtNfnD3LHhTkewJxKHVSta4m2a'
+    stub_request(:get, "https://api.blockchair.com/bitcoin/dashboards/address/#{hash}")
+      .to_return(body: "{\"data\": {\"#{hash}\": {\"address\": {\"balance\": 1}}}}")
+    assert_equal(1, Sibit::Blockchair.new.balance(hash))
+  end
+
+  def test_url_encodes_api_key
+    hash = '1GkQmKAmHtNfnD3LHhTkewJxKHVSta4m2a'
+    stub_request(:get, "https://api.blockchair.com/bitcoin/dashboards/address/#{hash}?key=key%26evil")
+      .to_return(body: "{\"data\": {\"#{hash}\": {\"address\": {\"balance\": 5}}}}")
+    assert_equal(5, Sibit::Blockchair.new(key: 'key&evil').balance(hash))
   end
 end
