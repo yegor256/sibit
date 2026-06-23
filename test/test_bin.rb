@@ -13,11 +13,13 @@ require_relative '../lib/sibit/blockchain'
 require_relative '../lib/sibit/blockchair'
 require_relative '../lib/sibit/btc'
 require_relative '../lib/sibit/cex'
+require_relative '../lib/sibit/cryptoapis'
 require_relative '../lib/sibit/dry'
 require_relative '../lib/sibit/fake'
 require_relative '../lib/sibit/firstof'
 require_relative '../lib/sibit/http'
 require_relative '../lib/sibit/httpproxy'
+require_relative '../lib/sibit/sochain'
 require_relative 'test__helper'
 
 # Tests for the CLI.
@@ -95,5 +97,20 @@ class TestBin < Minitest::Test
 
   def test_generates_key_via_command_line
     assert_match(/^[0-9a-f]{64}$/, qbash('bin/sibit generate').strip, 'must print 64-char hex key')
+  end
+
+  def test_balance_via_sochain_api
+    addr = 'bc1qcj9pwdant20em83mvf9fzrc7ytm7szau5ysh9x'
+    stub = stub_request(:get, "https://sochain.com/api/v2/get_address_balance/BTC/#{addr}")
+      .to_return(body: '{"data":{"confirmed_balance":"0.0005"}}')
+    Sibit::Bin.start(['balance', addr, '--api', 'sochain', '--quiet'])
+    assert_requested(stub)
+  end
+
+  def test_latest_via_cryptoapis_api
+    stub = stub_request(:get, 'https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/latest')
+      .to_return(body: '{"payload":{"hash":"00000000abc123"}}')
+    Sibit::Bin.start(['latest', '--api', 'cryptoapis', '--quiet'])
+    assert_requested(stub)
   end
 end
