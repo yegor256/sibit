@@ -61,7 +61,7 @@ class Sibit::Json
     uri = URI(address.to_s)
     elapsed(@log) do
       res = @http.client(uri).post(
-        "#{uri.path}?#{uri.query}",
+        "#{uri.path.empty? ? '/' : uri.path}#{"?#{uri.query}" if uri.query}",
         "tx=#{CGI.escape(body)}",
         {
           'Accept' => 'text/plain',
