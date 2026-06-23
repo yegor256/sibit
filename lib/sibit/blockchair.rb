@@ -3,7 +3,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2019-2026 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
-require 'cgi'
 require 'iri'
 require 'json'
 require 'loog'
@@ -43,9 +42,9 @@ class Sibit::Blockchair
 
   # Gets the balance of the address, in satoshi.
   def balance(address)
-    json = Sibit::Json.new(http: @http, log: @log).get(
-      Iri.new('https://api.blockchair.com/bitcoin/dashboards/address').append(address).fragment(the_key)
-    )['data'][address]
+    uri = Iri.new('https://api.blockchair.com/bitcoin/dashboards/address').append(address)
+    uri = uri.add(key: @key) unless @key.nil?
+    json = Sibit::Json.new(http: @http, log: @log).get(uri)['data'][address]
     if json.nil?
       @log.debug("Address #{address} not found")
       return 0
@@ -72,21 +71,14 @@ class Sibit::Blockchair
 
   # Push this transaction (in hex format) to the network.
   def push(hex)
-    Sibit::Json.new(http: @http, log: @log).post(
-      Iri.new('https://api.blockchair.com/bitcoin/push/transaction').fragment(the_key),
-      "data=#{hex}"
-    )
+    uri = Iri.new('https://api.blockchair.com/bitcoin/push/transaction')
+    uri = uri.add(key: @key) unless @key.nil?
+    Sibit::Json.new(http: @http, log: @log).post(uri, "data=#{hex}")
     @log.debug("Transaction (#{hex.length} in hex) has been pushed to Blockchair")
   end
 
   # This method should fetch a Blockchain block and return as a hash.
   def block(_hash)
     raise(Sibit::NotSupportedError, 'Blockchair doesn\'t implement block()')
-  end
-
-  private
-
-  def the_key
-    @key.nil? ? '' : "key=#{CGI.escape(@key)}"
   end
 end
