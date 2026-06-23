@@ -80,6 +80,10 @@ class TestCryptoapis < Minitest::Test
 
   def test_push_transaction
     stub = stub_request(:post, 'https://api.cryptoapis.io/v1/bc/btc/mainnet/txs/send')
+      .with(
+        headers: { 'Content-Type' => 'application/json' },
+        body: JSON.pretty_generate(hex: 'deadbeef')
+      )
       .to_return(body: '{"payload": {"txid": "abc123"}}')
     Sibit::Cryptoapis.new('-').push('deadbeef')
     assert_requested(stub)

@@ -20,4 +20,27 @@ class TestJson < Minitest::Test
     json = Sibit::Json.new.get(URI('https://hello.com/'))
     assert_equal(123, json['test'])
   end
+
+  def test_post_passes_body_verbatim
+    stub = stub_request(:post, 'https://hello.com/')
+      .with(body: 'raw=payload&x=1')
+      .to_return(body: 'ok')
+    Sibit::Json.new.post(URI('https://hello.com/'), 'raw=payload&x=1')
+    assert_requested(stub)
+  end
+
+  def test_post_honors_caller_content_type
+    stub = stub_request(:post, 'https://hello.com/')
+      .with(
+        headers: { 'Content-Type' => 'application/json' },
+        body: '{"k":"v"}'
+      )
+      .to_return(body: 'ok')
+    Sibit::Json.new.post(
+      URI('https://hello.com/'),
+      '{"k":"v"}',
+      headers: { 'Content-Type' => 'application/json' }
+    )
+    assert_requested(stub)
+  end
 end
