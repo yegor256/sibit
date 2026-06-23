@@ -3,7 +3,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2019-2026 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
-require 'cgi'
 require 'elapsed'
 require 'json'
 require 'loog'
@@ -62,7 +61,7 @@ class Sibit::Json
     elapsed(@log) do
       res = @http.client(uri).post(
         "#{uri.path}?#{uri.query}",
-        "tx=#{CGI.escape(body)}",
+        body,
         {
           'Accept' => 'text/plain',
           'User-Agent' => user_agent,
