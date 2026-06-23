@@ -20,4 +20,27 @@ class TestJson < Minitest::Test
     json = Sibit::Json.new.get(URI('https://hello.com/'))
     assert_equal(123, json['test'])
   end
+
+  def test_post_drops_empty_query
+    captured = nil
+    fake_http = Class.new do
+      define_method(:client) do |_uri|
+        client = Object.new
+        client.define_singleton_method(:post) do |path, _body, _headers|
+          captured = path
+          Struct.new(:code, :body).new('200', '')
+        end
+        client
+      end
+    end.new
+    Sibit::Json.new(http: fake_http).post(URI('https://hello.com/pushtx'), 'deadbeef')
+    refute_match(/\?\z/, captured)
+    assert_equal('/pushtx', captured)
+  end
+
+  def test_post_keeps_query
+    stub = stub_request(:post, 'https://hello.com/pushtx?key=abc').to_return(body: '')
+    Sibit::Json.new.post(URI('https://hello.com/pushtx?key=abc'), 'deadbeef')
+    assert_requested(stub)
+  end
 end
