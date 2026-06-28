@@ -16,7 +16,7 @@ gem 'nokogiri', '~>1.18', require: false
 gem 'os', '~>1.1', require: false
 gem 'qbash', '~>0.0', require: false
 gem 'rake', '~>13.2', require: false
-gem 'rdoc', '~>7.0', require: false
+gem 'rdoc', '~>8.0', require: false
 gem 'rubocop', '~>1.72', require: false
 gem 'rubocop-elegant', '~>0.5', require: false
 gem 'rubocop-minitest', '~>0.38', require: false
