@@ -37,4 +37,19 @@ class TestBlockchain < Minitest::Test
       .to_return(body: '{"next_block": ["nxt"]}')
     assert_equal('nxt', Sibit::Blockchain.new.next_of(hash))
   end
+
+  def test_height
+    hash = '0000000000000000000f676241aabc9b62b748d26192a44bc25720c34de27d19'
+    stub_request(:get, "https://blockchain.info/rawblock/#{hash}")
+      .to_return(body: '{"height": 600000}')
+    assert_equal(600_000, Sibit::Blockchain.new.height(hash))
+  end
+
+  def test_height_raises_when_absent
+    hash = '0000000000000000000f676241aabc9b62b748d26192a44bc25720c34de27d19'
+    stub_request(:get, "https://blockchain.info/rawblock/#{hash}").to_return(body: '{}')
+    assert_raises(Sibit::Error) do
+      Sibit::Blockchain.new.height(hash)
+    end
+  end
 end
