@@ -48,6 +48,7 @@ class Sibit::Blockchain
     h = Sibit::Json.new(http: @http, log: @log).get(
       Iri.new('https://blockchain.info/rawblock').append(hash)
     )['height']
+    raise(Sibit::Error, "The block #{hash} found but the height is absent") if h.nil?
     @log.debug("The height of #{hash} is #{h}")
     h
   end
