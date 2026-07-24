@@ -3,6 +3,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2019-2026 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
+require_relative 'error'
 require_relative 'key'
 require_relative 'tx'
 
@@ -17,6 +18,8 @@ class Sibit
   # Copyright:: Copyright (c) 2019-2026 Yegor Bugayenko
   # License:: MIT
   class TxBuilder
+    DUST = 546
+
     def initialize
       @inputs = []
       @outputs = []
@@ -47,6 +50,15 @@ class Sibit
       @outputs.each { |o| txn.add_output(o[:value], o[:address]) }
       if leave_fee
         change = input_value - total - extra_fee
+        if change.negative?
+          raise(
+            Sibit::Error,
+            "The inputs of #{input_value} cannot cover outputs of #{total} plus fee of #{extra_fee}"
+          )
+        end
+        if change.positive? && change < DUST
+          raise(Sibit::Error, "The change of #{change} is below the dust limit of #{DUST}")
+        end
         txn.add_output(change, change_address) if change.positive?
       end
       Built.new(txn, @inputs, @outputs)

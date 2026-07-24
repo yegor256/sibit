@@ -101,7 +101,8 @@ class Sibit
       desc: 'Minimum number of confirmations required on a UTXO before it can be spent'
     def pay(amount, fee, sources, target, change)
       keys = sources.split(',')
-      if amount.upcase == 'MAX'
+      sweep = amount.upcase == 'MAX'
+      if sweep
         addrs =
           keys.map do |k|
             kk = Sibit::Key.new(k)
@@ -111,6 +112,7 @@ class Sibit
       end
       amount = Integer(amount, 10) if amount.is_a?(String) && /^[0-9]+$/.match?(amount)
       fee = Integer(fee, 10) if /^[0-9]+$/.match?(fee)
+      amount -= fee if sweep && fee.is_a?(Integer)
       args = [amount, fee, keys, target, change]
       kwargs = {
         skip_utxo: options[:skip_utxo], base58: options[:base58],

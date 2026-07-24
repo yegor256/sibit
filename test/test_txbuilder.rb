@@ -79,7 +79,7 @@ class TestTxBuilder < Minitest::Test
     assert_equal(1, tx.outputs.length, 'tx should have only one output when leave_fee is false')
   end
 
-  def test_skips_change_when_zero_or_negative
+  def test_skips_change_when_exactly_zero
     builder = Sibit::TxBuilder.new
     key = Sibit::Key.new('fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2')
     builder.input do |i|
@@ -94,6 +94,42 @@ class TestTxBuilder < Minitest::Test
       change_address: '1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2'
     )
     assert_equal(1, tx.outputs.length, 'tx should skip zero change output')
+  end
+
+  def test_rejects_change_that_would_be_negative
+    builder = Sibit::TxBuilder.new
+    key = Sibit::Key.new('fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2')
+    builder.input do |i|
+      i.prev_out('fc8fb1a526aef220b54a66bbb3e0549bf34db4f25e1aebc3feb87e86d341e65d')
+      i.prev_out_index(0)
+      i.prev_out_script = '76a914c14b1e5c95a4687da3f7c932bf39a3a89bdb3fa988ac'
+      i.signature_key(key)
+    end
+    builder.output(99_000, '1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi')
+    assert_raises(Sibit::Error, 'cannot let the fee silently swallow a negative change') do
+      builder.tx(
+        input_value: 100_000, leave_fee: true, extra_fee: 2000,
+        change_address: '1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2'
+      )
+    end
+  end
+
+  def test_rejects_change_below_dust
+    builder = Sibit::TxBuilder.new
+    key = Sibit::Key.new('fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2')
+    builder.input do |i|
+      i.prev_out('fc8fb1a526aef220b54a66bbb3e0549bf34db4f25e1aebc3feb87e86d341e65d')
+      i.prev_out_index(0)
+      i.prev_out_script = '76a914c14b1e5c95a4687da3f7c932bf39a3a89bdb3fa988ac'
+      i.signature_key(key)
+    end
+    builder.output(98_900, '1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi')
+    assert_raises(Sibit::Error, 'cannot create a dust change output that relays reject') do
+      builder.tx(
+        input_value: 100_000, leave_fee: true, extra_fee: 1000,
+        change_address: '1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2'
+      )
+    end
   end
 
   def test_returns_inputs_via_in_method
