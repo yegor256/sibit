@@ -75,6 +75,14 @@ class TestBlockchair < Minitest::Test
     Sibit::Blockchair.new.push('deadbeef')
   end
 
+  def test_push_sends_body_verbatim
+    stub = stub_request(:post, 'https://api.blockchair.com/bitcoin/push/transaction')
+      .with(body: 'data=deadbeef')
+      .to_return(body: '{"data": {"transaction_hash": "abc123"}}')
+    Sibit::Blockchair.new.push('deadbeef')
+    assert_requested(stub, times: 1)
+  end
+
   def test_uses_api_key_in_requests
     hash = '1GkQmKAmHtNfnD3LHhTkewJxKHVSta4m2a'
     stub_request(:get, "https://api.blockchair.com/bitcoin/dashboards/address/#{hash}?key=testkey")

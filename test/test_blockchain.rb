@@ -37,4 +37,12 @@ class TestBlockchain < Minitest::Test
       .to_return(body: '{"next_block": ["nxt"]}')
     assert_equal('nxt', Sibit::Blockchain.new.next_of(hash))
   end
+
+  def test_push_wraps_body_in_tx_form
+    stub = stub_request(:post, 'https://blockchain.info/pushtx')
+      .with(body: 'tx=deadbeef', headers: { 'Content-Type' => 'application/x-www-form-urlencoded' })
+      .to_return(body: '')
+    Sibit::Blockchain.new.push('deadbeef')
+    assert_requested(stub, times: 1)
+  end
 end

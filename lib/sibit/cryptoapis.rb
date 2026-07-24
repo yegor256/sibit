@@ -90,7 +90,7 @@ class Sibit::Cryptoapis
     Sibit::Json.new(http: @http, log: @log).post(
       Iri.new('https://api.cryptoapis.io/v1/bc/btc/mainnet/txs/send'),
       JSON.pretty_generate(hex: hex),
-      headers: headers
+      headers: headers.merge('Content-Type' => 'application/json')
     )
   end
 

@@ -3,6 +3,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2019-2026 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
+require 'cgi'
 require 'iri'
 require 'json'
 require 'loog'
@@ -100,7 +101,9 @@ class Sibit::Blockchain
 
   # Push this transaction (in hex format) to the network.
   def push(hex)
-    Sibit::Json.new(http: @http, log: @log).post(Iri.new('https://blockchain.info/pushtx'), hex)
+    Sibit::Json.new(http: @http, log: @log).post(
+      Iri.new('https://blockchain.info/pushtx'), "tx=#{CGI.escape(hex)}"
+    )
   end
 
   # Gets the hash of the latest block.

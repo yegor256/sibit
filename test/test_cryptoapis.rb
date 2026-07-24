@@ -85,6 +85,17 @@ class TestCryptoapis < Minitest::Test
     assert_requested(stub)
   end
 
+  def test_push_sends_json_verbatim
+    stub = stub_request(:post, 'https://api.cryptoapis.io/v1/bc/btc/mainnet/txs/send')
+      .with(
+        body: JSON.pretty_generate(hex: 'deadbeef'),
+        headers: { 'Content-Type' => 'application/json' }
+      )
+      .to_return(body: '{"payload": {"txid": "abc123"}}')
+    Sibit::Cryptoapis.new('-').push('deadbeef')
+    assert_requested(stub, times: 1)
+  end
+
   def test_works_without_api_key
     hash = '000000000000000007341915521967247f1dec17b3a311b8a8f4495392f1439b'
     stub_request(:get, "https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/#{hash}")
