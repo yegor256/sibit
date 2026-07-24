@@ -143,6 +143,24 @@ class TestTx < Minitest::Test
     )
   end
 
+  def test_output_generates_p2sh_script
+    tx = Sibit::Tx.new
+    tx.add_output(10_000, '36sxuNPT13FFmRPVJ5h9fBjXwB7cvZTnfY')
+    assert_equal(
+      'a91438eaaeee66e2d15f50e96a96e389db9ca467d58f87',
+      tx.outputs[0].script_hex,
+      'P2SH address cannot be encoded as a P2PKH script'
+    )
+  end
+
+  def test_rejects_unknown_address_version
+    tx = Sibit::Tx.new
+    tx.add_output(10_000, 'CXCWzGeaY7ApHokRuF7L5Qygkw7qQzrzJw')
+    assert_raises(Sibit::Error, 'unsupported address version cannot be silently encoded') do
+      tx.outputs[0].script_hex
+    end
+  end
+
   def test_output_generates_segwit_script
     tx = Sibit::Tx.new
     tx.add_output(10_000, 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4')

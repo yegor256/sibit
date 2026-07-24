@@ -194,7 +194,8 @@ class TestRegtest < Minitest::Test
         '-rpcport=18443',
         '-rpcuser=test',
         '-rpcpassword=test',
-        '-fallbackfee=0.0001'
+        '-fallbackfee=0.0001',
+        '-deprecatedrpc=create_bdb'
       ].join(' '),
       timeout: 600,
       stdout: Loog::NULL
