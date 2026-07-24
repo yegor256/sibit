@@ -66,11 +66,26 @@ class Sibit::BestOf
     best_of('latest', &:latest)
   end
 
-  # Push this transaction (in hex format) to the network.
+  # Push this transaction (in hex format) to the network. This one does
+  # not vote: pushing is a side effect, so it hands the transaction to
+  # each API in turn and stops at the first that accepts it.
   def push(hex)
-    best_of('push') do |api|
-      api.push(hex)
+    return @list.push(hex) unless @list.is_a?(Array)
+    errors = []
+    @list.each do |api|
+      return api.push(hex)
+    rescue Sibit::NotSupportedError
+      nil
+    rescue Sibit::Error => e
+      errors << e
+      @log.debug("The API #{api.class.name} failed at push(): #{e.message}") if @verbose
     end
+    errors.each { |e| @log.debug(Backtrace.new(e).to_s) }
+    raise(
+      Sibit::Error,
+      "No APIs out of #{@list.length} managed to succeed at push(): " \
+      "#{@list.map { |a| a.class.name }.join(', ')}"
+    )
   end
 
   # This method should fetch a block and return as a hash.
@@ -84,17 +99,17 @@ class Sibit::BestOf
 
   def best_of(method)
     return yield(@list) unless @list.is_a?(Array)
-    results = []
+    votes = []
     errors = []
     @list.each do |api|
-      results << yield(api)
+      votes << [api.class.name, yield(api)]
     rescue Sibit::NotSupportedError
       nil
     rescue Sibit::Error => e
       errors << e
       @log.debug("The API #{api.class.name} failed at #{method}(): #{e.message}") if @verbose
     end
-    if results.empty?
+    if votes.empty?
       errors.each { |e| @log.debug(Backtrace.new(e).to_s) }
       raise(
         Sibit::Error,
@@ -102,6 +117,18 @@ class Sibit::BestOf
         "#{@list.map { |a| a.class.name }.join(', ')}"
       )
     end
-    results.group_by(&:to_s).values.max_by(&:size)[0]
+    majority(method, votes)
+  end
+
+  def majority(method, votes)
+    winner = votes.group_by { |v| v[1].to_s }.values.max_by(&:size)
+    if winner.size <= votes.size / 2
+      raise(
+        Sibit::Error,
+        "No strict majority among #{votes.size} answers at #{method}(): " \
+        "#{votes.map { |name, answer| "#{name}=#{answer}" }.join(', ')}"
+      )
+    end
+    winner[0][1]
   end
 end

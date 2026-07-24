@@ -42,4 +42,50 @@ class TestBestOf < Minitest::Test
       sibit.latest
     end
   end
+
+  def test_raises_on_disagreement_without_majority
+    low = Class.new do
+      def balance(_address)
+        0
+      end
+    end.new
+    high = Class.new do
+      def balance(_address)
+        100_000_000
+      end
+    end.new
+    assert_raises(Sibit::Error, 'a two-way balance disagreement cannot resolve silently') do
+      Sibit::BestOf.new([low, high]).balance('1anyaddr')
+    end
+  end
+
+  def test_returns_strict_majority
+    high = Class.new do
+      def balance(_address)
+        100_000_000
+      end
+    end.new
+    low = Class.new do
+      def balance(_address)
+        0
+      end
+    end.new
+    assert_equal(
+      100_000_000,
+      Sibit::BestOf.new([high, high, low]).balance('1anyaddr'),
+      'a strict majority balance does not win the vote'
+    )
+  end
+
+  def test_push_stops_at_first_success
+    touched = []
+    second = Class.new do
+      define_method(:push) { |_hex| touched << :second }
+    end.new
+    first = Class.new do
+      def push(_hex); end
+    end.new
+    Sibit::BestOf.new([first, second]).push('deadbeef')
+    assert_empty(touched, 'push cannot broadcast to a second API after the first accepts it')
+  end
 end
