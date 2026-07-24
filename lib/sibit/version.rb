@@ -8,5 +8,5 @@
 # Copyright:: Copyright (c) 2019-2026 Yegor Bugayenko
 # License:: MIT
 class Sibit
-  VERSION = '0.0.0' unless defined?(VERSION)
+  VERSION = '0.34.0' unless defined?(VERSION)
 end
