@@ -97,9 +97,13 @@ class Sibit
   #
   # If the payment can't be signed (the key is wrong, for example) or the
   # previous transaction is not found, or there is a network error, or
-  # any other reason, you will get an exception. In this case, just try again.
-  # It's safe to try as many times as you need. Don't worry about duplicating
-  # your transaction, the Bitcoin network will filter duplicates out.
+  # any other reason, you will get an exception. You may retry, but only
+  # while no earlier attempt could have reached the network: inputs are
+  # selected deterministically, so an immediate retry rebuilds a conflicting
+  # transaction that the network rejects as a double-spend. Once an earlier
+  # attempt might have confirmed, the wallet holds a fresh set of UTXOs and
+  # a blind retry may pay the target twice; check the target address (or the
+  # previous transaction hash) before re-sending.
   #
   # If there are more than 1000 UTXOs in the address where you are trying
   # to send bitcoins from, this method won't be helpful.
@@ -151,7 +155,7 @@ class Sibit
     builder = TxBuilder.new
     unspent = 0
     size = 100
-    utxos = @api.utxos(sources.keys)
+    utxos = @api.utxos(sources.keys).sort_by { |u| [u[:hash], u[:index]] }
     @log.debug("#{utxos.count} UTXOs found, these will be used (value/confirmations at tx_hash):")
     utxos.each do |utxo|
       if skip_utxo.include?(utxo[:hash])
