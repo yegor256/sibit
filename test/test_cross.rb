@@ -18,6 +18,7 @@ class TestCross < Minitest::Test
   Dir.glob(File.join(__dir__, '..', 'cross', '*.df')).each do |df|
     name = File.basename(df, '.df')
     define_method("test_works_on_#{name}") do
+      skip if ENV['skip_cross']
       skip unless docker?
       Dir.mktmpdir do |tmp|
         qbash(
