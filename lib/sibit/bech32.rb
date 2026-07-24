@@ -66,8 +66,19 @@ class Sibit
 
     def witness
       hrp, data = parse
+      ver = data[0]
+      unless ver.between?(0, 16)
+        raise(Sibit::Error, "Unsupported witness version #{ver} in '#{@addr}'")
+      end
       raise(Sibit::Error, "Invalid Bech32 checksum in '#{@addr}'") unless verified?(hrp, data)
-      convert(data[1..-7], 5, 8, false).pack('C*').unpack1('H*')
+      prog = convert(data[1..-7], 5, 8)
+      if ver.zero? && [20, 32].none?(prog.length)
+        raise(Sibit::Error, "Witness v0 program in '#{@addr}' must be 20 or 32 bytes")
+      end
+      unless prog.length.between?(2, 40)
+        raise(Sibit::Error, "Witness program in '#{@addr}' must be 2 to 40 bytes")
+      end
+      prog.pack('C*').unpack1('H*')
     end
 
     def version
@@ -88,7 +99,7 @@ class Sibit
     end
 
     def verified?(hrp, data)
-      [1, 0x2bc830a3].include?(polymod(expand(hrp) + data))
+      polymod(expand(hrp) + data) == (data[0].zero? ? 1 : 0x2bc830a3)
     end
 
     def expand(hrp)
@@ -105,7 +116,7 @@ class Sibit
       chk
     end
 
-    def convert(data, frombits, tobits, pad)
+    def convert(data, frombits, tobits)
       acc = 0
       bits = 0
       result = []
@@ -118,7 +129,9 @@ class Sibit
           result << ((acc >> bits) & maxv)
         end
       end
-      result << ((acc << (tobits - bits)) & maxv) if pad && bits.positive?
+      if bits >= frombits || (acc << (tobits - bits)).anybits?(maxv)
+        raise(Sibit::Error, "Non-zero padding in Bech32 address '#{@addr}'")
+      end
       result
     end
   end

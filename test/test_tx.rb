@@ -236,6 +236,32 @@ class TestTx < Minitest::Test
     )
   end
 
+  def test_encodes_taproot_as_higher_witness
+    tx = Sibit::Tx.new
+    tx.add_output(10_000, 'bc1pqqqsyqcyq5rqwzqfpg9scrgwpugpzysnzs23v9ccrydpk8qarc0sg5tmnz')
+    assert_equal(
+      '5120000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f',
+      tx.outputs[0].script_hex,
+      'taproot address must encode as witness v1, not v0'
+    )
+  end
+
+  def test_rejects_wrong_checksum_variant
+    tx = Sibit::Tx.new
+    tx.add_output(10_000, 'bc1qqqqsyqcyq5rqwzqfpg9scrgwpugpzysnqslask')
+    assert_raises(Sibit::Error, 'a v0 address with a bech32m checksum cannot be accepted') do
+      tx.outputs[0].script_hex
+    end
+  end
+
+  def test_rejects_witness_program_wrong_length
+    tx = Sibit::Tx.new
+    tx.add_output(10_000, 'bc1qqqqsyqcyq5rqwzqfpg9scrgwpugpzysnzs23v9ccrydpk8qarcgj48wy')
+    assert_raises(Sibit::Error, 'a 31-byte witness v0 program cannot build a valid script') do
+      tx.outputs[0].script_hex
+    end
+  end
+
   def test_output_segwit_script_has_correct_length
     tx = Sibit::Tx.new
     tx.add_output(10_000, 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4')
