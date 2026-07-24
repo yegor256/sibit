@@ -201,7 +201,7 @@ class TestBtc < Minitest::Test
     addr = '1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f'
     stub_request(:get, "https://chain.api.btc.com/v3/address/#{addr}/unspent")
       .to_return(
-        body: '{"data":{"list":[{"tx_hash":"aa","confirmations":5}]}}'
+        body: '{"data":{"list":[{"tx_hash":"aa","tx_output_n":0,"value":42,"confirmations":5}]}}'
       )
     stub_request(:get, 'https://chain.api.btc.com/v3/tx/aa?verbose=3')
       .to_return(
@@ -222,9 +222,13 @@ class TestBtc < Minitest::Test
     one = '1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f'
     two = '1JSQBzkELK8UA9NVm4sZJ1CWGLEp8zUxR6'
     stub_request(:get, "https://chain.api.btc.com/v3/address/#{one}/unspent")
-      .to_return(body: '{"data":{"list":[{"tx_hash":"aa","confirmations":3}]}}')
+      .to_return(
+        body: '{"data":{"list":[{"tx_hash":"aa","tx_output_n":0,"value":11,"confirmations":3}]}}'
+      )
     stub_request(:get, "https://chain.api.btc.com/v3/address/#{two}/unspent")
-      .to_return(body: '{"data":{"list":[{"tx_hash":"bb","confirmations":4}]}}')
+      .to_return(
+        body: '{"data":{"list":[{"tx_hash":"bb","tx_output_n":0,"value":22,"confirmations":4}]}}'
+      )
     stub_request(:get, 'https://chain.api.btc.com/v3/tx/aa?verbose=3')
       .to_return(
         body: %({"data":{"outputs":[{"addresses":["#{one}"],"value":11,"script_hex":"00"}]}})
@@ -243,7 +247,9 @@ class TestBtc < Minitest::Test
     addr = '1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f'
     other = '1OtherAddrCCCCCCCCCCCCCCCCCCCCCCCC'
     stub_request(:get, "https://chain.api.btc.com/v3/address/#{addr}/unspent")
-      .to_return(body: '{"data":{"list":[{"tx_hash":"aa","confirmations":1}]}}')
+      .to_return(
+        body: '{"data":{"list":[{"tx_hash":"aa","tx_output_n":1,"value":7,"confirmations":1}]}}'
+      )
     stub_request(:get, 'https://chain.api.btc.com/v3/tx/aa?verbose=3')
       .to_return(
         body: %({"data":{"outputs":[
@@ -286,9 +292,13 @@ class TestBtc < Minitest::Test
     alpha = '1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
     beta = '1BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'
     stub_request(:get, "https://chain.api.btc.com/v3/address/#{alpha}/unspent")
-      .to_return(body: '{"data":{"list":[{"tx_hash":"aaaa","confirmations":3}]}}')
+      .to_return(
+        body: '{"data":{"list":[{"tx_hash":"aaaa","tx_output_n":0,"value":100,"confirmations":3}]}}'
+      )
     stub_request(:get, "https://chain.api.btc.com/v3/address/#{beta}/unspent")
-      .to_return(body: '{"data":{"list":[{"tx_hash":"bbbb","confirmations":7}]}}')
+      .to_return(
+        body: '{"data":{"list":[{"tx_hash":"bbbb","tx_output_n":0,"value":200,"confirmations":7}]}}'
+      )
     stub_request(:get, 'https://chain.api.btc.com/v3/tx/aaaa?verbose=3').to_return(
       body: %({"data":{"outputs":[{"addresses":["#{alpha}"],"value":100,"script_hex":"dead"}]}})
     )
@@ -307,7 +317,9 @@ class TestBtc < Minitest::Test
     mine = '1CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC'
     other = '1DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD'
     stub_request(:get, "https://chain.api.btc.com/v3/address/#{mine}/unspent")
-      .to_return(body: '{"data":{"list":[{"tx_hash":"cccc","confirmations":1}]}}')
+      .to_return(
+        body: '{"data":{"list":[{"tx_hash":"cccc","tx_output_n":1,"value":75,"confirmations":1}]}}'
+      )
     stub_request(:get, 'https://chain.api.btc.com/v3/tx/cccc?verbose=3')
       .to_return(
         body: %({"data":{"outputs":[
@@ -332,5 +344,75 @@ class TestBtc < Minitest::Test
     mine = '1FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'
     stub_request(:get, "https://chain.api.btc.com/v3/address/#{mine}/unspent").to_return(body: '{}')
     assert_raises(Sibit::Error) { Sibit::Btc.new.utxos([mine]) }
+  end
+
+  def test_utxos_emits_only_the_unspent_output
+    addr = '1FundedTwiceAAAAAAAAAAAAAAAAAAAAAA'
+    stub_request(:get, "https://chain.api.btc.com/v3/address/#{addr}/unspent")
+      .to_return(
+        body: '{"data":{"list":[{"tx_hash":"ff","tx_output_n":3,"value":1000,"confirmations":6}]}}'
+      )
+    stub_request(:get, 'https://chain.api.btc.com/v3/tx/ff?verbose=3')
+      .to_return(
+        body: %({"data":{"outputs":[
+          {"addresses":["#{addr}"],"value":500,"script_hex":"aa"},
+          {"addresses":["1Other"],"value":10,"script_hex":"bb"},
+          {"addresses":["1Other"],"value":10,"script_hex":"cc"},
+          {"addresses":["#{addr}"],"value":1000,"script_hex":"dd"}
+        ]}})
+      )
+    assert_equal(
+      1, Sibit::Btc.new.utxos([addr]).length,
+      'a spent sibling output cannot be emitted as spendable'
+    )
+  end
+
+  def test_utxos_takes_index_from_tx_output_n
+    addr = '1FundedTwiceBBBBBBBBBBBBBBBBBBBBBB'
+    stub_request(:get, "https://chain.api.btc.com/v3/address/#{addr}/unspent")
+      .to_return(
+        body: '{"data":{"list":[{"tx_hash":"ff","tx_output_n":3,"value":1000,"confirmations":6}]}}'
+      )
+    stub_request(:get, 'https://chain.api.btc.com/v3/tx/ff?verbose=3')
+      .to_return(
+        body: %({"data":{"outputs":[
+          {"addresses":["#{addr}"],"value":500,"script_hex":"aa"},
+          {"addresses":["1Other"],"value":10,"script_hex":"bb"},
+          {"addresses":["1Other"],"value":10,"script_hex":"cc"},
+          {"addresses":["#{addr}"],"value":1000,"script_hex":"dd"}
+        ]}})
+      )
+    assert_equal(3, Sibit::Btc.new.utxos([addr])[0][:index], 'the index must come from tx_output_n')
+  end
+
+  def test_utxos_never_duplicates_multi_output_funding
+    addr = '1FundedTwiceCCCCCCCCCCCCCCCCCCCCCC'
+    stub_request(:get, "https://chain.api.btc.com/v3/address/#{addr}/unspent")
+      .to_return(
+        body: %({"data":{"list":[
+          {"tx_hash":"ee","tx_output_n":0,"value":100,"confirmations":2},
+          {"tx_hash":"ee","tx_output_n":1,"value":200,"confirmations":2}
+        ]}})
+      )
+    stub_request(:get, 'https://chain.api.btc.com/v3/tx/ee?verbose=3')
+      .to_return(
+        body: %({"data":{"outputs":[
+          {"addresses":["#{addr}"],"value":100,"script_hex":"aa"},
+          {"addresses":["#{addr}"],"value":200,"script_hex":"bb"}
+        ]}})
+      )
+    assert_equal(
+      [0, 1], Sibit::Btc.new.utxos([addr]).map { |u| u[:index] },
+      'each unspent outpoint cannot appear more than once'
+    )
+  end
+
+  def test_utxos_raises_when_tx_output_n_missing
+    addr = '1NoIndexDDDDDDDDDDDDDDDDDDDDDDDDDDD'
+    stub_request(:get, "https://chain.api.btc.com/v3/address/#{addr}/unspent")
+      .to_return(body: '{"data":{"list":[{"tx_hash":"aa","value":5,"confirmations":1}]}}')
+    assert_raises(Sibit::Error, 'a missing tx_output_n cannot be guessed') do
+      Sibit::Btc.new.utxos([addr])
+    end
   end
 end
