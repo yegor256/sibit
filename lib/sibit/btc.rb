@@ -94,21 +94,21 @@ class Sibit::Btc
 
   # Fetch all unspent outputs per address.
   def utxos(sources)
-    results = []
+    txns = []
     sources.each do |hash|
       data = Sibit::Json.new(http: @http, log: @log).get(
         Iri.new('https://chain.api.btc.com/v3/address').append(hash).append('unspent')
       )['data']
       raise(Sibit::Error, "The address #{hash} not found") if data.nil?
-      list = data['list']
-      next if list.nil?
-      list.each do |u|
+      txns = data['list']
+      next if txns.nil?
+      txns.each do |u|
         outs = Sibit::Json.new(http: @http, log: @log).get(
           Iri.new('https://chain.api.btc.com/v3/tx').append(u['tx_hash']).add(verbose: 3)
         )['data']['outputs']
         outs.each_with_index do |o, i|
           next unless o['addresses'].include?(hash)
-          results << {
+          txns << {
             value: o['value'],
             hash: u['tx_hash'],
             index: i,
@@ -118,7 +118,7 @@ class Sibit::Btc
         end
       end
     end
-    results
+    txns
   end
 
   # Push this transaction (in hex format) to the network.
