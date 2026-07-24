@@ -125,12 +125,24 @@ class Sibit
 
       private
 
+      def decoded
+        return @decoded if @decoded
+        hex = Base58.new(@address).decode
+        unless hex.length == 50
+          raise(Sibit::Error, "Address '#{@address}' does not decode to 25 bytes")
+        end
+        unless hex[-8..] == Base58.new(hex[0..-9]).check
+          raise(Sibit::Error, "Address '#{@address}' fails its Base58 checksum")
+        end
+        @decoded = hex
+      end
+
       def version
-        Base58.new(@address).decode[0, 2]
+        decoded[0, 2]
       end
 
       def hash160
-        [Base58.new(@address).decode[2, 40]].pack('H*')
+        [decoded[2, 40]].pack('H*')
       end
 
       def p2pkh_script
