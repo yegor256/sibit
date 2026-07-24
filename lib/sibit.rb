@@ -7,6 +7,7 @@ require 'ellipsized'
 require 'loog'
 require_relative 'sibit/base58'
 require_relative 'sibit/blockchain'
+require_relative 'sibit/coins'
 require_relative 'sibit/key'
 require_relative 'sibit/script'
 require_relative 'sibit/tx'
@@ -313,7 +314,7 @@ class Sibit
     unless amount.is_a?(String)
       raise(Error, "Amount should either be a String or Integer, #{amount.class.name} provided")
     end
-    return Integer(Float(amount.gsub(/BTC$/, '')) * 100_000_000) if amount.end_with?('BTC')
+    return Coins.new(amount.gsub(/BTC$/, '')).satoshi if amount.end_with?('BTC')
     raise(Error, "Can't understand the amount #{amount.inspect}")
   end
 

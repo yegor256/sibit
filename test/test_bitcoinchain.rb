@@ -29,6 +29,28 @@ class TestBitcoinchain < Minitest::Test
     assert_equal(500_000_000, Sibit::Bitcoinchain.new.balance(hash))
   end
 
+  def test_fetch_balance_without_rounding_error
+    hash = '1Chain4asCYNnLVbvG6pgCLGBrtzh4Lx4b'
+    stub_request(:get, "https://api-r.bitcoinchain.com/v1/address/#{hash}")
+      .to_return(body: '[{"balance": 0.29}]')
+    assert_equal(29_000_000, Sibit::Bitcoinchain.new.balance(hash), 'balance must not truncate')
+  end
+
+  def test_reports_output_value_as_exact_satoshi
+    hash = '000000000000000007341915521967247f1dec17b3a311b8a8f4495392f1439b'
+    stub_request(:get, "https://api-r.bitcoinchain.com/v1/block/#{hash}")
+      .to_return(body: '[{"next_block": "nn", "prev_block": "pp", "hash": "hh"}]')
+    stub_request(:get, "https://api-r.bitcoinchain.com/v1/block/txs/#{hash}")
+      .to_return(
+        body: '[{"txs":[{"self_hash":"h","outputs":[{"value": 0.29, "receiver": "a"}]}]}]'
+      )
+    assert_equal(
+      29_000_000,
+      Sibit::Bitcoinchain.new.block(hash)[:txns][0][:outputs][0][:value],
+      'output value must be exact satoshi'
+    )
+  end
+
   def test_fetch_block
     hash = '000000000000000007341915521967247f1dec17b3a311b8a8f4495392f1439b'
     stub_request(:get, "https://api-r.bitcoinchain.com/v1/block/#{hash}")
