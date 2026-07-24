@@ -154,8 +154,13 @@ class Sibit
       end
 
       def segwit_script
-        witness = Bech32.new(@address).witness
-        [0x00, (witness.length / 2)].pack('C*') + [witness].pack('H*')
+        bech = Bech32.new(@address)
+        program = bech.witness
+        [opcode(bech.version), program.length / 2].pack('C*') + [program].pack('H*')
+      end
+
+      def opcode(version)
+        version.zero? ? 0x00 : 0x50 + version
       end
     end
 
