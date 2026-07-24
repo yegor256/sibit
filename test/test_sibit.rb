@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: MIT
 
 require 'json'
+require 'stringio'
 require 'webmock/minitest'
 require_relative '../lib/sibit'
 require_relative '../lib/sibit/bestof'
@@ -11,6 +12,24 @@ require_relative '../lib/sibit/blockchain'
 require_relative '../lib/sibit/fake'
 require_relative '../lib/sibit/firstof'
 require_relative 'test__helper'
+
+# A blockchain API that serves a fixed set of UTXOs and remembers the
+# transaction pushed to it, for asserting how pay() selected its inputs.
+class FakeChain
+  attr_reader :pushed
+
+  def initialize(utxos)
+    @utxos = utxos
+  end
+
+  def utxos(_sources)
+    @utxos
+  end
+
+  def push(hex)
+    @pushed = hex
+  end
+end
 
 # Sibit.
 # Author:: Yegor Bugayenko (yegor256@gmail.com)
@@ -103,6 +122,23 @@ class TestSibit < Minitest::Test
     )
     refute_nil(tx)
     assert_operator(tx.length, :>, 30, tx)
+  end
+
+  def test_retry_with_reordered_utxos_conflicts
+    src = 'fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2'
+    script = '0014c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc'
+    one = { hash: 'aa' * 32, index: 0, script: script, value: 100_000, confirmations: 6 }
+    two = { hash: 'bb' * 32, index: 0, script: script, value: 100_000, confirmations: 6 }
+    first = FakeChain.new([one, two])
+    second = FakeChain.new([two, one])
+    target = Sibit.new.create(Sibit.new.generate)
+    change = Sibit.new.create(Sibit.new.generate)
+    Sibit.new(api: first).pay(50_000, 1000, [src], target, change, price: 5000.0)
+    Sibit.new(api: second).pay(50_000, 1000, [src], target, change, price: 5000.0)
+    refute_empty(
+      outpoints(first.pushed) & outpoints(second.pushed),
+      'a retry with reordered UTXOs must reuse an input so the network rejects the double-spend'
+    )
   end
 
   def test_send_payment_with_xl_minus_fee
@@ -344,5 +380,18 @@ class TestSibit < Minitest::Test
       end
     assert(found)
     assert_equal('next', tail)
+  end
+
+  private
+
+  def outpoints(hex)
+    io = StringIO.new([hex].pack('H*'))
+    io.read(6)
+    Array.new(io.read(1).unpack1('C')) do
+      out = [io.read(32).reverse.unpack1('H*'), io.read(4).unpack1('V')]
+      io.read(io.read(1).unpack1('C'))
+      io.read(4)
+      out
+    end
   end
 end
