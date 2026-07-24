@@ -57,10 +57,10 @@ class Sibit::Blockchain
   # Gets the balance of the address, in satoshi.
   def balance(address)
     json = Sibit::Json.new(http: @http, log: @log).get(
-      Iri.new('https://blockchain.info/rawaddr').append(address).add(limit: 0),
-      accept: [200, 500]
+      Iri.new('https://blockchain.info/rawaddr').append(address).add(limit: 0)
     )
     b = json['final_balance']
+    raise(Sibit::Error, "The balance of #{address} is absent") unless b.is_a?(Integer)
     @log.debug("The balance of #{address} is #{b} satoshi (#{json['n_tx']} txns)")
     b
   end

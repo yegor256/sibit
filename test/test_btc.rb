@@ -34,14 +34,24 @@ class TestBtc < Minitest::Test
     assert_equal(0, balance)
   end
 
-  def test_get_broken_balance
+  def test_balance_raises_on_api_error
+    stub_request(
+      :get,
+      'https://chain.api.btc.com/v3/address/1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f/unspent'
+    ).to_return(body: '{"data":null,"err_no":2,"err_msg":"System Error"}')
+    assert_raises(Sibit::Error, 'an API error cannot be reported as zero balance') do
+      Sibit::Btc.new.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')
+    end
+  end
+
+  def test_balance_raises_on_malformed_response
     stub_request(
       :get,
       'https://chain.api.btc.com/v3/address/1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f/unspent'
     ).to_return(body: '{}')
-    balance = Sibit::Btc.new.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')
-    assert_kind_of(Integer, balance)
-    assert_equal(0, balance)
+    assert_raises(Sibit::Error, 'a malformed response cannot be reported as zero balance') do
+      Sibit::Btc.new.balance('1MZT1fa6y8H9UmbZV6HqKF4UY41o9MGT5f')
+    end
   end
 
   def test_get_empty_balance
