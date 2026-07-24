@@ -184,7 +184,7 @@ class TestRegtest < Minitest::Test
     WebMock.allow_net_connect!
     port = random_port
     donce(
-      image: 'ruimarinho/bitcoin-core:latest',
+      image: 'ruimarinho/bitcoin-core:28',
       ports: { port => 18_443 },
       root: true,
       command: [
