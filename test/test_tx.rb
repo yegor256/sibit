@@ -103,6 +103,22 @@ class TestTx < Minitest::Test
     assert_equal(tx.hash, tx.hash, 'txid must identify one transaction, not change on every call')
   end
 
+  def test_hash_excludes_witness_for_segwit
+    tx = Sibit::Tx.new
+    tx.add_input(
+      hash: 'fc8fb1a526aef220b54a66bbb3e0549bf34db4f25e1aebc3feb87e86d341e65d',
+      index: 0,
+      script: '0014c14b1e5c95a4687da3f7c932bf39a3a89bdb3fa9',
+      key: Sibit::Key.new('fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2')
+    )
+    tx.add_output(10_000, '1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi')
+    assert_equal(
+      'bc8d1f3c1aed799c25168d7c1fa75b435cf5f22a7349641734a6f2bbe8564dd7',
+      tx.hash,
+      'segwit txid must be the legacy-form hash, not the wtxid'
+    )
+  end
+
   def test_generates_transaction_hash
     tx = Sibit::Tx.new
     tx.add_input(

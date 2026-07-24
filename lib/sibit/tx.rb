@@ -38,7 +38,10 @@ class Sibit
     end
 
     def hash
-      Digest::SHA256.hexdigest(Digest::SHA256.digest(payload)).scan(/../).reverse.join
+      sign_inputs
+      Digest::SHA256.hexdigest(
+        Digest::SHA256.digest(serialize(witness: false))
+      ).scan(/../).reverse.join
     end
 
     def payload
@@ -151,6 +154,7 @@ class Sibit
     end
 
     def sign_inputs
+      return if @signed
       @inputs.each_with_index do |input, idx|
         sig = sign(input.key, (input.segwit? ? segwit_sighash(idx) : legacy_sighash(idx)))
         pubkey = [input.key.pub].pack('H*')
@@ -160,6 +164,7 @@ class Sibit
           input.script_sig = der_sig(sig) + pubkey_script(pubkey)
         end
       end
+      @signed = true
     end
 
     def legacy_sighash(idx)
@@ -245,9 +250,9 @@ class Sibit
       [pubkey.length].pack('C') + pubkey
     end
 
-    def serialize
+    def serialize(witness: witness?)
       result = [VERSION].pack('V')
-      result += [0x00, 0x01].pack('CC') if witness?
+      result += [0x00, 0x01].pack('CC') if witness
       result += varint(@inputs.length)
       @inputs.each do |input|
         result += [input.hash].pack('H*').reverse
@@ -263,7 +268,7 @@ class Sibit
         result += varint(script.length)
         result += script
       end
-      result += serialize_witness if witness?
+      result += serialize_witness if witness
       result += [0].pack('V')
       result
     end
