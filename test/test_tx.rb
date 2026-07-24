@@ -211,6 +211,22 @@ class TestTx < Minitest::Test
     end
   end
 
+  def test_rejects_target_with_broken_checksum
+    tx = Sibit::Tx.new
+    tx.add_output(10_000, '1KvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi')
+    assert_raises(Sibit::Error, 'a mistyped Base58 address cannot be silently accepted') do
+      tx.outputs[0].script_hex
+    end
+  end
+
+  def test_rejects_target_that_decodes_too_short
+    tx = Sibit::Tx.new
+    tx.add_output(10_000, '1A')
+    assert_raises(Sibit::Error, 'a truncated Base58 address cannot build a valid script') do
+      tx.outputs[0].script_hex
+    end
+  end
+
   def test_output_generates_segwit_script
     tx = Sibit::Tx.new
     tx.add_output(10_000, 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4')
