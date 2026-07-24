@@ -3,7 +3,15 @@
 
 FROM opensuse/tumbleweed
 
-RUN zypper --non-interactive install ruby ruby-devel gcc make libopenssl-devel bash && \
+RUN ok=; \
+    for i in 1 2 3 4 5; do \
+      if zypper --non-interactive --gpg-auto-import-keys refresh && \
+         zypper --non-interactive install ruby ruby-devel gcc make libopenssl-devel bash; then \
+        ok=1; break; \
+      fi; \
+      echo "zypper attempt $i failed, retrying in 15s"; sleep 15; \
+    done; \
+    test -n "$ok" && \
     zypper clean --all && \
     gem update --system --no-document && \
     sed -i '/format.executable/d' /etc/gemrc

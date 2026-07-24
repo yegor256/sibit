@@ -64,6 +64,31 @@ class TestBlockchain < Minitest::Test
     end
   end
 
+  def test_reads_balance
+    addr = '1Chain4asCYNnLVbvG6pgCLGBrtzh4Lx4b'
+    stub_request(:get, "https://blockchain.info/rawaddr/#{addr}?limit=0")
+      .to_return(body: '{"final_balance": 123, "n_tx": 1}')
+    assert_equal(123, Sibit::Blockchain.new.balance(addr), 'balance does not match')
+  end
+
+  def test_balance_raises_on_server_error
+    addr = '1Chain4asCYNnLVbvG6pgCLGBrtzh4Lx4b'
+    stub_request(:get, "https://blockchain.info/rawaddr/#{addr}?limit=0")
+      .to_return(status: 500, body: '{"error": "boom"}')
+    assert_raises(Sibit::Error, 'a server error cannot be reported as a balance') do
+      Sibit::Blockchain.new.balance(addr)
+    end
+  end
+
+  def test_balance_raises_when_absent
+    addr = '1Chain4asCYNnLVbvG6pgCLGBrtzh4Lx4b'
+    stub_request(:get, "https://blockchain.info/rawaddr/#{addr}?limit=0")
+      .to_return(body: '{"n_tx": 0}')
+    assert_raises(Sibit::Error, 'a missing final_balance cannot pass as a balance') do
+      Sibit::Blockchain.new.balance(addr)
+    end
+  end
+
   def test_push_wraps_body_in_tx_form
     stub = stub_request(:post, 'https://blockchain.info/pushtx')
       .with(body: 'tx=deadbeef', headers: { 'Content-Type' => 'application/x-www-form-urlencoded' })

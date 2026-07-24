@@ -39,10 +39,7 @@ class Sibit::Btc
       return 0
     end
     data = json['data']
-    if data.nil?
-      @log.debug("The balance of #{address} is probably zero (not found)")
-      return 0
-    end
+    raise(Sibit::Error, "The address #{address} not found") if data.nil?
     txns = data['list']
     if txns.nil?
       @log.debug("The balance of #{address} is probably zero (not found)")
