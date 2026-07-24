@@ -41,7 +41,7 @@ class TestRealPay < Minitest::Test
     api = Sibit::Blockchain.new
     sibit = Sibit.new(api: api)
     addr = Sibit::Key.new(key).bech32
-    utxos = api.utxos([addr]).select { |u| Integer(u[:confirmations] || 0, 10).positive? }
+    utxos = api.utxos([addr]).select { |u| u[:confirmations]&.positive? }
     balance = utxos.sum { |u| u[:value] }
     skip("The balance of #{addr} is zero, nothing to send") if balance.zero?
     size = 100 + (utxos.count * 180)
