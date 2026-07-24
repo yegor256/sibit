@@ -7,6 +7,7 @@ require 'iri'
 require 'json'
 require 'loog'
 require 'uri'
+require_relative 'coins'
 require_relative 'error'
 require_relative 'http'
 require_relative 'json'
@@ -53,14 +54,12 @@ class Sibit::Cryptoapis
 
   # Gets the balance of the address, in satoshi.
   def balance(address)
-    b = Integer(
-      Float(
-        Sibit::Json.new(http: @http, log: @log).get(
-          Iri.new('https://api.cryptoapis.io/v1/bc/btc/mainnet/address').append(address),
-          headers: headers
-        )['payload']['balance']
-      ) * 100_000_000
-    )
+    b = Sibit::Coins.new(
+      Sibit::Json.new(http: @http, log: @log).get(
+        Iri.new('https://api.cryptoapis.io/v1/bc/btc/mainnet/address').append(address),
+        headers: headers
+      )['payload']['balance']
+    ).satoshi
     @log.debug("The balance of #{address} is #{b} satoshi")
     b
   end
@@ -135,7 +134,7 @@ class Sibit::Cryptoapis
             outputs: t['txouts'].map do |o|
               {
                 address: o['addresses'][0],
-                value: Float(o['amount'] || 0) * 100_000_000
+                value: Sibit::Coins.new(o['amount'] || 0).satoshi
               }
             end
           }

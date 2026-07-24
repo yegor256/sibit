@@ -7,6 +7,7 @@ require 'iri'
 require 'json'
 require 'loog'
 require 'uri'
+require_relative 'coins'
 require_relative 'error'
 require_relative 'http'
 require_relative 'json'
@@ -58,8 +59,7 @@ class Sibit::Bitcoinchain
       @log.debug("The balance of #{address} is not visible")
       return 0
     end
-    b *= 100_000_000
-    b = Integer(b)
+    b = Sibit::Coins.new(b).satoshi
     @log.debug("The balance of #{address} is #{b} satoshi (#{json['transactions']} txns)")
     b
   end
@@ -112,7 +112,7 @@ class Sibit::Bitcoinchain
           outputs: t['outputs'].map do |o|
             {
               address: o['receiver'],
-              value: o['value'] * 100_000_000
+              value: Sibit::Coins.new(o['value']).satoshi
             }
           end
         }
