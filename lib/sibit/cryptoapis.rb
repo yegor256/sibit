@@ -33,10 +33,13 @@ class Sibit::Cryptoapis
 
   # Get hash of the block after this one.
   def next_of(hash)
-    nxt = Sibit::Json.new(http: @http, log: @log).get(
+    head = Sibit::Json.new(http: @http, log: @log).get(
       Iri.new('https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks').append(hash),
       headers: headers
-    )['payload']['hash']
+    )['payload']
+    raise(Sibit::Error, "The block #{hash} not found") if head.nil?
+    nxt = head['nextblockhash']
+    nxt = nil if nxt == '0000000000000000000000000000000000000000000000000000000000000000'
     @log.debug("The block #{hash} is the latest, there is no next block") if nxt.nil?
     @log.debug("The next block of #{hash} is #{nxt}") unless nxt.nil?
     nxt

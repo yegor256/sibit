@@ -87,11 +87,38 @@ class TestCryptoapis < Minitest::Test
   def test_fetch_next_of_block
     hash = '000000000000000007341915521967247f1dec17b3a311b8a8f4495392f1439b'
     stub_request(:get, "https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/#{hash}")
-      .to_return(body: '{"payload": {"hash": "00000000next"}}')
+      .to_return(body: "{\"payload\": {\"hash\": \"#{hash}\", \"nextblockhash\": \"nextblock\"}}")
     assert_equal(
-      '00000000next', Sibit::Cryptoapis.new('-').next_of(hash),
+      'nextblock', Sibit::Cryptoapis.new('-').next_of(hash),
       'next block hash does not match'
     )
+  end
+
+  def test_next_of_never_returns_own_hash
+    hash = '000000000000000007341915521967247f1dec17b3a311b8a8f4495392f1439b'
+    stub_request(:get, "https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/#{hash}")
+      .to_return(body: "{\"payload\": {\"hash\": \"#{hash}\", \"nextblockhash\": \"nextblock\"}}")
+    refute_equal(
+      hash, Sibit::Cryptoapis.new('-').next_of(hash),
+      'next_of must not return the block itself'
+    )
+  end
+
+  def test_next_of_latest_block_is_nil
+    hash = '000000000000000007341915521967247f1dec17b3a311b8a8f4495392f1439b'
+    zeros = '0000000000000000000000000000000000000000000000000000000000000000'
+    stub_request(:get, "https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/#{hash}")
+      .to_return(body: "{\"payload\": {\"hash\": \"#{hash}\", \"nextblockhash\": \"#{zeros}\"}}")
+    assert_nil(Sibit::Cryptoapis.new('-').next_of(hash), 'latest block cannot have a next')
+  end
+
+  def test_next_of_missing_payload_raises
+    hash = '000000000000000007341915521967247f1dec17b3a311b8a8f4495392f1439b'
+    stub_request(:get, "https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/#{hash}")
+      .to_return(body: '{"payload": null}')
+    assert_raises(Sibit::Error, 'missing payload must fail loudly') do
+      Sibit::Cryptoapis.new('-').next_of(hash)
+    end
   end
 
   def test_fetch_height
