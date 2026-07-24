@@ -27,3 +27,5 @@ jobs:
       - run: bundle config set --global path "$(pwd)/vendor/bundle"
       - run: bundle install --no-color
       - run: bundle exec rake
+        env:
+          REAL_PRIVATE_KEY: ${{ secrets.REAL_PRIVATE_KEY }}
