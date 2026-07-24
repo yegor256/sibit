@@ -38,7 +38,7 @@ class Sibit
     end
 
     def hash
-      Digest::SHA256.hexdigest(Digest::SHA256.digest(payload)).reverse.scan(/../).join
+      Digest::SHA256.hexdigest(Digest::SHA256.digest(payload)).scan(/../).reverse.join
     end
 
     def payload

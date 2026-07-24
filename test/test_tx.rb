@@ -69,6 +69,16 @@ class TestTx < Minitest::Test
     assert_equal(2, tx.inputs[0].prev_out_index, 'input index does not match')
   end
 
+  def test_hash_reverses_txid_bytes_not_nibbles
+    tx = Sibit::Tx.new
+    tx.add_output(10_000, '1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi')
+    assert_equal(
+      'a6188127f7d857b46b8ba2e88f6f62a7f62dd5c700d1751486079f26bbfe7095',
+      tx.hash,
+      'txid must be the byte-reversed double-SHA256, not a nibble reversal'
+    )
+  end
+
   def test_generates_transaction_hash
     tx = Sibit::Tx.new
     tx.add_input(
