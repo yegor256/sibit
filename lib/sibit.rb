@@ -19,7 +19,7 @@ require_relative 'sibit/version'
 # Copyright:: Copyright (c) 2019-2026 Yegor Bugayenko
 # License:: MIT
 class Sibit
-  MIN_SATOSHI_PER_BYTE = 0.1
+  MIN_SATOSHI_PER_BYTE = 1
 
   # Constructor.
   #

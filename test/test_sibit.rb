@@ -158,6 +158,96 @@ class TestSibit < Minitest::Test
     end
   end
 
+  def test_refuses_when_funds_barely_exceed_amount
+    json = {
+      unspent_outputs: [
+        {
+          tx_hash: 'fc8fb1a526aef220b54a66bbb3e0549bf34db4f25e1aebc3feb87e86d341e65d',
+          tx_hash_big_endian: '5de641d3867eb8fec3eb1a5ef2b44df39b54e0b3bb664ab520f2ae26a5b18ffc',
+          tx_output_n: 0,
+          script: '0014c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc',
+          confirmations: 1,
+          value: 100_000
+        }
+      ]
+    }
+    stub_request(
+      :get,
+      'https://blockchain.info/unspent?active=bc1qcj9pwdant20em83mvf9fzrc7ytm7szau5ysh9x&limit=1000'
+    ).to_return(body: JSON.pretty_generate(json))
+    stub_request(:post, 'https://blockchain.info/pushtx').to_return(status: 200)
+    sibit = Sibit.new(api: Sibit::FirstOf.new([Sibit::Blockchain.new]))
+    assert_raises(Sibit::Error, 'cannot broadcast a near-zero-fee transaction') do
+      sibit.pay(
+        99_999, 100,
+        ['fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2'],
+        sibit.create(sibit.generate), sibit.create(sibit.generate),
+        price: 5000.0
+      )
+    end
+  end
+
+  def test_refuses_when_change_would_be_dust
+    json = {
+      unspent_outputs: [
+        {
+          tx_hash: 'fc8fb1a526aef220b54a66bbb3e0549bf34db4f25e1aebc3feb87e86d341e65d',
+          tx_hash_big_endian: '5de641d3867eb8fec3eb1a5ef2b44df39b54e0b3bb664ab520f2ae26a5b18ffc',
+          tx_output_n: 0,
+          script: '0014c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc',
+          confirmations: 1,
+          value: 100_000
+        }
+      ]
+    }
+    stub_request(
+      :get,
+      'https://blockchain.info/unspent?active=bc1qcj9pwdant20em83mvf9fzrc7ytm7szau5ysh9x&limit=1000'
+    ).to_return(body: JSON.pretty_generate(json))
+    stub_request(:post, 'https://blockchain.info/pushtx').to_return(status: 200)
+    sibit = Sibit.new(api: Sibit::FirstOf.new([Sibit::Blockchain.new]))
+    assert_raises(Sibit::Error, 'cannot broadcast a transaction with a dust change') do
+      sibit.pay(
+        99_500, 400,
+        ['fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2'],
+        sibit.create(sibit.generate), sibit.create(sibit.generate),
+        price: 5000.0
+      )
+    end
+  end
+
+  def test_refuses_to_sweep_when_fee_leaves_no_room
+    stub_request(
+      :get, 'https://api.blockchain.info/mempool/fees'
+    ).to_return(body: '{"regular":6,"priority":5,"limits":{"max":10}}')
+    json = {
+      unspent_outputs: [
+        {
+          tx_hash: 'fc8fb1a526aef220b54a66bbb3e0549bf34db4f25e1aebc3feb87e86d341e65d',
+          tx_hash_big_endian: '5de641d3867eb8fec3eb1a5ef2b44df39b54e0b3bb664ab520f2ae26a5b18ffc',
+          tx_output_n: 0,
+          script: '0014c48a1737b35a9f9d9e3b624a910f1e22f7e80bbc',
+          confirmations: 1,
+          value: 100_000
+        }
+      ]
+    }
+    stub_request(
+      :get,
+      'https://blockchain.info/unspent?active=bc1qcj9pwdant20em83mvf9fzrc7ytm7szau5ysh9x&limit=1000'
+    ).to_return(body: JSON.pretty_generate(json))
+    stub_request(:post, 'https://blockchain.info/pushtx').to_return(status: 200)
+    sibit = Sibit.new(api: Sibit::FirstOf.new([Sibit::Blockchain.new]))
+    assert_raises(Sibit::Error, 'cannot send the entire balance and still pay a fee') do
+      sibit.pay(
+        100_000, 'S',
+        ['fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2'],
+        sibit.create(sibit.generate), sibit.create(sibit.generate),
+        price: 5000.0
+      )
+    end
+  end
+
   def test_balance_with_trust_sums_confirmed_utxos
     json = {
       unspent_outputs: [

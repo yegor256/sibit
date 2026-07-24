@@ -30,6 +30,12 @@ class TestBlockchain < Minitest::Test
     assert_kind_of(Array, json[:txns][0][:outputs])
   end
 
+  def test_never_rounds_small_regular_fee_to_zero
+    stub_request(:get, 'https://api.blockchain.info/mempool/fees')
+      .to_return(body: '{"regular":2,"priority":5,"limits":{"max":10}}')
+    assert_equal(1, Sibit::Blockchain.new.fees[:S], 'small regular fee cannot round down to zero')
+  end
+
   def test_rejects_unknown_currency
     stub_request(:get, 'https://blockchain.info/ticker').to_return(body: '{}')
     assert_raises(Sibit::Error) { Sibit::Blockchain.new.price('XYZ') }

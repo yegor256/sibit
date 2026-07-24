@@ -77,7 +77,7 @@ class Sibit::Blockchain
       ].join
     )
     {
-      S: json['regular'] / 3,
+      S: (json['regular'] / 3.0).ceil,
       M: json['regular'],
       L: json['priority'],
       XL: json['limits']['max']
