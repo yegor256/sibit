@@ -42,8 +42,9 @@ class Sibit
     end
 
     def payload
+      return @payload if @payload
       sign_inputs
-      serialize
+      @payload = serialize
     end
 
     def hex
