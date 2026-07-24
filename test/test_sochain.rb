@@ -121,10 +121,52 @@ class TestSochain < Minitest::Test
     assert_equal(7, utxos.first[:confirmations])
   end
 
-  def test_utxos_skips_addresses_without_data
+  def test_utxos_raises_without_data
     stub_request(:get, 'https://sochain.com/api/v2/get_tx_unspent/BTC/1NoData')
       .to_return(body: JSON.generate(status: 'fail', data: nil))
-    assert_equal([], Sibit::Sochain.new.utxos(['1NoData']))
+    assert_raises(Sibit::Error, 'a failed unspent lookup cannot pass as no UTXOs') do
+      Sibit::Sochain.new.utxos(['1NoData'])
+    end
+  end
+
+  def test_utxos_raises_without_txs
+    stub_request(:get, 'https://sochain.com/api/v2/get_tx_unspent/BTC/1Empty')
+      .to_return(body: JSON.generate(status: 'success', data: {}))
+    assert_raises(Sibit::Error, 'a missing txs list cannot pass as no UTXOs') do
+      Sibit::Sochain.new.utxos(['1Empty'])
+    end
+  end
+
+  def test_block_reads_outputs
+    body = JSON.generate(
+      status: 'success',
+      data: {
+        blockhash: BLOCK,
+        is_orphan: false,
+        next_blockhash: '00next',
+        previous_blockhash: '00prev',
+        txs: [{ txid: 'deadbeef', outputs: [{ address: ADDR, value: '0.00000123' }] }]
+      }
+    )
+    stub_request(:get, "https://sochain.com/api/v2/block/BTC/#{BLOCK}").to_return(body: body)
+    assert_equal(123, Sibit::Sochain.new.block(BLOCK)[:txns][0][:outputs][0][:value])
+  end
+
+  def test_block_raises_on_bare_txids
+    body = JSON.generate(
+      status: 'success',
+      data: {
+        blockhash: BLOCK,
+        is_orphan: false,
+        next_blockhash: '00next',
+        previous_blockhash: '00prev',
+        txs: %w[deadbeef cafebabe]
+      }
+    )
+    stub_request(:get, "https://sochain.com/api/v2/block/BTC/#{BLOCK}").to_return(body: body)
+    assert_raises(Sibit::NotSupportedError, 'bare txids cannot pass as a block of empty txns') do
+      Sibit::Sochain.new.block(BLOCK)
+    end
   end
 
   def test_fees_raises_not_supported

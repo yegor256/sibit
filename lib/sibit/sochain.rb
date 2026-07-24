@@ -111,9 +111,9 @@ class Sibit::Sochain
       data = Sibit::Json.new(http: @http, log: @log).get(
         Iri.new('https://sochain.com/api/v2/get_tx_unspent').append(@network).append(address)
       )['data']
-      next if data.nil?
+      raise(Sibit::Error, "The address #{address} unspent lookup returned no data") if data.nil?
       txs = data['txs']
-      next if txs.nil?
+      raise(Sibit::Error, "The address #{address} unspent lookup returned no txs") if txs.nil?
       txs.each do |u|
         out << {
           value: Integer((Float(u['value']) * 100_000_000).round),
@@ -162,9 +162,12 @@ class Sibit::Sochain
       next: nxt,
       previous: data['previous_blockhash'],
       txns: (data['txs'] || []).map do |t|
+        unless t.is_a?(Hash)
+          raise(Sibit::NotSupportedError, "SoChain returned bare txid #{t} without outputs")
+        end
         {
-          hash: t['txid'] || t,
-          outputs: ((t.is_a?(Hash) ? t['outputs'] : nil) || []).map do |o|
+          hash: t['txid'],
+          outputs: (t['outputs'] || []).map do |o|
             {
               address: o['address'],
               value: Integer((Float(o['value']) * 100_000_000).round)
