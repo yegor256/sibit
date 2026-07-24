@@ -33,7 +33,7 @@ class Sibit::Blockchain
     h = Sibit::Json.new(http: @http, log: @log).get(
       Iri.new('https://blockchain.info/ticker')
     )[currency]
-    raise(Error, "Unrecognized currency #{currency}") if h.nil?
+    raise(Sibit::Error, "Unrecognized currency #{currency}") if h.nil?
     price = h['15m']
     @log.debug("The price of BTC is #{price} USD")
     price
