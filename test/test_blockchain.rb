@@ -57,7 +57,7 @@ class TestBlockchain < Minitest::Test
       Sibit::Blockchain.new.height(hash)
     end
   end
-  
+
   def test_push_wraps_body_in_tx_form
     stub = stub_request(:post, 'https://blockchain.info/pushtx')
       .with(body: 'tx=deadbeef', headers: { 'Content-Type' => 'application/x-www-form-urlencoded' })
