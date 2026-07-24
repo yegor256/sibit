@@ -157,7 +157,7 @@ class Sibit
           when 'bitcoinchain'
             Sibit::Bitcoinchain.new(http: http, log: log)
           when 'blockchair'
-            Sibit::Blockchair.new(http: http, log: log)
+            Sibit::Blockchair.new(key: ENV.fetch('SIBIT_BLOCKCHAIR_KEY', nil), http: http, log: log)
           when 'cex'
             Sibit::Cex.new(http: http, log: log)
           when 'cryptoapis'

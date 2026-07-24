@@ -100,6 +100,7 @@ Elegant/GoodMethodName:
     - p2pkh_address
     - p2pkh_script
     - p2pkh?
+    - p2sh_script
     - p2wpkh_address
     - p2wpkh?
     - prev_out
@@ -129,6 +130,7 @@ Elegant/GoodMethodName:
     - test_extracts_hash160_from_p2wpkh
     - test_extracts_hash160_from_script
     - test_extracts_segwit_address_from_p2wpkh
+    - test_output_generates_p2sh_script
     - test_parses_p2pkh_script
     - test_parses_p2wpkh_script
     - test_regtest_bech32_starts_with_bcrt1q

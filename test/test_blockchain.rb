@@ -30,6 +30,11 @@ class TestBlockchain < Minitest::Test
     assert_kind_of(Array, json[:txns][0][:outputs])
   end
 
+  def test_rejects_unknown_currency
+    stub_request(:get, 'https://blockchain.info/ticker').to_return(body: '{}')
+    assert_raises(Sibit::Error) { Sibit::Blockchain.new.price('XYZ') }
+  end
+
   def test_next_of
     skip('does not work')
     hash = '0000000000000000000f676241aabc9b62b748d26192a44bc25720c34de27d19'
@@ -51,5 +56,13 @@ class TestBlockchain < Minitest::Test
     assert_raises(Sibit::Error) do
       Sibit::Blockchain.new.height(hash)
     end
+  end
+  
+  def test_push_wraps_body_in_tx_form
+    stub = stub_request(:post, 'https://blockchain.info/pushtx')
+      .with(body: 'tx=deadbeef', headers: { 'Content-Type' => 'application/x-www-form-urlencoded' })
+      .to_return(body: '')
+    Sibit::Blockchain.new.push('deadbeef')
+    assert_requested(stub, times: 1)
   end
 end

@@ -113,4 +113,17 @@ class TestBin < Minitest::Test
     Sibit::Bin.start(['latest', '--api', 'cryptoapis', '--quiet'])
     assert_requested(stub)
   end
+
+  def test_blockchair_balance_uses_env_key
+    addr = '1GkQmKAmHtNfnD3LHhTkewJxKHVSta4m2a'
+    stub = stub_request(:get, "https://api.blockchair.com/bitcoin/dashboards/address/#{addr}?key=envkey")
+      .to_return(body: "{\"data\": {\"#{addr}\": {\"address\": {\"balance\": 7}}}}")
+    ENV['SIBIT_BLOCKCHAIR_KEY'] = 'envkey'
+    begin
+      Sibit::Bin.start(['balance', addr, '--api', 'blockchair', '--quiet'])
+    ensure
+      ENV.delete('SIBIT_BLOCKCHAIR_KEY')
+    end
+    assert_requested(stub)
+  end
 end

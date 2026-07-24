@@ -6,6 +6,7 @@
 require 'digest'
 require_relative 'base58'
 require_relative 'bech32'
+require_relative 'error'
 require_relative 'key'
 require_relative 'script'
 
@@ -105,7 +106,9 @@ class Sibit
 
       def script
         return segwit_script if segwit?
-        p2pkh_script
+        return p2pkh_script if %w[00 6f].include?(version)
+        return p2sh_script if %w[05 c4].include?(version)
+        raise(Sibit::Error, "Address '#{@address}' has an unsupported version byte 0x#{version}")
       end
 
       def segwit?
@@ -118,11 +121,20 @@ class Sibit
 
       private
 
+      def version
+        Base58.new(@address).decode[0, 2]
+      end
+
+      def hash160
+        [Base58.new(@address).decode[2, 40]].pack('H*')
+      end
+
       def p2pkh_script
-        [
-          0x76, 0xa9,
-          0x14
-        ].pack('C*') + [Base58.new(@address).decode[2..41]].pack('H*') + [0x88, 0xac].pack('C*')
+        [0x76, 0xa9, 0x14].pack('C*') + hash160 + [0x88, 0xac].pack('C*')
+      end
+
+      def p2sh_script
+        [0xa9, 0x14].pack('C*') + hash160 + [0x87].pack('C*')
       end
 
       def segwit_script

@@ -184,7 +184,7 @@ class TestRegtest < Minitest::Test
     WebMock.allow_net_connect!
     port = random_port
     donce(
-      image: 'ruimarinho/bitcoin-core:latest',
+      image: 'ruimarinho/bitcoin-core:28',
       ports: { port => 18_443 },
       root: true,
       command: [
@@ -194,7 +194,8 @@ class TestRegtest < Minitest::Test
         '-rpcport=18443',
         '-rpcuser=test',
         '-rpcpassword=test',
-        '-fallbackfee=0.0001'
+        '-fallbackfee=0.0001',
+        '-deprecatedrpc=create_bdb'
       ].join(' '),
       timeout: 600,
       stdout: Loog::NULL

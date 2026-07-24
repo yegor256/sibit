@@ -3,6 +3,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2019-2026 Yegor Bugayenko
 # SPDX-License-Identifier: MIT
 
+require 'cgi'
 require 'iri'
 require 'json'
 require 'loog'
@@ -32,7 +33,7 @@ class Sibit::Blockchain
     h = Sibit::Json.new(http: @http, log: @log).get(
       Iri.new('https://blockchain.info/ticker')
     )[currency]
-    raise(Error, "Unrecognized currency #{currency}") if h.nil?
+    raise(Sibit::Error, "Unrecognized currency #{currency}") if h.nil?
     price = h['15m']
     @log.debug("The price of BTC is #{price} USD")
     price
@@ -101,7 +102,9 @@ class Sibit::Blockchain
 
   # Push this transaction (in hex format) to the network.
   def push(hex)
-    Sibit::Json.new(http: @http, log: @log).post(Iri.new('https://blockchain.info/pushtx'), hex)
+    Sibit::Json.new(http: @http, log: @log).post(
+      Iri.new('https://blockchain.info/pushtx'), "tx=#{CGI.escape(hex)}"
+    )
   end
 
   # Gets the hash of the latest block.
