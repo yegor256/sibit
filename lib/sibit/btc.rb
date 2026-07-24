@@ -100,19 +100,19 @@ class Sibit::Btc
       list = data['list']
       next if list.nil?
       list.each do |u|
-        outs = Sibit::Json.new(http: @http, log: @log).get(
+        index = u['tx_output_n']
+        raise(Sibit::Error, "The unspent output of #{hash} has no tx_output_n") if index.nil?
+        out = Sibit::Json.new(http: @http, log: @log).get(
           Iri.new('https://chain.api.btc.com/v3/tx').append(u['tx_hash']).add(verbose: 3)
-        )['data']['outputs']
-        outs.each_with_index do |o, i|
-          next unless o['addresses'].include?(hash)
-          results << {
-            value: o['value'],
-            hash: u['tx_hash'],
-            index: i,
-            confirmations: u['confirmations'],
-            script: [o['script_hex']].pack('H*')
-          }
-        end
+        )['data']['outputs'][index]
+        raise(Sibit::Error, "The output #{index} of #{u['tx_hash']} is absent") if out.nil?
+        results << {
+          value: u['value'],
+          hash: u['tx_hash'],
+          index: index,
+          confirmations: u['confirmations'],
+          script: [out['script_hex']].pack('H*')
+        }
       end
     end
     results
