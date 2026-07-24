@@ -61,6 +61,29 @@ class TestCryptoapis < Minitest::Test
     assert_equal(150_000_000, Sibit::Cryptoapis.new('-').balance(addr), 'balance does not match')
   end
 
+  def test_fetch_balance_without_rounding_error
+    addr = '1Chain4asCYNnLVbvG6pgCLGBrtzh4Lx4b'
+    stub_request(:get, "https://api.cryptoapis.io/v1/bc/btc/mainnet/address/#{addr}")
+      .to_return(body: '{"payload": {"balance": "0.29"}}')
+    assert_equal(29_000_000, Sibit::Cryptoapis.new('-').balance(addr), 'balance must not truncate')
+  end
+
+  def test_reports_output_value_as_exact_satoshi
+    hash = '000000000000000007341915521967247f1dec17b3a311b8a8f4495392f1439b'
+    url = 'https://api.cryptoapis.io/v1/bc/btc/mainnet'
+    stub_request(:get, "#{url}/blocks/#{hash}")
+      .to_return(body: '{"payload": {"nextblockhash": "n", "hash": "h", "previousblockhash": "p"}}')
+    stub_request(:get, "#{url}/txs/block/#{hash}?index=0&limit=200")
+      .to_return(
+        body: '{"payload": [{"hash": "t", "txouts": [{"addresses": ["a1"], "amount": "0.29"}]}]}'
+      )
+    assert_equal(
+      29_000_000,
+      Sibit::Cryptoapis.new('-').block(hash)[:txns][0][:outputs][0][:value],
+      'output value must be exact satoshi'
+    )
+  end
+
   def test_fetch_next_of_block
     hash = '000000000000000007341915521967247f1dec17b3a311b8a8f4495392f1439b'
     stub_request(:get, "https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/#{hash}")
