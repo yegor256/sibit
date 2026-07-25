@@ -130,8 +130,13 @@ Elegant/GoodMethodName:
     - test_extracts_hash160_from_p2wpkh
     - test_extracts_hash160_from_script
     - test_extracts_segwit_address_from_p2wpkh
+    - test_accepts_testnet_p2pkh_on_testnet
+    - test_accepts_testnet_p2sh_on_testnet
     - test_output_generates_p2sh_script
     - test_parses_p2pkh_script
+    - test_rejects_mainnet_p2pkh_on_testnet
+    - test_rejects_testnet_p2pkh_on_mainnet
+    - test_rejects_testnet_p2sh_on_mainnet
     - test_parses_p2wpkh_script
     - test_regtest_bech32_starts_with_bcrt1q
     - test_rejects_non_p2pkh_script

@@ -20,9 +20,10 @@ class Sibit
   class TxBuilder
     DUST = 546
 
-    def initialize
+    def initialize(network = :mainnet)
       @inputs = []
       @outputs = []
+      @network = network
     end
 
     def input
@@ -36,7 +37,7 @@ class Sibit
     end
 
     def tx(input_value:, leave_fee:, extra_fee:, change_address:)
-      txn = Tx.new
+      txn = Tx.new(network: @network)
       @inputs.each do |inp|
         txn.add_input(
           hash: inp.prev_out_hash,

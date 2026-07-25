@@ -24,9 +24,10 @@ class Sibit
 
     attr_reader :inputs, :outputs
 
-    def initialize
+    def initialize(network: :mainnet)
       @inputs = []
       @outputs = []
+      @network = network
     end
 
     def add_input(hash:, index:, script:, key:, value: 0)
@@ -34,7 +35,7 @@ class Sibit
     end
 
     def add_output(value, address)
-      @outputs << Output.new(value, address)
+      @outputs << Output.new(value, address, @network)
     end
 
     def hash
@@ -103,20 +104,33 @@ class Sibit
     class Output
       attr_reader :value
 
-      def initialize(value, address)
+      def initialize(value, address, network = :mainnet)
         @value = value
         @address = address
+        @network = network
       end
 
       def script
         return segwit_script if segwit?
-        return p2pkh_script if %w[00 6f].include?(version)
-        return p2sh_script if %w[05 c4].include?(version)
-        raise(Sibit::Error, "Address '#{@address}' has an unsupported version byte 0x#{version}")
+        return p2pkh_script if version == (@network == :mainnet ? '00' : '6f')
+        return p2sh_script if version == (@network == :mainnet ? '05' : 'c4')
+        raise(
+          Sibit::Error,
+          "Address '#{@address}' has version byte 0x#{version}, " \
+          "which does not belong to the #{@network} network"
+        )
       end
 
       def segwit?
-        @address.downcase.start_with?('bc1', 'tb1', 'bcrt1')
+        down = @address.downcase
+        return true if down.start_with?(*(@network == :mainnet ? ['bc1'] : %w[tb1 bcrt1]))
+        if down.start_with?(*(@network == :mainnet ? %w[tb1 bcrt1] : ['bc1']))
+          raise(
+            Sibit::Error,
+            "Address '#{@address}' is a Bech32 address of a different network than #{@network}"
+          )
+        end
+        false
       end
 
       def script_hex

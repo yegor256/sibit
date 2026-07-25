@@ -270,4 +270,80 @@ class TestTx < Minitest::Test
       'P2WPKH script must be 22 bytes (44 hex chars)'
     )
   end
+
+  def test_rejects_testnet_p2pkh_on_mainnet
+    tx = Sibit::Tx.new(network: :mainnet)
+    tx.add_output(10_000, 'mySAAMyKaEPVXE7FGpksaBk9i9WQt3QKi8')
+    assert_raises(Sibit::Error, 'a testnet P2PKH address cannot be paid silently on mainnet') do
+      tx.outputs[0].script_hex
+    end
+  end
+
+  def test_rejects_testnet_p2sh_on_mainnet
+    tx = Sibit::Tx.new(network: :mainnet)
+    tx.add_output(10_000, '2MxSAy7KUcVkbyD22yDK2H8io9XKnewGGr3')
+    assert_raises(Sibit::Error, 'a testnet P2SH address cannot be paid silently on mainnet') do
+      tx.outputs[0].script_hex
+    end
+  end
+
+  def test_rejects_testnet_segwit_on_mainnet
+    tx = Sibit::Tx.new(network: :mainnet)
+    tx.add_output(10_000, 'tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx')
+    assert_raises(Sibit::Error, 'a testnet Bech32 address cannot be paid silently on mainnet') do
+      tx.outputs[0].script_hex
+    end
+  end
+
+  def test_rejects_mainnet_p2pkh_on_testnet
+    tx = Sibit::Tx.new(network: :testnet)
+    tx.add_output(10_000, '1JvCsJtLmCxEk7ddZFnVkGXpr9uhxZPmJi')
+    assert_raises(Sibit::Error, 'a mainnet P2PKH address cannot be paid silently on testnet') do
+      tx.outputs[0].script_hex
+    end
+  end
+
+  def test_rejects_mainnet_segwit_on_testnet
+    tx = Sibit::Tx.new(network: :testnet)
+    tx.add_output(10_000, 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4')
+    assert_raises(Sibit::Error, 'a mainnet Bech32 address cannot be paid silently on testnet') do
+      tx.outputs[0].script_hex
+    end
+  end
+
+  def test_accepts_testnet_p2pkh_on_testnet
+    tx = Sibit::Tx.new(network: :testnet)
+    tx.add_output(10_000, 'mySAAMyKaEPVXE7FGpksaBk9i9WQt3QKi8')
+    assert(
+      tx.outputs[0].script_hex.start_with?('76a914'),
+      'a testnet P2PKH address must build a P2PKH script on testnet'
+    )
+  end
+
+  def test_accepts_testnet_p2sh_on_testnet
+    tx = Sibit::Tx.new(network: :testnet)
+    tx.add_output(10_000, '2MxSAy7KUcVkbyD22yDK2H8io9XKnewGGr3')
+    assert(
+      tx.outputs[0].script_hex.start_with?('a914'),
+      'a testnet P2SH address must build a P2SH script on testnet'
+    )
+  end
+
+  def test_accepts_testnet_segwit_on_testnet
+    tx = Sibit::Tx.new(network: :testnet)
+    tx.add_output(10_000, 'tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx')
+    assert(
+      tx.outputs[0].script_hex.start_with?('0014'),
+      'a testnet Bech32 address must build a witness script on testnet'
+    )
+  end
+
+  def test_accepts_regtest_segwit_on_regtest
+    tx = Sibit::Tx.new(network: :regtest)
+    tx.add_output(10_000, 'bcrt1qw508d6qejxtdg4y5r3zarvary0c5xw7kygt080')
+    assert(
+      tx.outputs[0].script_hex.start_with?('0014'),
+      'a regtest Bech32 address must build a witness script on regtest'
+    )
+  end
 end
