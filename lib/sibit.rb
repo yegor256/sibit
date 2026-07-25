@@ -152,7 +152,7 @@ class Sibit
         [pub, k.priv]
       end
     satoshi = satoshi(amount)
-    builder = TxBuilder.new
+    builder = TxBuilder.new(network)
     unspent = 0
     size = 100
     utxos = @api.utxos(sources.keys).sort_by { |u| [u[:hash], u[:index]] }
