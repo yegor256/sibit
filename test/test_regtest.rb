@@ -139,7 +139,7 @@ class TestRegtest < Minitest::Test
       ]
       assert_equal(
         addrs.to_h { |a| [a, ctx.script(a)] },
-        addrs.to_h { |a| [a, Sibit::Tx::Output.new(1, a).script_hex] },
+        addrs.to_h { |a| [a, Sibit::Tx::Output.new(1, a, :regtest).script_hex] },
         'our output scripts must match the ones computed by Bitcoin Core'
       )
     end
@@ -223,7 +223,7 @@ class TestRegtest < Minitest::Test
       ctx.fund(laddr, 0.01)
       ctx.fund(waddr, 0.01)
       ctx.mine(1, miner)
-      builder = Sibit::TxBuilder.new
+      builder = Sibit::TxBuilder.new(:regtest)
       [[laddr, legacy], [waddr, witness]].each do |a, k|
         ctx.api.utxos([a]).each do |u|
           builder.input do |i|
