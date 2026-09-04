@@ -145,10 +145,21 @@ class Sibit
         end
     end
 
+    def proxy
+      addr = options[:proxy] || ENV.fetch('SIBIT_PROXY', nil)
+      return if addr.nil?
+      if options[:proxy]
+        log.debug("Proxy found in the --proxy command line option (#{addr.length} symbols)")
+      else
+        log.debug("Proxy found in the SIBIT_PROXY env variable (#{addr.length} symbols)")
+      end
+      addr
+    end
+
     def client(dry: false)
-      proxy = options[:proxy] || ENV.fetch('SIBIT_PROXY', nil)
-      http = proxy ? Sibit::HttpProxy.new(proxy) : Sibit::Http.new
-      log.debug("Using proxy at #{http.host}") if proxy
+      addr = proxy
+      http = addr ? Sibit::HttpProxy.new(addr) : Sibit::Http.new
+      log.debug("Using proxy at #{http}") if addr
       api = Sibit::FirstOf.new(
         options[:api].flat_map { |a| a.split(',') }.map(&:downcase).map do |a|
           case a
