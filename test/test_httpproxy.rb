@@ -90,4 +90,20 @@ class TestHttpProxy < Minitest::Test
       'proxy port with auth is wrong'
     )
   end
+
+  def test_prints_host_and_port
+    assert_equal(
+      'proxy.example.com:8080',
+      Sibit::HttpProxy.new('proxy.example.com:8080').to_s,
+      'proxy without credentials is printed wrong'
+    )
+  end
+
+  def test_prints_credentials_with_masked_password
+    assert_equal(
+      'proxy.example.com:8080 as jeff, password *********',
+      Sibit::HttpProxy.new('jeff:swordfish@proxy.example.com:8080').to_s,
+      'proxy with credentials is printed wrong'
+    )
+  end
 end

@@ -19,7 +19,13 @@ class Sibit
       @user, @password, @host, @port = parse(addr)
     end
 
-    attr_reader :host
+    def to_s
+      [
+        "#{@host}:#{@port}",
+        @user ? " as #{@user}" : '',
+        @password ? ", password #{'*' * @password.length}" : ''
+      ].join
+    end
 
     def client(uri)
       http = Net::HTTP.new(uri.host, uri.port, @host, Integer(@port, 10), @user, @password)

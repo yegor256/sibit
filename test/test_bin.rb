@@ -126,4 +126,31 @@ class TestBin < Minitest::Test
     end
     assert_requested(stub)
   end
+
+  def test_reports_proxy_from_env_variable
+    assert_includes(
+      qbash(
+        'bin/sibit generate --verbose',
+        env: { 'SIBIT_PROXY' => 'jeff:swordfish@proxy.example.com:8080' }
+      ),
+      'Proxy found in the SIBIT_PROXY env variable (37 symbols)',
+      'dont report where the proxy address came from'
+    )
+  end
+
+  def test_reports_proxy_from_command_line_option
+    assert_includes(
+      qbash('bin/sibit generate --verbose --proxy proxy.example.com:8080'),
+      'Proxy found in the --proxy command line option (22 symbols)',
+      'dont report the --proxy option'
+    )
+  end
+
+  def test_reports_proxy_credentials_masked
+    assert_includes(
+      qbash('bin/sibit generate --verbose --proxy jeff:swordfish@proxy.example.com:8080'),
+      'Using proxy at proxy.example.com:8080 as jeff, password *********',
+      'dont report the proxy credentials'
+    )
+  end
 end
