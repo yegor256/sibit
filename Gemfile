@@ -6,7 +6,7 @@
 source 'https://rubygems.org'
 gemspec
 
-gem 'aruba', '~>2.2', require: false
+gem 'aruba', '~>3.0', require: false
 gem 'cucumber', '~>11.0', require: false
 gem 'donce', '~>0.2', require: false
 gem 'logger', '~>1.7', require: false
