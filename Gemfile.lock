@@ -36,7 +36,7 @@ GEM
     crack (1.0.1)
       bigdecimal
       rexml
-    cucumber (12.0.0)
+    cucumber (12.0.1)
       base64 (~> 0.2)
       builder (~> 3.2)
       cucumber-ci-environment (> 9, < 14)
