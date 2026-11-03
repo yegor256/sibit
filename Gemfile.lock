@@ -100,9 +100,9 @@ GEM
       minitest (>= 5.0, < 7)
       ruby-progressbar
     multi_test (2.0.0)
-    nokogiri (1.19.4-arm64-darwin)
+    nokogiri (1.19.7-arm64-darwin)
       racc (~> 1.4)
-    nokogiri (1.19.4-x86_64-linux-gnu)
+    nokogiri (1.19.7-x86_64-linux-gnu)
       racc (~> 1.4)
     openssl (3.3.3)
     os (1.1.4)
