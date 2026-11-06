@@ -225,7 +225,7 @@ If it's clean and you don't see any error messages, submit your pull request.
 [blog]: https://www.yegor256.com/2019/05/07/sibit-bitcoin-command-line-client.html
 [Bundler]: https://bundler.io/
 [Cex.io]: https://cex.io/rest-api
-[Cryptoapis.io]: https://docs.cryptoapis.io/rest-apis/blockchain-as-a-service-apis/btc/index
+[Cryptoapis.io]: https://developers.cryptoapis.io/
 [Electrum]: https://electrum.org/
 [Mempool.space]: https://mempool.space/docs/api/rest
 [SoChain]: https://sochain.com/api

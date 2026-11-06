@@ -107,8 +107,8 @@ class TestBin < Minitest::Test
   end
 
   def test_latest_via_cryptoapis_api
-    stub = stub_request(:get, 'https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/latest')
-      .to_return(body: '{"payload":{"hash":"00000000abc123"}}')
+    stub = stub_request(:get, 'https://rest.cryptoapis.io/blockchain-data/bitcoin/mainnet/blocks/last')
+      .to_return(body: '{"data":{"item":{"hash":"00000000abc123"}}}')
     Sibit::Bin.start(['latest', '--api', 'cryptoapis', '--quiet'])
     assert_requested(stub)
   end
