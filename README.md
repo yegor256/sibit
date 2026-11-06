@@ -116,8 +116,9 @@ sibit --proxy=user:password@host:port balance 1PfsYNygsuVL8fvBarJNQnHytkg4rGih1U
 ```
 
 Some providers accept an API key, read from an environment variable:
-`SIBIT_BLOCKCHAIR_KEY` for [Blockchair.com] and
-  `SIBIT_CRYPTOAPIS_KEY` for [Cryptoapis.io].
+`SIBIT_BLOCKCHAIR_KEY` for [Blockchair.com],
+  `SIBIT_CRYPTOAPIS_KEY` for [Cryptoapis.io], and
+  `SIBIT_SOCHAIN_KEY` for [SoChain].
 When the variable is set, requests to that provider use the authenticated tier.
 
 All operations are performed through the [Blockchain API].

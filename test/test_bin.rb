@@ -100,8 +100,8 @@ class TestBin < Minitest::Test
 
   def test_balance_via_sochain_api
     addr = 'bc1qcj9pwdant20em83mvf9fzrc7ytm7szau5ysh9x'
-    stub = stub_request(:get, "https://sochain.com/api/v2/get_address_balance/BTC/#{addr}")
-      .to_return(body: '{"data":{"confirmed_balance":"0.0005"}}')
+    stub = stub_request(:get, "https://sochain.com/api/v3/balance/BTC/#{addr}")
+      .to_return(body: '{"data":{"confirmed":"0.0005"}}')
     Sibit::Bin.start(['balance', addr, '--api', 'sochain', '--quiet'])
     assert_requested(stub)
   end
@@ -129,6 +129,20 @@ class TestBin < Minitest::Test
       Sibit::Bin.start(['balance', addr, '--api', 'blockchair', '--quiet'])
     ensure
       ENV.delete('SIBIT_BLOCKCHAIR_KEY')
+    end
+    assert_requested(stub)
+  end
+
+  def test_sochain_balance_uses_env_key
+    addr = '1GkQmKAmHtNfnD3LHhTkewJxKHVSta4m2a'
+    stub = stub_request(:get, "https://sochain.com/api/v3/balance/BTC/#{addr}")
+      .with(headers: { 'API-KEY' => 'soKey9' })
+      .to_return(body: '{"data":{"confirmed":"0.00000003"}}')
+    ENV['SIBIT_SOCHAIN_KEY'] = 'soKey9'
+    begin
+      Sibit::Bin.start(['balance', addr, '--api', 'sochain', '--quiet'])
+    ensure
+      ENV.delete('SIBIT_SOCHAIN_KEY')
     end
     assert_requested(stub)
   end

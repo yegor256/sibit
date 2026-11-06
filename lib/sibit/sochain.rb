@@ -7,12 +7,17 @@ require 'iri'
 require 'json'
 require 'loog'
 require 'uri'
+require_relative 'coins'
 require_relative 'error'
 require_relative 'http'
 require_relative 'json'
 require_relative 'version'
 
-# SoChain API (formerly known as Block.io).
+# SoChain API v3 (formerly known as Block.io).
+#
+# It works without a key, within a daily limit per IP address,
+# while a key lifts that limit. API v3 has no way to broadcast a
+# transaction and lists only bare transaction hashes in a block.
 #
 # Documentation: https://sochain.com/api
 #
@@ -21,67 +26,42 @@ require_relative 'version'
 # License:: MIT
 class Sibit::Sochain
   # Constructor.
-  def initialize(log: Loog::NULL, http: Sibit::Http.new, network: 'BTC')
+  def initialize(key: nil, log: Loog::NULL, http: Sibit::Http.new, network: 'BTC')
+    @key = key
     @http = http
     @log = log
     @network = network
   end
 
-  # Current price of BTC in USD (float returned).
+  # Current price of BTC in the currency (float returned).
   def price(currency = 'USD')
-    data = Sibit::Json.new(http: @http, log: @log).get(
-      Iri.new('https://sochain.com/api/v2/get_price').append(@network).append(currency)
-    )['data']
-    raise(Sibit::Error, "No price data returned for #{@network}/#{currency}") if data.nil?
-    prices = data['prices']
-    if prices.nil? || prices.empty?
-      raise(Sibit::Error, "No price quotes for #{@network}/#{currency}")
-    end
-    price = Float(prices[0]['price'])
-    @log.debug("The price of #{@network} is #{price} #{currency}")
-    price
+    p = data('price', currency: currency)['value']
+    raise(Sibit::Error, "No price of #{@network} in #{currency} at SoChain") if p.nil?
+    @log.debug("The price of #{@network} is #{p} #{currency}")
+    Float(p)
   end
 
   # The height of the block, identified by hash.
   def height(hash)
-    data = Sibit::Json.new(http: @http, log: @log).get(
-      Iri.new('https://sochain.com/api/v2/block').append(@network).append(hash)
-    )['data']
-    raise(Sibit::Error, "The block #{hash} not found") if data.nil?
-    h = data['block_no']
+    h = data('block', hash)['height']
     raise(Sibit::Error, "The block #{hash} found but the height is absent") if h.nil?
     @log.debug("The height of #{hash} is #{h}")
     Integer(h)
   end
 
-  # Get hash of the block after this one.
+  # Get hash of the block after this one, or NIL if it's the last one in Blockchain.
   def next_of(hash)
-    data = Sibit::Json.new(http: @http, log: @log).get(
-      Iri.new('https://sochain.com/api/v2/block').append(@network).append(hash)
-    )['data']
-    raise(Sibit::Error, "The block #{hash} not found") if data.nil?
-    nxt = data['next_blockhash']
-    nxt = nil if nxt == '0000000000000000000000000000000000000000000000000000000000000000'
+    nxt = data('block', hash)['next_block_hash']
     @log.debug("In SoChain the block #{hash} is the latest, there is no next block") if nxt.nil?
     @log.debug("The next block of #{hash} is #{nxt}") unless nxt.nil?
     nxt
   end
 
-  # Gets the balance of the address, in satoshi.
+  # Gets the confirmed balance of the address, in satoshi.
   def balance(address)
-    data = Sibit::Json.new(http: @http, log: @log).get(
-      Iri.new('https://sochain.com/api/v2/get_address_balance').append(@network).append(address)
-    )['data']
-    if data.nil?
-      @log.debug("The balance of #{address} is probably zero (not found)")
-      return 0
-    end
-    confirmed = data['confirmed_balance']
-    if confirmed.nil?
-      @log.debug("The balance of #{address} is probably zero (no confirmed_balance)")
-      return 0
-    end
-    b = Integer((Float(confirmed) * 100_000_000).round)
+    confirmed = data('balance', address)['confirmed']
+    raise(Sibit::Error, "The balance of #{address} is absent at SoChain") if confirmed.nil?
+    b = Sibit::Coins.new(confirmed).satoshi
     @log.debug("The balance of #{address} is #{b} satoshi")
     b
   end
@@ -93,12 +73,8 @@ class Sibit::Sochain
 
   # Gets the hash of the latest block.
   def latest
-    data = Sibit::Json.new(http: @http, log: @log).get(
-      Iri.new('https://sochain.com/api/v2/get_info').append(@network)
-    )['data']
-    raise(Sibit::Error, 'The latest block info not found') if data.nil?
-    hash = data['blockhash']
-    raise(Sibit::Error, 'The latest block hash is absent') if hash.nil?
+    hash = data('best_block_hash')['hash']
+    raise(Sibit::Error, 'The latest block hash is absent at SoChain') if hash.nil?
     @log.debug("The latest block hash is #{hash}")
     hash
   end
@@ -106,75 +82,49 @@ class Sibit::Sochain
   # Fetch all unspent outputs per address. The argument is an array
   # of Bitcoin addresses.
   def utxos(sources)
-    out = []
-    sources.each do |address|
-      data = Sibit::Json.new(http: @http, log: @log).get(
-        Iri.new('https://sochain.com/api/v2/get_tx_unspent').append(@network).append(address)
-      )['data']
-      raise(Sibit::Error, "The address #{address} unspent lookup returned no data") if data.nil?
-      txs = data['txs']
-      raise(Sibit::Error, "The address #{address} unspent lookup returned no txs") if txs.nil?
-      txs.each do |u|
-        out << {
-          value: Integer((Float(u['value']) * 100_000_000).round),
-          hash: u['txid'],
-          index: u['output_no'],
-          confirmations: u['confirmations'],
-          script: [u['script_hex']].pack('H*')
-        }
+    tip = Integer(data('network_info')['block_count'])
+    sources.flat_map do |address|
+      all = []
+      page = 1
+      loop do
+        outputs = data('unspent_outputs', address, page.to_s)['outputs']
+        raise(Sibit::Error, "The unspent outputs of #{address} are absent") if outputs.nil?
+        all +=
+          outputs.map do |u|
+            {
+              value: Sibit::Coins.new(u['value']).satoshi,
+              hash: u['hash'],
+              index: u['index'],
+              confirmations: u['block'].nil? ? 0 : tip - u['block'] + 1,
+              script: [u['script']].pack('H*')
+            }
+          end
+        break if outputs.length < 10
+        page += 1
       end
+      all
     end
-    out
   end
 
-  # Push this transaction (in hex format) to the network. SoChain expects a
-  # JSON payload with the +tx_hex+ field on POST /send_tx/{network}.
-  def push(hex)
-    uri = URI(Iri.new('https://sochain.com/api/v2/send_tx').append(@network).to_s)
-    res = @http.client(uri).post(
-      uri.path,
-      JSON.generate(tx_hex: hex),
-      {
-        'Accept' => 'application/json',
-        'Content-Type' => 'application/json',
-        'Accept-Charset' => 'UTF-8',
-        'Accept-Encoding' => ''
-      }
-    )
-    unless res.code == '200'
-      raise(Sibit::Error, "Failed to push transaction to #{uri}: #{res.code}\n#{res.body}")
-    end
-    @log.debug("Transaction (#{hex.length} chars in hex) has been pushed to SoChain")
+  # Push this transaction (in hex format) to the network.
+  def push(_hex)
+    raise(Sibit::NotSupportedError, 'SoChain API v3 doesn\'t broadcast transactions')
   end
 
   # This method should fetch a block and return it as a hash.
-  def block(hash)
-    data = Sibit::Json.new(http: @http, log: @log).get(
-      Iri.new('https://sochain.com/api/v2/block').append(@network).append(hash)
+  def block(_hash)
+    raise(Sibit::NotSupportedError, 'SoChain API v3 doesn\'t list outputs of block transactions')
+  end
+
+  private
+
+  def data(method, *path, **query)
+    uri = path.reduce(Iri.new('https://sochain.com/api/v3').append(method).append(@network)) { |u, p| u.append(p) }
+    uri = uri.add(**query) unless query.empty?
+    d = Sibit::Json.new(http: @http, log: @log).get(
+      uri, headers: @key.nil? ? {} : { 'API-KEY' => @key }
     )['data']
-    raise(Sibit::Error, "The block #{hash} not found") if data.nil?
-    nxt = data['next_blockhash']
-    nxt = nil if nxt == '0000000000000000000000000000000000000000000000000000000000000000'
-    {
-      provider: self.class.name,
-      hash: data['blockhash'],
-      orphan: data['is_orphan'] == true,
-      next: nxt,
-      previous: data['previous_blockhash'],
-      txns: (data['txs'] || []).map do |t|
-        unless t.is_a?(Hash)
-          raise(Sibit::NotSupportedError, "SoChain returned bare txid #{t} without outputs")
-        end
-        {
-          hash: t['txid'],
-          outputs: (t['outputs'] || []).map do |o|
-            {
-              address: o['address'],
-              value: Integer((Float(o['value']) * 100_000_000).round)
-            }
-          end
-        }
-      end
-    }
+    raise(Sibit::Error, "SoChain returned no data at #{uri}") if d.nil?
+    d
   end
 end
