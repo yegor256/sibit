@@ -29,7 +29,8 @@ class Sibit
       desc: "Don't send a real payment, run in a read-only mode"
     class_option :verbose, type: :boolean, default: false, desc: 'Print all possible debug messages'
     class_option :quiet, type: :boolean, default: false, desc: 'Print only informative messages'
-    class_option :api, type: :array, default: %w[blockchain btc bitcoinchain blockchair cex],
+    class_option :api, type: :array,
+      default: %w[blockchain btc bitcoinchain blockchair cex mempool],
       desc: 'Ordered List of APIs to use, e.g. "blockchain,btc,bitcoinchain"'
     class_option :base58, type: :boolean, default: false,
       desc: 'Use base58 address format instead of bech32'
@@ -175,6 +176,8 @@ class Sibit
             Sibit::Cex.new(http: http, log: log)
           when 'cryptoapis'
             Sibit::Cryptoapis.new(ENV.fetch('SIBIT_CRYPTOAPIS_KEY', nil), http: http, log: log)
+          when 'mempool'
+            Sibit::Mempool.new(http: http, log: log)
           when 'sochain'
             Sibit::Sochain.new(http: http, log: log)
           when 'fake'

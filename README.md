@@ -152,6 +152,7 @@ At the moment we work with the following APIs:
 * [Bitcoinchain.com] - `Sibit::Bitcoinchain`
 * [Blockchair.com] - `Sibit::Blockchair`
 * [Cex.io] - `Sibit::Cex`
+* [Mempool.space] - `Sibit::Mempool`
 * [SoChain] - `Sibit::Sochain`
 
 The first one in this list is used by default.
@@ -229,6 +230,7 @@ If it's clean and you don't see any error messages, submit your pull request.
 [Cex.io]: https://cex.io/rest-api
 [Cryptoapis.io]: https://docs.cryptoapis.io/rest-apis/blockchain-as-a-service-apis/btc/index
 [Electrum]: https://electrum.org/
+[Mempool.space]: https://mempool.space/docs/api/rest
 [SoChain]: https://sochain.com/api
 [miner fee]: https://en.bitcoin.it/wiki/Miner_fees
 [private key]: https://en.bitcoin.it/wiki/Private_key

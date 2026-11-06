@@ -106,6 +106,8 @@ class TestLive < Minitest::Test
     apis << Sibit::Cex.new
     require_relative('../lib/sibit/bitcoinchain')
     apis << Sibit::Bitcoinchain.new
+    require_relative('../lib/sibit/mempool')
+    apis << Sibit::Mempool.new
     apis.each do |api|
       yield(api)
     rescue Sibit::Error => e

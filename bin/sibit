@@ -21,6 +21,7 @@ require_relative '../lib/sibit/fake'
 require_relative '../lib/sibit/firstof'
 require_relative '../lib/sibit/http'
 require_relative '../lib/sibit/httpproxy'
+require_relative '../lib/sibit/mempool'
 require_relative '../lib/sibit/sochain'
 require_relative '../lib/sibit/version'
 
