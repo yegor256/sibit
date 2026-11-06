@@ -148,7 +148,6 @@ At the moment we work with the following APIs:
 
 * [Blockchain.com] - `Sibit::Blockchain`
 * [Cryptoapis.io] - `Sibit::Cryptoapis`
-* [Bitcoinchain.com] - `Sibit::Bitcoinchain`
 * [Blockchair.com] - `Sibit::Blockchair`
 * [Cex.io] - `Sibit::Cex`
 * [Mempool.space] - `Sibit::Mempool`
@@ -218,7 +217,6 @@ If it's clean and you don't see any error messages, submit your pull request.
 
 [address]: https://en.bitcoin.it/wiki/Address
 [bitcoin-ruby]: https://github.com/lian/bitcoin-ruby
-[Bitcoinchain.com]: https://bitcoinchain.com/api
 [Bitcointalk]: https://bitcointalk.org/index.php?topic=5130324
 [Blockchain API]: https://www.blockchain.com/api/blockchain_api
 [Blockchain.com]: https://www.blockchain.com/explorer
