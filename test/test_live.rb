@@ -94,8 +94,6 @@ class TestLive < Minitest::Test
     skip if ENV['skip_live']
     WebMock.allow_net_connect!
     apis = []
-    require_relative('../lib/sibit/btc')
-    apis << Sibit::Btc.new
     require_relative('../lib/sibit/blockchain')
     apis << Sibit::Blockchain.new
     require_relative('../lib/sibit/blockchair')
