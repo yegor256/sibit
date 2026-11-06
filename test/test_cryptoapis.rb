@@ -5,6 +5,7 @@
 
 require_relative 'test__helper'
 require 'json'
+require 'securerandom'
 require 'webmock/minitest'
 require_relative '../lib/sibit'
 require_relative '../lib/sibit/cryptoapis'
@@ -14,142 +15,137 @@ require_relative '../lib/sibit/cryptoapis'
 # Copyright:: Copyright (c) 2019-2026 Yegor Bugayenko
 # License:: MIT
 class TestCryptoapis < Minitest::Test
-  def test_fetch_block
-    hash = '000000000000000007341915521967247f1dec17b3a311b8a8f4495392f1439b'
-    url = 'https://api.cryptoapis.io/v1/bc/btc/mainnet'
-    stub_request(:get, "#{url}/blocks/#{hash}")
-      .to_return(body: '{"payload": {"nextblockhash": "n", "hash": "h", "previousblockhash": "p"}}')
-    stub_request(:get, "#{url}/txs/block/#{hash}?index=0&limit=200")
-      .to_return(
-        body: '{"payload": [{"hash": "thash",
-        "txouts": [{"addresses": ["a1"], "value": 123}]}]}'
-      )
-    json = Sibit::Cryptoapis.new('-').block(hash)
-    assert(json[:next])
-    assert(json[:previous])
-    assert_equal('h', json[:hash])
-    assert_kind_of(Array, json[:txns])
-    assert_equal('thash', json[:txns][0][:hash])
-    assert_kind_of(Array, json[:txns][0][:outputs])
+  def test_finds_next_block
+    hash = SecureRandom.hex(32)
+    nxt = SecureRandom.hex(32)
+    stub_request(:get, "https://rest.cryptoapis.io/blockchain-data/bitcoin/mainnet/blocks/hash/#{hash}")
+      .to_return(body: { data: { item: { hash: hash, nextBlockHash: nxt } } }.to_json)
+    assert_equal(nxt, Sibit::Cryptoapis.new('k').next_of(hash), 'next block hash is wrong')
   end
 
-  def test_price_raises_not_supported
-    sibit = Sibit::Cryptoapis.new('-')
-    assert_raises(Sibit::NotSupportedError) { sibit.price('USD') }
+  def test_returns_nil_when_block_is_the_tip
+    hash = SecureRandom.hex(32)
+    stub_request(:get, "https://rest.cryptoapis.io/blockchain-data/bitcoin/mainnet/blocks/hash/#{hash}")
+      .to_return(body: { data: { item: { hash: hash, nextBlockHash: '' } } }.to_json)
+    assert_nil(Sibit::Cryptoapis.new('k').next_of(hash), 'the tip cannot have a next block')
   end
 
-  def test_fees_raises_not_supported
-    sibit = Sibit::Cryptoapis.new('-')
-    assert_raises(Sibit::NotSupportedError) { sibit.fees }
-  end
-
-  def test_utxos_raises_not_supported
-    sibit = Sibit::Cryptoapis.new('-')
-    assert_raises(Sibit::NotSupportedError) { sibit.utxos(['addr']) }
-  end
-
-  def test_fetch_latest_block_hash
-    stub_request(:get, 'https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/latest')
-      .to_return(body: '{"payload": {"hash": "00000000abc123"}}')
-    assert_equal('00000000abc123', Sibit::Cryptoapis.new('-').latest, 'latest hash does not match')
-  end
-
-  def test_fetch_balance
-    addr = '1Chain4asCYNnLVbvG6pgCLGBrtzh4Lx4b'
-    stub_request(:get, "https://api.cryptoapis.io/v1/bc/btc/mainnet/address/#{addr}")
-      .to_return(body: '{"payload": {"balance": "1.5"}}')
-    assert_equal(150_000_000, Sibit::Cryptoapis.new('-').balance(addr), 'balance does not match')
-  end
-
-  def test_fetch_balance_without_rounding_error
-    addr = '1Chain4asCYNnLVbvG6pgCLGBrtzh4Lx4b'
-    stub_request(:get, "https://api.cryptoapis.io/v1/bc/btc/mainnet/address/#{addr}")
-      .to_return(body: '{"payload": {"balance": "0.29"}}')
-    assert_equal(29_000_000, Sibit::Cryptoapis.new('-').balance(addr), 'balance must not truncate')
-  end
-
-  def test_reports_output_value_as_exact_satoshi
-    hash = '000000000000000007341915521967247f1dec17b3a311b8a8f4495392f1439b'
-    url = 'https://api.cryptoapis.io/v1/bc/btc/mainnet'
-    stub_request(:get, "#{url}/blocks/#{hash}")
-      .to_return(body: '{"payload": {"nextblockhash": "n", "hash": "h", "previousblockhash": "p"}}')
-    stub_request(:get, "#{url}/txs/block/#{hash}?index=0&limit=200")
-      .to_return(
-        body: '{"payload": [{"hash": "t", "txouts": [{"addresses": ["a1"], "amount": "0.29"}]}]}'
-      )
-    assert_equal(
-      29_000_000,
-      Sibit::Cryptoapis.new('-').block(hash)[:txns][0][:outputs][0][:value],
-      'output value must be exact satoshi'
-    )
-  end
-
-  def test_fetch_next_of_block
-    hash = '000000000000000007341915521967247f1dec17b3a311b8a8f4495392f1439b'
-    stub_request(:get, "https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/#{hash}")
-      .to_return(body: "{\"payload\": {\"hash\": \"#{hash}\", \"nextblockhash\": \"nextblock\"}}")
-    assert_equal(
-      'nextblock', Sibit::Cryptoapis.new('-').next_of(hash),
-      'next block hash does not match'
-    )
-  end
-
-  def test_next_of_never_returns_own_hash
-    hash = '000000000000000007341915521967247f1dec17b3a311b8a8f4495392f1439b'
-    stub_request(:get, "https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/#{hash}")
-      .to_return(body: "{\"payload\": {\"hash\": \"#{hash}\", \"nextblockhash\": \"nextblock\"}}")
-    refute_equal(
-      hash, Sibit::Cryptoapis.new('-').next_of(hash),
-      'next_of must not return the block itself'
-    )
-  end
-
-  def test_next_of_latest_block_is_nil
-    hash = '000000000000000007341915521967247f1dec17b3a311b8a8f4495392f1439b'
-    zeros = '0000000000000000000000000000000000000000000000000000000000000000'
-    stub_request(:get, "https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/#{hash}")
-      .to_return(body: "{\"payload\": {\"hash\": \"#{hash}\", \"nextblockhash\": \"#{zeros}\"}}")
-    assert_nil(Sibit::Cryptoapis.new('-').next_of(hash), 'latest block cannot have a next')
-  end
-
-  def test_next_of_missing_payload_raises
-    hash = '000000000000000007341915521967247f1dec17b3a311b8a8f4495392f1439b'
-    stub_request(:get, "https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/#{hash}")
-      .to_return(body: '{"payload": null}')
-    assert_raises(Sibit::Error, 'missing payload must fail loudly') do
-      Sibit::Cryptoapis.new('-').next_of(hash)
+  def test_fails_next_of_without_item
+    hash = SecureRandom.hex(32)
+    stub_request(:get, "https://rest.cryptoapis.io/blockchain-data/bitcoin/mainnet/blocks/hash/#{hash}")
+      .to_return(body: { data: {} }.to_json)
+    assert_raises(Sibit::Error, 'missing item cannot be silently accepted') do
+      Sibit::Cryptoapis.new('k').next_of(hash)
     end
   end
 
-  def test_fetch_height
-    hash = '000000000000000007341915521967247f1dec17b3a311b8a8f4495392f1439b'
-    stub_request(:get, "https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/#{hash}")
-      .to_return(body: '{"payload": {"height": 500000}}')
-    assert_equal(500_000, Sibit::Cryptoapis.new('-').height(hash), 'block height does not match')
+  def test_finds_height
+    hash = SecureRandom.hex(32)
+    stub_request(:get, "https://rest.cryptoapis.io/blockchain-data/bitcoin/mainnet/blocks/hash/#{hash}")
+      .to_return(body: { data: { item: { hash: hash, height: 812_377 } } }.to_json)
+    assert_equal(812_377, Sibit::Cryptoapis.new('k').height(hash), 'height is wrong')
   end
 
-  def test_push_transaction
-    stub = stub_request(:post, 'https://api.cryptoapis.io/v1/bc/btc/mainnet/txs/send')
-      .to_return(body: '{"payload": {"txid": "abc123"}}')
-    Sibit::Cryptoapis.new('-').push('deadbeef')
-    assert_requested(stub)
+  def test_finds_latest_block
+    hash = SecureRandom.hex(32)
+    stub_request(:get, 'https://rest.cryptoapis.io/blockchain-data/bitcoin/mainnet/blocks/last')
+      .to_return(body: { data: { item: { hash: hash, height: 9 } } }.to_json)
+    assert_equal(hash, Sibit::Cryptoapis.new('k').latest, 'latest block hash is wrong')
   end
 
-  def test_push_sends_json_verbatim
-    stub = stub_request(:post, 'https://api.cryptoapis.io/v1/bc/btc/mainnet/txs/send')
+  def test_fetches_balance_without_rounding_error
+    address = '1Chain4asCYNnLVbvG6pgCLGBrtzh4Lx4b'
+    stub_request(:get, "https://rest.cryptoapis.io/blockchain-data/bitcoin/mainnet/addresses/#{address}/balance")
+      .to_return(
+        body: { data: { item: { confirmedBalance: { amount: '0.29', unit: 'BTC' } } } }.to_json
+      )
+    assert_equal(29_000_000, Sibit::Cryptoapis.new('k').balance(address), 'balance is not exact')
+  end
+
+  def test_fails_balance_without_amount
+    address = '1Chain4asCYNnLVbvG6pgCLGBrtzh4Lx4b'
+    stub_request(:get, "https://rest.cryptoapis.io/blockchain-data/bitcoin/mainnet/addresses/#{address}/balance")
+      .to_return(body: { data: { item: {} } }.to_json)
+    assert_raises(Sibit::Error, 'absent balance cannot be reported as zero') do
+      Sibit::Cryptoapis.new('k').balance(address)
+    end
+  end
+
+  def test_sends_api_key_in_header
+    stub = stub_request(:get, 'https://rest.cryptoapis.io/blockchain-data/bitcoin/mainnet/blocks/last')
+      .with(headers: { 'X-API-Key' => 'q8Wz' })
+      .to_return(body: { data: { item: { hash: 'abc' } } }.to_json)
+    Sibit::Cryptoapis.new('q8Wz').latest
+    assert_requested(stub, times: 1, msg: 'API key is not sent in the header')
+  end
+
+  def test_pushes_signed_hex
+    hex = SecureRandom.hex(48)
+    stub = stub_request(:post, 'https://rest.cryptoapis.io/blockchain-tools/bitcoin/mainnet/transactions/broadcast')
       .with(
-        body: JSON.pretty_generate(hex: 'deadbeef'),
+        body: { data: { item: { signedTransactionHex: hex } } }.to_json,
         headers: { 'Content-Type' => 'application/json' }
       )
-      .to_return(body: '{"payload": {"txid": "abc123"}}')
-    Sibit::Cryptoapis.new('-').push('deadbeef')
-    assert_requested(stub, times: 1)
+      .to_return(body: { data: { item: { transactionId: 'abc' } } }.to_json)
+    Sibit::Cryptoapis.new('k').push(hex)
+    assert_requested(stub, times: 1, msg: 'signed transaction is not broadcast')
   end
 
-  def test_works_without_api_key
-    hash = '000000000000000007341915521967247f1dec17b3a311b8a8f4495392f1439b'
-    stub_request(:get, "https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/#{hash}")
-      .to_return(body: '{"payload": {"height": 500000}}')
-    assert_equal(500_000, Sibit::Cryptoapis.new('').height(hash), 'block height does not match')
+  def test_fetches_block_with_all_pages
+    hash = SecureRandom.hex(32)
+    stub_request(:get, "https://rest.cryptoapis.io/blockchain-data/bitcoin/mainnet/blocks/hash/#{hash}")
+      .to_return(
+        body: { data: { item: { hash: hash, nextBlockHash: 'n', previousBlockHash: 'p' } } }.to_json
+      )
+    page =
+      Array.new(50) do
+        { transactionId: SecureRandom.hex(32), blockchainSpecific: { vout: [] } }
+      end
+    stub_request(
+      :get,
+      "https://rest.cryptoapis.io/blockchain-data/bitcoin/mainnet/blocks/hash/#{hash}/transactions?limit=50&offset=0"
+    ).to_return(body: { data: { items: page } }.to_json)
+    last = {
+      transactionId: 'last',
+      blockchainSpecific: { vout: [{ value: '0.29', scriptPubKey: { addresses: ['a1'] } }] }
+    }
+    stub_request(
+      :get,
+      "https://rest.cryptoapis.io/blockchain-data/bitcoin/mainnet/blocks/hash/#{hash}/transactions?limit=50&offset=50"
+    ).to_return(body: { data: { items: [last] } }.to_json)
+    assert_equal(
+      { hash: 'last', outputs: [{ address: 'a1', value: 29_000_000 }] },
+      Sibit::Cryptoapis.new('k').block(hash)[:txns][50],
+      'transactions from the second page are lost or wrong'
+    )
+  end
+
+  def test_reports_no_next_for_the_tip_block
+    hash = SecureRandom.hex(32)
+    stub_request(:get, "https://rest.cryptoapis.io/blockchain-data/bitcoin/mainnet/blocks/hash/#{hash}")
+      .to_return(
+        body: { data: { item: { hash: hash, nextBlockHash: '', previousBlockHash: 'p' } } }.to_json
+      )
+    stub_request(
+      :get,
+      "https://rest.cryptoapis.io/blockchain-data/bitcoin/mainnet/blocks/hash/#{hash}/transactions?limit=50&offset=0"
+    ).to_return(body: { data: { items: [] } }.to_json)
+    assert_nil(Sibit::Cryptoapis.new('k').block(hash)[:next], 'the tip cannot have a next block')
+  end
+
+  def test_refuses_price
+    assert_raises(Sibit::NotSupportedError, 'price cannot be pretended to work') do
+      Sibit::Cryptoapis.new('k').price('USD')
+    end
+  end
+
+  def test_refuses_fees
+    assert_raises(Sibit::NotSupportedError, 'fees cannot be pretended to work') { Sibit::Cryptoapis.new('k').fees }
+  end
+
+  def test_refuses_utxos
+    assert_raises(Sibit::NotSupportedError, 'utxos cannot be pretended to work') do
+      Sibit::Cryptoapis.new('k').utxos(['1Chain4asCYNnLVbvG6pgCLGBrtzh4Lx4b'])
+    end
   end
 end
