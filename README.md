@@ -147,7 +147,6 @@ The library works through one (or a few) public APIs for fetching
 At the moment we work with the following APIs:
 
 * [Blockchain.com] - `Sibit::Blockchain`
-* [BTC.com] - `Sibit::Btc`
 * [Cryptoapis.io] - `Sibit::Cryptoapis`
 * [Bitcoinchain.com] - `Sibit::Bitcoinchain`
 * [Blockchair.com] - `Sibit::Blockchair`
@@ -161,8 +160,8 @@ If you want to use a different one,
 
 ```ruby
 require 'sibit'
-require 'sibit/btc'
-sibit = Sibit.new(api: Sibit::Btc.new)
+require 'sibit/mempool'
+sibit = Sibit.new(api: Sibit::Mempool.new)
 ```
 
 You may also use a combination of APIs.
@@ -173,12 +172,12 @@ You can provide an array of objects and they are used one by one,
 
 ```ruby
 require 'sibit'
-require 'sibit/btc'
 require 'sibit/cryptoapis'
+require 'sibit/mempool'
 sibit = Sibit.new(
   api: Sibit::FirstOf.new(
     [
-      Sibit::Btc.new,
+      Sibit::Mempool.new,
       Sibit::Cryptoapis.new('key')
     ]
   )
@@ -225,7 +224,6 @@ If it's clean and you don't see any error messages, submit your pull request.
 [Blockchain.com]: https://www.blockchain.com/explorer
 [Blockchair.com]: https://blockchair.com/api/docs
 [blog]: https://www.yegor256.com/2019/05/07/sibit-bitcoin-command-line-client.html
-[BTC.com]: https://btc.com/api-doc
 [Bundler]: https://bundler.io/
 [Cex.io]: https://cex.io/rest-api
 [Cryptoapis.io]: https://docs.cryptoapis.io/rest-apis/blockchain-as-a-service-apis/btc/index

@@ -30,8 +30,8 @@ class Sibit
     class_option :verbose, type: :boolean, default: false, desc: 'Print all possible debug messages'
     class_option :quiet, type: :boolean, default: false, desc: 'Print only informative messages'
     class_option :api, type: :array,
-      default: %w[blockchain btc bitcoinchain blockchair cex mempool],
-      desc: 'Ordered List of APIs to use, e.g. "blockchain,btc,bitcoinchain"'
+      default: %w[blockchain bitcoinchain blockchair cex mempool],
+      desc: 'Ordered List of APIs to use, e.g. "blockchain,mempool"'
     class_option :base58, type: :boolean, default: false,
       desc: 'Use base58 address format instead of bech32'
 
@@ -166,8 +166,6 @@ class Sibit
           case a
           when 'blockchain'
             Sibit::Blockchain.new(http: http, log: log)
-          when 'btc'
-            Sibit::Btc.new(http: http, log: log)
           when 'bitcoinchain'
             Sibit::Bitcoinchain.new(http: http, log: log)
           when 'blockchair'
