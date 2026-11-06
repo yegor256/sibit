@@ -102,8 +102,6 @@ class TestLive < Minitest::Test
     apis << Sibit::Cryptoapis.new('')
     require_relative('../lib/sibit/cex')
     apis << Sibit::Cex.new
-    require_relative('../lib/sibit/bitcoinchain')
-    apis << Sibit::Bitcoinchain.new
     require_relative('../lib/sibit/mempool')
     apis << Sibit::Mempool.new
     apis.each do |api|
