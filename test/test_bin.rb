@@ -19,6 +19,7 @@ require_relative '../lib/sibit/fake'
 require_relative '../lib/sibit/firstof'
 require_relative '../lib/sibit/http'
 require_relative '../lib/sibit/httpproxy'
+require_relative '../lib/sibit/mempool'
 require_relative '../lib/sibit/sochain'
 require_relative 'test__helper'
 
@@ -111,6 +112,13 @@ class TestBin < Minitest::Test
     stub = stub_request(:get, 'https://api.cryptoapis.io/v1/bc/btc/mainnet/blocks/latest')
       .to_return(body: '{"payload":{"hash":"00000000abc123"}}')
     Sibit::Bin.start(['latest', '--api', 'cryptoapis', '--quiet'])
+    assert_requested(stub)
+  end
+
+  def test_latest_via_mempool_api
+    stub = stub_request(:get, 'https://mempool.space/api/blocks')
+      .to_return(body: '[{"id":"00000000def456","height":3}]')
+    Sibit::Bin.start(['latest', '--api', 'mempool', '--quiet'])
     assert_requested(stub)
   end
 
