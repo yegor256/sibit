@@ -4,5 +4,14 @@
   "extends": [
     "config:base"
   ],
-  "platformAutomerge": false
+  "platformAutomerge": false,
+  "packageRules": [
+    {
+      "matchPackageNames": [
+        "simplecov",
+        "simplecov-cobertura"
+      ],
+      "groupName": "SimpleCov coverage tooling"
+    }
+  ]
 }
