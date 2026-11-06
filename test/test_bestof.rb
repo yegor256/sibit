@@ -77,6 +77,29 @@ class TestBestOf < Minitest::Test
     )
   end
 
+  def test_averages_close_prices
+    assert_in_delta(
+      76_173.15846085333,
+      Sibit::BestOf.new(
+        [76_223.0, 76_135.31538256, 76_161.16].map do |p|
+          Class.new { define_method(:price) { |_currency| p } }.new
+        end
+      ).price,
+      0.0001,
+      'slightly different prices are not averaged'
+    )
+  end
+
+  def test_raises_on_far_apart_prices
+    assert_raises(Sibit::Error, 'prices five percent apart cannot be averaged silently') do
+      Sibit::BestOf.new(
+        [76_223.0, 81_000.0].map do |p|
+          Class.new { define_method(:price) { |_currency| p } }.new
+        end
+      ).price
+    end
+  end
+
   def test_push_stops_at_first_success
     touched = []
     second = Class.new do

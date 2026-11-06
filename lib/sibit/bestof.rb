@@ -20,11 +20,12 @@ class Sibit::BestOf
     @verbose = verbose
   end
 
-  # Current price of BTC in USD (float returned).
+  # Current price of BTC in USD (float returned). Exchanges never quote
+  # the exact same number, so this one does not vote: it averages all
+  # answers and fails when they are more than five percent apart.
   def price(currency = 'USD')
-    best_of('price') do |api|
-      api.price(currency)
-    end
+    return @list.price(currency) unless @list.is_a?(Array)
+    average('price', answers('price') { |api| api.price(currency) })
   end
 
   # Gets the balance of the address, in satoshi.
@@ -97,8 +98,12 @@ class Sibit::BestOf
 
   private
 
-  def best_of(method)
+  def best_of(method, &blk)
     return yield(@list) unless @list.is_a?(Array)
+    majority(method, answers(method, &blk))
+  end
+
+  def answers(method)
     votes = []
     errors = []
     @list.each do |api|
@@ -117,7 +122,19 @@ class Sibit::BestOf
         "#{@list.map { |a| a.class.name }.join(', ')}"
       )
     end
-    majority(method, votes)
+    votes
+  end
+
+  def average(method, votes)
+    prices = votes.map { |v| v[1] }
+    if (prices.max - prices.min) / prices.min > 0.05
+      raise(
+        Sibit::Error,
+        "The answers at #{method}() are more than 5% apart: " \
+        "#{votes.map { |name, answer| "#{name}=#{answer}" }.join(', ')}"
+      )
+    end
+    prices.sum / prices.size
   end
 
   def majority(method, votes)
