@@ -175,7 +175,7 @@ class Sibit
           when 'mempool'
             Sibit::Mempool.new(http: http, log: log)
           when 'sochain'
-            Sibit::Sochain.new(http: http, log: log)
+            Sibit::Sochain.new(key: ENV.fetch('SIBIT_SOCHAIN_KEY', nil), http: http, log: log)
           when 'fake'
             Sibit::Fake.new
           else
