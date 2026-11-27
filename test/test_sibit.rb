@@ -141,6 +141,25 @@ class TestSibit < Minitest::Test
     )
   end
 
+  def test_spends_from_uncompressed_wif
+    wif = '5HueCGU8rMjxEXxiPuD5BDku4MkFqeZyd4dZ1jvhTVqvbTLvyTJ'
+    script = '76a914a65d1a239d4ec666643d350c7bb8fc44d288112888ac'
+    utxo = { hash: 'cc' * 32, index: 0, script: script, value: 100_000, confirmations: 6 }
+    chain = FakeChain.new([utxo])
+    Sibit.new(api: chain).pay(
+      50_000, 1000, [wif],
+      'bc1qcj9pwdant20em83mvf9fzrc7ytm7szau5ysh9x',
+      'bc1qmy63mjadtw8nhzl69ukdepwzsyvv4yex5qlmkd',
+      base58: true, price: 5000.0
+    )
+    assert_includes(
+      chain.pushed,
+      '04d0de0aaeaefad02b8bdc8a01a1b8b11c696bd3d66a2c5f10780d95b7df42645c' \
+      'd85228a6fb29940e858e7e55842ae2bd115d1ed7cc0e82d934e929c97648cb0a',
+      'the input must be signed with the uncompressed public key that matches its P2PKH address'
+    )
+  end
+
   def test_send_payment_with_xl_minus_fee
     stub_request(
       :get, 'https://api.blockchain.info/mempool/fees'

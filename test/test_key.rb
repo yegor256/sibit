@@ -31,6 +31,14 @@ class TestKey < Minitest::Test
     )
   end
 
+  def test_derives_address_from_uncompressed_wif
+    assert_equal(
+      '1GAehh7TsJAHuUAeKZcXf5CnwuGuGgyX2S',
+      Sibit::Key.new('5HueCGU8rMjxEXxiPuD5BDku4MkFqeZyd4dZ1jvhTVqvbTLvyTJ').base58,
+      'uncompressed WIF must derive its P2PKH (base58) address'
+    )
+  end
+
   def test_derives_correct_bech32_address
     assert_equal('bc1qcj9pwdant20em83mvf9fzrc7ytm7szau5ysh9x', Sibit::Key.new('fd2333686f49d8647e1ce8d5ef39c304520b08f3c756b67068b30a3db217dcb2').bech32)
   end

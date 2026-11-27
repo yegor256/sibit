@@ -74,7 +74,9 @@ class Sibit
     def base58
       hex = pub
       raise(Error, 'Invalid public key: not on curve') unless @key.public_key.on_curve?
-      raise(Error, 'Invalid public key format') unless hex.match?(/\A0[23][0-9a-f]{64}\z/)
+      unless hex.match?(/\A(0[23][0-9a-f]{64}|04[0-9a-f]{128})\z/)
+        raise(Error, 'Invalid public key format')
+      end
       versioned = "#{@network == :mainnet ? '00' : '6f'}#{hash160(hex)}"
       addr = Base58.new(versioned + Base58.new(versioned).check).encode
       mainnet = /\A1[1-9A-HJ-NP-Za-km-z]{25,34}\z/
