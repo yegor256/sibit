@@ -149,7 +149,7 @@ class Sibit
             k.bech32
           end
         @log.debug("Private key #{k.priv.ellipsized(8).inspect} is public as #{pub}:")
-        [pub, k.priv]
+        [pub, k]
       end
     satoshi = satoshi(amount)
     builder = TxBuilder.new(network)
@@ -179,7 +179,7 @@ class Sibit
         address = Script.new(script_hex(utxo[:script])).address(network)
         k = sources[address]
         raise(Error, "UTXO arrived to #{address} is incorrect") unless k
-        i.signature_key(key(k))
+        i.signature_key(k)
       end
       size += 180
       @log.debug("  #{num(utxo[:value], p)}/#{utxo[:confirmations]} at #{utxo[:hash]}")
@@ -340,11 +340,6 @@ class Sibit
     f = mul * sat * size
     @log.debug("Fee calculated as #{mul} * #{sat}s * #{size} = #{f}s")
     f
-  end
-
-  # Make key from private key string in Hash160.
-  def key(hash160)
-    Key.new(hash160)
   end
 
   # Convert script to hex string if needed.
