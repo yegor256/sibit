@@ -65,7 +65,7 @@ GEM
     cucumber-query (16.4.0)
       cucumber-messages (>= 34.1, < 36)
     cucumber-tag-expressions (11.2.0)
-    decoor (0.1.0)
+    decoor (0.1.1)
     diff-lcs (1.6.2)
     donce (0.7.0)
       backtrace (~> 0.3)
