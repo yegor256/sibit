@@ -63,4 +63,24 @@ class TestBech32 < Minitest::Test
       ).start_with?('tb1q'), 'testnet address must start with tb1q'
     )
   end
+
+  def test_encodes_taproot_with_modern_checksum
+    assert_equal(
+      'bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqzk5jj0',
+      Sibit::Bech32.encode(
+        'bc', 1,
+        '79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798'
+      ),
+      'taproot (witness v1) address must use the bech32m checksum'
+    )
+  end
+
+  def test_encoded_taproot_round_trips_through_decoder
+    prog = '79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798'
+    addr = Sibit::Bech32.encode('bc', 1, prog)
+    assert_equal(
+      prog, Sibit::Bech32.new(addr).witness,
+      'encoded taproot address must decode back to the same witness program'
+    )
+  end
 end

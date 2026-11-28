@@ -20,12 +20,12 @@ class Sibit
 
     def self.encode(hrp, ver, prog)
       data = [ver] + bits([prog].pack('H*').bytes, 8, 5, true)
-      chk = checksum(hrp, data)
+      chk = checksum(hrp, ver, data)
       "#{hrp}1#{(data + chk).map { |d| CHARSET[d] }.join}"
     end
 
-    def self.checksum(hrp, data)
-      poly = pm(expanded(hrp) + data + [0, 0, 0, 0, 0, 0]) ^ 1
+    def self.checksum(hrp, ver, data)
+      poly = pm(expanded(hrp) + data + [0, 0, 0, 0, 0, 0]) ^ (ver.zero? ? 1 : 0x2bc830a3)
       (0..5).map { |i| (poly >> (5 * (5 - i))) & 31 }
     end
 
